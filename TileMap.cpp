@@ -2,20 +2,32 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <random>
 #include "TileMap.h"
 
 
 using namespace std;
 
-#define MAP_X 36
-#define MAP_Y 28
-
+#define MAP_X 3200
+#define MAP_Y 30
 #define TILESIZE 16
 #define BLOCKSIZE 32
 
 #define TILESHEET "images/blocks.png"
 #define TILESHEET_X 2
 #define TILESHEET_Y 2
+
+#define MAP_FREQ_RESOLUTION 4
+#define MAP_AMPL_CONSTANT 1
+#define MAP_STRETCH 1
+
+//han de sumar 10, com mes petit, mes espai ocupa
+#define SKY_PERTEN 4
+#define GRO_PERTEN 4
+#define LINE_PERTEN 2
+
+#define PERCENT_NORMAL_BLOCK 95
+#define PERCENT_NORMAL_AND_RARE_BLOCK 98
 
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
@@ -40,24 +52,143 @@ TileMap::~TileMap()
 }
 
 string TileMap::generateLevel(){
-	//string path_new_level = "levels/generatedLevel.txt";
+
 	std::ofstream outfile( "levels/generatedLevel.txt");
-	outfile << "TILEMAP" << std::endl;
-	outfile << MAP_X << " " << MAP_Y << std::endl;
-	outfile << TILESIZE << " " << BLOCKSIZE << std::endl;
-	outfile << TILESHEET << std::endl;
-	outfile << TILESHEET_X << " " << TILESHEET_Y << std::endl;
-	/*for (int i=0; i < MAP_Y; ++i){
-		for(int j=0; j < MAP_X; ++j){
-			outfile << "1";
+
+	vector< vector<string> > levelmap(MAP_Y, vector<string>(MAP_X));
+	for (int i=0; i<MAP_Y; ++i){
+		for (int j=0; j<MAP_X; ++j){
+			levelmap[i][j] = " ";
 		}
-		outfile << std::endl;
-	}*/
-	outfile << "111111111111111111111111111111111111" << std::endl;
-	for(int i=0; i<26; ++i){
-		outfile << "11                                11" << std::endl;
 	}
-	outfile << "111111111111111111111111111111111111";
+
+ 	// GENERADOR DE LA LINIA DEL TERRA /////////////////////////////////
+	// BASED ON: http://gamedev.stackexchange.com/a/20829 //////////////
+
+	vector<double> frequences(MAP_FREQ_RESOLUTION);
+	vector<double> amplitudes(MAP_FREQ_RESOLUTION);
+	vector<double> ofsets(MAP_FREQ_RESOLUTION);
+
+	srand( unsigned(time(NULL)));
+	double u;
+
+	std::mt19937 rng;
+	rng.seed(std::random_device{}());
+
+	for(int f = 0; f< MAP_FREQ_RESOLUTION; ++f){
+		std::uniform_real_distribution<double> dist(1, 10);
+		u = dist(rng);
+		//u = floor(u * 100.0) / 100.0;
+		frequences[f] = u;
+		cout << "Frequence: " << frequences[f] << endl;
+		double amplSide1 = (1-MAP_AMPL_CONSTANT) / u;
+		double amplSide2 = MAP_AMPL_CONSTANT / u;
+		std::uniform_real_distribution<double> dist2(amplSide1, amplSide2);
+		u = dist2(rng);
+		//u = floor(u * 1000.0) / 1000.0;
+		amplitudes[f] = u;
+		cout << "Amplitude: " << amplitudes[f] << endl;
+		std::uniform_real_distribution<double> dist3(0, 6.28);
+		u = dist3(rng);
+		ofsets[f] = u;
+		cout << "Ofset: " << ofsets[f] << endl << endl;
+	}
+
+	// EN AQUEST PUNT JA TENIM LA NOSTRA FUNCIÓ
+
+	vector<double> map_ground (MAP_X);
+	for (int k = 0; k < MAP_X; ++k){
+		//En cada "columna" del mapa
+		double wave_p = 0;
+		//Calculem el valor de la funcio
+		for (int f = 0; f < MAP_FREQ_RESOLUTION; ++f){
+			wave_p = wave_p + (amplitudes[f]*sin(frequences[f]*(MAP_STRETCH*k+ofsets[f])));
+		}
+		cout << wave_p << endl;
+		map_ground[k] = wave_p;
+	}
+
+	double map_ground_min = MAP_AMPL_CONSTANT;
+	double map_ground_max = -MAP_AMPL_CONSTANT;
+
+	for(int i = 0; i < MAP_X; ++i){
+		if (map_ground[i] > map_ground_max) map_ground_max = map_ground[i];
+		if (map_ground[i] < map_ground_min) map_ground_min = map_ground[i];
+	}
+
+	cout << "Max: " << map_ground_max << endl;
+	cout << "Min: " << map_ground_min << endl;
+
+	//Ara tenim la linia del terra i podem decidir on posar cada cosa
+	//Jo faria: 1/4 del mapa de cel
+	//					1/2 mapa linia del terra
+	//          1/4 mapa sota terra
+
+	int blocks_sky = MAP_Y/SKY_PERTEN;
+	int blocks_ground = MAP_Y/GRO_PERTEN;
+	int blocks_line = MAP_Y/LINE_PERTEN;
+
+	//Asseguremnos que en total no se passa del mapa
+
+	while (blocks_line+blocks_sky+blocks_ground > MAP_Y){
+		--blocks_sky;
+		cout << "oops" << endl;
+	}
+
+	while (blocks_line+blocks_sky+blocks_ground < MAP_Y){
+		++blocks_ground;
+		cout << "oopsies" << endl;
+	}
+
+	//Per tant entre les files 0 i blocks_sky hi ha cel
+	//Entre blocks_sky+1 i blocks_sky+blocks_ground+1 hi ha ground
+	//I Entre blocks_sky+blocks_ground+1 i MAP_Y hi ha terra
+
+	cout << "Sky from: " << 0 << " to: " << blocks_sky << endl;
+	cout << "Line from: " << blocks_sky+1 << " to: " << blocks_sky+blocks_ground+1 << endl;
+	cout << "Ground from: " << blocks_sky+blocks_ground+1 << " to: " << MAP_Y << endl;
+
+	int max_ground_real = blocks_sky+blocks_ground+1;
+	int min_ground_real = blocks_sky+1;
+
+	for (int i = 0; i < MAP_X; ++i){
+		map_ground[i] = ((map_ground[i]-map_ground_min)/(map_ground_max-map_ground_min))*(max_ground_real-min_ground_real)+min_ground_real;
+		cout << map_ground[i] << endl;
+	}
+	std::uniform_real_distribution<double> distmaterials(0, 100);
+	for (int i=0; i<MAP_Y; ++i){
+		for (int j=0; j<MAP_X; ++j){
+			if(i >= map_ground[j]) levelmap[i][j] = "1";
+			cout << levelmap[i][j];
+			//Populate rare materials
+
+			if((i >= map_ground[j])){
+				//Candidate for rare materials
+				if(distmaterials(rng)>PERCENT_NORMAL_BLOCK){
+					//Es rare!
+					levelmap[i][j] = "2";
+					if(distmaterials(rng)>PERCENT_NORMAL_AND_RARE_BLOCK){
+						//Es molt rare!
+						levelmap[i][j] = "3";
+					}
+				}
+			}
+		}
+		cout << endl;
+	}
+
+	//ESCRIBIM EL MAPA GENERAT AL FITXER
+	outfile << "TILEMAP" << "\r\n";
+	outfile << MAP_X << " " << MAP_Y << "\r\n";
+	outfile << TILESIZE << " " << BLOCKSIZE << "\r\n";
+	outfile << TILESHEET << "\r\n";
+	outfile << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
+	for (int i=0; i < MAP_Y; ++i){
+		for(int j=0; j < MAP_X; ++j){
+			outfile << levelmap[i][j];
+		}
+		outfile << "\r\n";
+	}
 	outfile.close();
 	return ( "levels/generatedLevel.txt");
 }
