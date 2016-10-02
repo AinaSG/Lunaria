@@ -10,7 +10,7 @@
 #define JUMP_HEIGHT 96
 #define FALL_STEP 4
 #define WALK_SPEED 6
-#define JUMP_SPEED 6
+#define JUMP_SPEED 15
 #define GRAVITY 1
 
 enum PlayerAnims
@@ -62,33 +62,29 @@ void Player::update(int deltaTime)
 	else{
 		speed.x = 0;
 	}
+
 	speed.y += GRAVITY;
 	if(!bJumping && Game::instance().getSpecialKey(GLUT_KEY_UP)){
 		speed.y = -JUMP_SPEED;
 		bJumping = true;
 	}
 
+
 	if(speed.x < 0)
 	{
 		if(sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
-		posPlayer.x += speed.x;
-		if(map->collisionMoveLeft(posPlayer, glm::ivec2(32, 32)))
-		{
-			posPlayer.x -= speed.x;
-			sprite->changeAnimation(STAND_LEFT);
-		}
+
+		bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), speed.x);
+		if(hit) sprite->changeAnimation(STAND_LEFT);
 	}
 	else if(speed.x > 0)
 	{
 		if(sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
-		posPlayer.x += speed.x;
-		if(map->collisionMoveRight(posPlayer, glm::ivec2(32, 32)))
-		{
-			posPlayer.x -= speed.x;
-			sprite->changeAnimation(STAND_RIGHT);
-		}
+		
+		bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), speed.x);
+		if(hit) sprite->changeAnimation(STAND_RIGHT);
 	}
 	else
 	{
@@ -102,25 +98,32 @@ void Player::update(int deltaTime)
 	{
 		//if(sprite->animation() != MOVE_LEFT)
 		//	sprite->changeAnimation(MOVE_LEFT);
-		posPlayer.y += speed.y;
+		bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), speed.y);
+
+		/*posPlayer.y += speed.y;
 		if(map->collisionMoveUp(posPlayer, glm::ivec2(32, 32)))
 		{
 			posPlayer.y -= speed.y;
 			//sprite->changeAnimation(STAND_LEFT);
-		}
+		}*/
 	}
 	else if(speed.y > 0)
 	{
 		//if(sprite->animation() != MOVE_RIGHT)
 		//	sprite->changeAnimation(MOVE_RIGHT);
-		posPlayer.y += speed.y;
+		bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), speed.y);
+		if (hit) {
+			speed.y = 0;
+			bJumping = false;
+		}
+		/*posPlayer.y += speed.y;
 		if(map->collisionMoveDown(posPlayer, glm::ivec2(32, 32)))
 		{
 			speed.y = 0;
 			posPlayer.y = (map->nearestPosYGround(posPlayer)).y;
 			//posPlayer.y -= speed.y;
 			//sprite->changeAnimation(STAND_RIGHT);
-		}
+		}*/
 	}
 
 	/*if(bJumping)

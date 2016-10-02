@@ -33,7 +33,8 @@ public:
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 
-	glm::vec2 nearestPosYGround(const glm::ivec2 &posPlayer);
+	bool clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const;
+	bool clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const;
 
 private:
 	bool loadLevel(const string &levelFile);

@@ -230,10 +230,30 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 	return false;
 }
 
-glm::vec2 TileMap::nearestPosYGround(const glm::ivec2 &posPlayer){
-	glm::vec2 result;
-	result.x = 0;
-	/////TO DO
-	result.y = posPlayer.y+mod;
-	return result;
+bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
+{
+	pos.x += delta;
+
+	//Chack for hit left or right depending on delta direction
+	bool hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
+	
+	//If it didn't hit anything, we are done
+	if (!hit)  return false;
+
+	pos.x -= delta; //(pos.x + tileSize  * (delta < 0)) / tileSize;
+	return true;
+}
+
+bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
+{
+	pos.y += delta;
+
+	//Chack for hit left or right depending on delta direction
+	bool hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
+	
+	//If it didn't hit anything, we are done
+	if (!hit)  return false;
+
+	pos.y -= delta; //(pos.y + tileSize  * (delta < 0)) / tileSize;
+	return true;
 }
