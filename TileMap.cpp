@@ -9,7 +9,7 @@
 using namespace std;
 
 #define MAP_X 3200
-#define MAP_Y 30
+#define MAP_Y 58
 #define TILESIZE 16
 #define BLOCKSIZE 32
 
@@ -156,7 +156,17 @@ string TileMap::generateLevel(){
 		cout << map_ground[i] << endl;
 	}
 
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+}
 
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+}
+
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+}
 
 	std::uniform_real_distribution<double> distmaterials(0, 100);
 	for (int i=0; i<MAP_Y; ++i){
