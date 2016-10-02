@@ -17,9 +17,9 @@ using namespace std;
 #define TILESHEET_X 2
 #define TILESHEET_Y 2
 
-#define MAP_FREQ_RESOLUTION 4
-#define MAP_AMPL_CONSTANT 1
-#define MAP_STRETCH 1
+#define MAP_FREQ_RESOLUTION 6
+#define MAP_AMPL_CONSTANT 2
+#define MAP_STRETCH 12
 
 //han de sumar 10, com mes petit, mes espai ocupa
 #define SKY_PERTEN 4
@@ -27,7 +27,7 @@ using namespace std;
 #define LINE_PERTEN 2
 
 #define PERCENT_NORMAL_BLOCK 95
-#define PERCENT_NORMAL_AND_RARE_BLOCK 98
+#define PERCENT_NORMAL_AND_RARE_BLOCK 95
 
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
@@ -155,6 +155,9 @@ string TileMap::generateLevel(){
 		map_ground[i] = ((map_ground[i]-map_ground_min)/(map_ground_max-map_ground_min))*(max_ground_real-min_ground_real)+min_ground_real;
 		cout << map_ground[i] << endl;
 	}
+
+
+
 	std::uniform_real_distribution<double> distmaterials(0, 100);
 	for (int i=0; i<MAP_Y; ++i){
 		for (int j=0; j<MAP_X; ++j){
@@ -162,7 +165,7 @@ string TileMap::generateLevel(){
 			cout << levelmap[i][j];
 			//Populate rare materials
 
-			if((i >= map_ground[j])){
+			if((i >= map_ground[j]+2)){
 				//Candidate for rare materials
 				if(distmaterials(rng)>PERCENT_NORMAL_BLOCK){
 					//Es rare!
