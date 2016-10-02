@@ -13,7 +13,7 @@ using namespace std;
 #define TILESIZE 16
 #define BLOCKSIZE 32
 
-#define TILESHEET "images/blocks.png"
+#define TILESHEET "images/blocks_moon.png"
 #define TILESHEET_X 2
 #define TILESHEET_Y 2
 
