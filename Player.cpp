@@ -82,7 +82,7 @@ void Player::update(int deltaTime)
 	{
 		if(sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
-		
+
 		bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), speed.x);
 		if(hit) sprite->changeAnimation(STAND_RIGHT);
 	}

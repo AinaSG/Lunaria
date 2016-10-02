@@ -7,6 +7,16 @@
 
 using namespace std;
 
+#define MAP_X 36
+#define MAP_Y 28
+
+#define TILESIZE 16
+#define BLOCKSIZE 32
+
+#define TILESHEET "images/blocks.png"
+#define TILESHEET_X 2
+#define TILESHEET_Y 2
+
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -18,7 +28,8 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
-	loadLevel(levelFile);
+	//loadLevel(levelFile);
+	loadLevel(generateLevel());
 	prepareArrays(minCoords, program);
 }
 
@@ -26,6 +37,29 @@ TileMap::~TileMap()
 {
 	if(map != NULL)
 		delete map;
+}
+
+string TileMap::generateLevel(){
+	//string path_new_level = "levels/generatedLevel.txt";
+	std::ofstream outfile( "levels/generatedLevel.txt");
+	outfile << "TILEMAP" << std::endl;
+	outfile << MAP_X << " " << MAP_Y << std::endl;
+	outfile << TILESIZE << " " << BLOCKSIZE << std::endl;
+	outfile << TILESHEET << std::endl;
+	outfile << TILESHEET_X << " " << TILESHEET_Y << std::endl;
+	/*for (int i=0; i < MAP_Y; ++i){
+		for(int j=0; j < MAP_X; ++j){
+			outfile << "1";
+		}
+		outfile << std::endl;
+	}*/
+	outfile << "111111111111111111111111111111111111" << std::endl;
+	for(int i=0; i<26; ++i){
+		outfile << "11                                11" << std::endl;
+	}
+	outfile << "111111111111111111111111111111111111";
+	outfile.close();
+	return ( "levels/generatedLevel.txt");
 }
 
 
@@ -236,7 +270,7 @@ bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 
 	//Chack for hit left or right depending on delta direction
 	bool hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
-	
+
 	//If it didn't hit anything, we are done
 	if (!hit)  return false;
 
@@ -250,7 +284,7 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 
 	//Chack for hit left or right depending on delta direction
 	bool hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
-	
+
 	//If it didn't hit anything, we are done
 	if (!hit)  return false;
 
