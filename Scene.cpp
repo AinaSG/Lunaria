@@ -9,7 +9,7 @@
 #define SCREEN_Y 16
 
 #define INIT_PLAYER_X_TILES 4
-#define INIT_PLAYER_Y_TILES 25
+#define INIT_PLAYER_Y_TILES 10
 
 
 Scene::Scene()
@@ -31,30 +31,48 @@ void Scene::init()
 {
 	initShaders();
 	//map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
-  map = TileMap::newTileMap( glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+  map = TileMap::newTileMap( glm::vec2(0, 0), texProgram);
 	player = new Player();
-	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	player->init(glm::ivec2(0, 0), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	currentTime = 0.0f;
+	cameraPos = player->getPos();
 }
 
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	glm::vec2 playerPos = glm::vec2(player->getPos());
+	glm::vec2 playerSpeed = glm::vec2(player->getSpeed());
+
+	glm::vec2 cameraSpeed = playerSpeed;
+	if (cameraSpeed.x > 0 && cameraPos.x < playerPos.x + SCREEN_WIDTH/30) cameraSpeed.x += 2;
+	if (cameraSpeed.x < 0 && cameraPos.x > playerPos.x - SCREEN_WIDTH/30) cameraSpeed.x -= 2;
+
+	//glm::normalize(glm::vec2(playerPos - cameraPos)) * glm::clamp(glm::distance(playerPos, cameraPos) - 200 , 0.0f, 40.0f);
+	if (glm::length(cameraSpeed) > .01f) 
+	cameraPos.x += cameraSpeed.x;
+	cameraPos.y = playerPos.y;
 }
 
 void Scene::render()
 {
-	glm::mat4 modelview;
+	glm::mat4 model;
+	glm::mat4 view;
 
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	modelview = glm::mat4(1.0f);
-	texProgram.setUniformMatrix4f("modelview", modelview);
+	
+	model = glm::mat4(1.0f);
+	texProgram.setUniformMatrix4f("model", model);
+
+	view = glm::translate(glm::mat4(1.0f), -glm::vec3(cameraPos - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
+	texProgram.setUniformMatrix4f("view", view);
+	
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	map->render();
 	player->render();

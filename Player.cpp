@@ -76,7 +76,10 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(MOVE_LEFT);
 
 		bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), speed.x);
-		if(hit) sprite->changeAnimation(STAND_LEFT);
+		if(hit) {
+			sprite->changeAnimation(STAND_LEFT);
+			speed.x = 0;
+		}
 	}
 	else if(speed.x > 0)
 	{
@@ -84,7 +87,10 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(MOVE_RIGHT);
 
 		bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), speed.x);
-		if(hit) sprite->changeAnimation(STAND_RIGHT);
+		if(hit) {
+			sprite->changeAnimation(STAND_RIGHT);
+			speed.x = 0;	
+		} 
 	}
 	else
 	{
@@ -182,4 +188,14 @@ void Player::setPosition(const glm::vec2 &pos)
 {
 	posPlayer = pos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+}
+
+const glm::ivec2& Player::getPos() const
+{
+	return posPlayer;
+}
+
+const glm::ivec2& Player::getSpeed() const
+{
+	return speed;
 }
