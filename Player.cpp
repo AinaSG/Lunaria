@@ -99,7 +99,9 @@ void Player::update(int deltaTime)
 		//if(sprite->animation() != MOVE_LEFT)
 		//	sprite->changeAnimation(MOVE_LEFT);
 		bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), speed.y);
-
+		if (hit) {
+			speed.y = 0;
+		}
 		/*posPlayer.y += speed.y;
 		if(map->collisionMoveUp(posPlayer, glm::ivec2(32, 32)))
 		{

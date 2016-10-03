@@ -1,5 +1,5 @@
 TILEMAP
-320 58
+3200 58
 16 32
 images/blocks_moon.png
 2 2
