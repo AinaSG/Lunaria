@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define MAP_X 3200
+#define MAP_X 320
 #define MAP_Y 58
 #define TILESIZE 16
 #define BLOCKSIZE 32
@@ -17,9 +17,9 @@ using namespace std;
 #define TILESHEET_X 2
 #define TILESHEET_Y 2
 
-#define MAP_FREQ_RESOLUTION 6
-#define MAP_AMPL_CONSTANT 2
-#define MAP_STRETCH 12
+#define MAP_FREQ_RESOLUTION 30
+#define MAP_AMPL_CONSTANT 20
+#define MAP_STRETCH 120
 
 //han de sumar 10, com mes petit, mes espai ocupa
 #define SKY_PERTEN 4
@@ -37,8 +37,21 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 	return map;
 }
 
+TileMap *TileMap::newTileMap(const glm::vec2 &minCoords, ShaderProgram &program)
+{
+	TileMap *map = new TileMap( minCoords, program);
+	return map;
+}
+
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+{
+	loadLevel(levelFile);
+	//loadLevel(generateLevel());
+	prepareArrays(minCoords, program);
+}
+
+TileMap::TileMap(const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	//loadLevel(levelFile);
 	loadLevel(generateLevel());
@@ -76,6 +89,7 @@ string TileMap::generateLevel(){
 	rng.seed(std::random_device{}());
 
 	for(int f = 0; f< MAP_FREQ_RESOLUTION; ++f){
+
 		std::uniform_real_distribution<double> dist(1, 10);
 		u = dist(rng);
 		//u = floor(u * 100.0) / 100.0;
@@ -167,12 +181,16 @@ for (int i= 1; i< MAP_X-1; ++i){
 for (int i= 1; i< MAP_X-1; ++i){
 	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
 }
+/*
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = (map_ground[i-1]+map_ground[i]+map_ground[i+1])/3;
+}*/
 
 	std::uniform_real_distribution<double> distmaterials(0, 100);
 	for (int i=0; i<MAP_Y; ++i){
 		for (int j=0; j<MAP_X; ++j){
 			if(i >= map_ground[j]) levelmap[i][j] = "1";
-			cout << levelmap[i][j];
+			//cout << levelmap[i][j];
 			//Populate rare materials
 
 			if((i >= map_ground[j]+2)){
@@ -187,7 +205,7 @@ for (int i= 1; i< MAP_X-1; ++i){
 				}
 			}
 		}
-		cout << endl;
+		//cout << endl;
 	}
 
 	//ESCRIBIM EL MAPA GENERAT AL FITXER
