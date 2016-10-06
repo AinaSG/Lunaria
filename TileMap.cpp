@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <time.h>
 #include <random>
 #include "TileMap.h"
 
@@ -54,7 +55,7 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 TileMap::TileMap(const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	//loadLevel(levelFile);
-	loadLevel(generateLevel());
+	loadLevel(improvedLevelGenerator());
 	prepareArrays(minCoords, program);
 }
 
@@ -62,6 +63,77 @@ TileMap::~TileMap()
 {
 	if(map != NULL)
 		delete map;
+}
+
+string TileMap::improvedLevelGenerator(){
+	std::ofstream outfile( "levels/generatedLevel.txt");
+	vector< vector<string> > levelmap(MAP_Y, vector<string>(MAP_X));
+
+	std::mt19937 generator;
+	generator.seed(time(0)); //234
+
+	Simplex* sim1 = new Simplex(&generator, 20.0f, 0.0f, 0.1f);//100 ----->MASTER_VALUE/3
+  Simplex* sim2 = new Simplex(&generator, 250.0f, 0.0f, 0.9f); //1100 --->MASTER_VALUE*5
+  Simplex* simCueva = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10 --->
+  Simplex* simStone = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10
+
+	for (int i = 0; i< MAP_Y; ++i){
+		for (int j=0; j<MAP_X; ++j){
+			levelmap[i][j] = " ";
+
+			float valFloor = sim1->valSimplex(0, j);
+			float valFloor2 = sim2->valSimplex(0, j);
+
+			float valCueva = simCueva->valSimplex(i, j)*2;
+			float valStone = simStone->valSimplex(i, j);
+
+			float valReal1 = ((float) i/50.0f > (valFloor+valFloor2)? 1 : 0);
+			float valReal2 = valReal1 - valCueva;
+
+			/*
+			cout << "valFloor: " << valFloor << endl;
+			cout << "valFloor2: " << valFloor2 << endl;
+			cout << "valCueva: " << valCueva << endl;
+			cout << "valStone: " << valStone << endl;
+			cout << "valReal1: " << valReal1 << endl;
+			cout << "valReal2: " << valReal2 << endl;
+			cout << "----------------------------------" << endl;*/
+
+			if(valReal1 >0){
+				if(valStone > 0.8){
+					levelmap[i][j] = "2";
+
+				}
+				else{
+					levelmap[i][j] = "1";
+				}
+				std::uniform_real_distribution<double> dist(0,1);
+				if(dist(generator)>0.995){
+					levelmap[i][j] = "3";
+				}
+				if (i>1){
+					if ((levelmap[i-1][j] == " ") or (levelmap[i-2][j] == " ")){
+						levelmap[i][j] = "1";
+					}
+				}
+			}
+
+		}
+	}
+	//ESCRIBIM EL MAPA GENERAT AL FITXER
+	outfile << "TILEMAP" << "\r\n";
+	outfile << MAP_X << " " << MAP_Y << "\r\n";
+	outfile << TILESIZE << " " << BLOCKSIZE << "\r\n";
+	outfile << TILESHEET << "\r\n";
+	outfile << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
+	for (int i=0; i < MAP_Y; ++i){
+		for(int j=0; j < MAP_X; ++j){
+			outfile << levelmap[i][j];
+		}
+		outfile << "\r\n";
+	}
+	outfile.close();
+	return ( "levels/generatedLevel.txt");
 }
 
 string TileMap::generateLevel(){
