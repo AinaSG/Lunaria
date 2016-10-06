@@ -502,26 +502,42 @@ bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 {
 	pos.x += delta;
 
-	//Chack for hit left or right depending on delta direction
+	//Check for hit left or right depending on delta direction
 	bool hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
 
 	//If it didn't hit anything, we are done
 	if (!hit)  return false;
 
-	pos.x -= delta; //(pos.x + tileSize  * (delta < 0)) / tileSize;
+	pos.x = ((pos.x + tileSize  * (delta < 0)) / tileSize) * tileSize;
 	return true;
 }
 
 bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
 {
-	pos.y += delta;
+	int sign = (delta > 0) - (delta < 0);
 
-	//Chack for hit left or right depending on delta direction
-	bool hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
+	int step = tileSize/8 * sign;
+	int end = pos.y + delta;
 
-	//If it didn't hit anything, we are done
-	if (!hit)  return false;
+	bool hit = false;
+	pos.y += step;
 
-	pos.y -= delta; //(pos.y + tileSize  * (delta < 0)) / tileSize;
-	return true;
+	while ((delta > 0 ? (pos.y < end) : (pos.y > end)) && !hit) {
+		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
+		pos.y += step;
+	}
+	
+	if (!hit)
+	{
+		pos.y = end;	
+		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);	
+	}
+
+	if (hit)
+	{
+		pos.y = ((pos.y + tileSize  * (delta < 0)) / tileSize) * tileSize;
+		return true;
+	}
+
+	return false;
 }
