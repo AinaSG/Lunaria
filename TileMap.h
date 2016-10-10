@@ -3,6 +3,7 @@
 
 
 #include <glm/glm.hpp>
+#include "Simplex.h"
 #include "Texture.h"
 #include "ShaderProgram.h"
 
@@ -46,6 +47,7 @@ private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 	string generateLevel();
+	string improvedLevelGenerator();
 
 private:
 	GLuint vao;
