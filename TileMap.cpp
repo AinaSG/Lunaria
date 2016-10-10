@@ -30,30 +30,34 @@ using namespace std;
 #define PERCENT_NORMAL_AND_RARE_BLOCK 95
 
 
-TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::loadTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
 
 	return map;
 }
 
-TileMap *TileMap::newTileMap(const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::createTileMap(const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap( minCoords, program);
 	return map;
+}
+
+TileMap *TileMap::createBackground(const TileMap* map, const glm::vec2 &minCoords, ShaderProgram &program)
+{
+	TileMap *background = new TileMap(minCoords, program);
+	return background;
 }
 
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	loadLevel(levelFile);
-	//loadLevel(generateLevel());
 	prepareArrays(minCoords, program);
 }
 
 TileMap::TileMap(const glm::vec2 &minCoords, ShaderProgram &program)
 {
-	//loadLevel(levelFile);
 	loadLevel(generateLevel());
 	prepareArrays(minCoords, program);
 }

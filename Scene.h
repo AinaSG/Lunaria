@@ -27,10 +27,15 @@ private:
 	void initShaders();
 
 private:
-	TileMap *map;
+	TileMap *map, *backmap;
 	Player *player;
-	ShaderProgram texProgram;
+
+	Sprite *background;
+	Texture backgroundImage;
+	
 	float currentTime;
+	
+	ShaderProgram texProgram;
 	glm::mat4 projection;
 	glm::vec2 cameraPos;
 };
