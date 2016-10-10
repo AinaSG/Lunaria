@@ -9,8 +9,8 @@
 
 using namespace std;
 
-#define MAP_X 320
-#define MAP_Y 58
+#define MAP_X 200
+#define MAP_Y 64
 #define TILESIZE 16
 #define BLOCKSIZE 32
 
@@ -65,7 +65,9 @@ TileMap::~TileMap()
 
 string TileMap::improvedLevelGenerator(){
 	std::ofstream outfile( "levels/generatedLevel.txt");
+	std::ofstream outfilebg( "levels/generatedLevel_bg.txt");
 	vector< vector<string> > levelmap(MAP_Y, vector<string>(MAP_X));
+	vector< vector<string> > levelbg(MAP_Y, vector<string>(MAP_X));
 
 	std::mt19937 generator;
 	generator.seed(time(0)); //234
@@ -75,18 +77,20 @@ string TileMap::improvedLevelGenerator(){
   Simplex* simCueva = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10 --->
   Simplex* simStone = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10
 
-  for (int i = 0; i< MAP_Y; ++i){
-  	for (int j=0; j<MAP_X; ++j){
-  		levelmap[i][j] = " ";
+	for (int i = 0; i< MAP_Y; ++i){
+		for (int j=0; j<MAP_X; ++j){
 
-  		float valFloor = sim1->valSimplex(0, j);
-  		float valFloor2 = sim2->valSimplex(0, j);
+			levelmap[i][j] = " ";
+			levelbg[i][j] = " ";
 
-  		float valCueva = simCueva->valSimplex(i, j)*2;
-  		float valStone = simStone->valSimplex(i, j);
+			float valFloor = sim1->valSimplex(0, j);
+			float valFloor2 = sim2->valSimplex(0, j);
 
-  		float valReal1 = ((float) i/50.0f > (valFloor+valFloor2)? 1 : 0);
-  		float valReal2 = valReal1 - valCueva;
+			float valCueva = simCueva->valSimplex(i, j)*2;
+			float valStone = simStone->valSimplex(i, j);
+
+			float valReal1 = ((float) i/50.0f > (valFloor+valFloor2)? 1 : 0);
+			float valReal2 = valReal1 - valCueva;
 
 			/*
 			cout << "valFloor: " << valFloor << endl;
@@ -97,41 +101,62 @@ string TileMap::improvedLevelGenerator(){
 			cout << "valReal2: " << valReal2 << endl;
 			cout << "----------------------------------" << endl;*/
 
-  		if(valReal1 >0){
-  			if(valStone > 0.8){
-  				levelmap[i][j] = "2";
+			if(valReal1 >0){
+				if(valStone > 0.8){
+					levelbg[i][j] = "1"; //2
+				}
+				else{
+					levelbg[i][j] = "1";
+				}
+				std::uniform_real_distribution<double> dist(0,1);
+				if(dist(generator)>0.995){
+					levelbg[i][j] = "1"; //3
+				}
+				if (i>1){
+					if ((levelbg[i-1][j] == " ") or (levelbg[i-2][j] == " ")){
+						levelbg[i][j] = "1";
+					}
+				}
 
-  			}
-  			else{
-  				levelmap[i][j] = "1";
-  			}
-  			std::uniform_real_distribution<double> dist(0,1);
-  			if(dist(generator)>0.995){
-  				levelmap[i][j] = "3";
-  			}
-  			if (i>1){
-  				if ((levelmap[i-1][j] == " ") or (levelmap[i-2][j] == " ")){
-  					levelmap[i][j] = "1";
-  				}
-  			}
-  		}
+				if(valReal2 >0){
+                if(valStone > 0.8){
+                    levelmap[i][j] = "2";
+                } else {
+                    levelmap[i][j] = "1";
+                }
+								if(dist(generator)>0.99){
+									levelmap[i][j] = "3"; //3
+								}
 
-  	}
-  }
+            } else{
+                levelmap[i][j] = " ";
+            }
+			}
+
+		}
+	}
 	//ESCRIBIM EL MAPA GENERAT AL FITXER
-  outfile << "TILEMAP" << "\r\n";
-  outfile << MAP_X << " " << MAP_Y << "\r\n";
-  outfile << TILESIZE << " " << BLOCKSIZE << "\r\n";
-  outfile << TILESHEET << "\r\n";
-  outfile << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
-  for (int i=0; i < MAP_Y; ++i){
-  	for(int j=0; j < MAP_X; ++j){
-  		outfile << levelmap[i][j];
-  	}
-  	outfile << "\r\n";
-  }
-  outfile.close();
-  return ( "levels/generatedLevel.txt");
+	outfile << "TILEMAP" << "\r\n";
+	outfilebg << "TILEMAP" << "\r\n";
+	outfile << MAP_X << " " << MAP_Y << "\r\n";
+	outfilebg << MAP_X << " " << MAP_Y << "\r\n";
+	outfile << TILESIZE << " " << BLOCKSIZE << "\r\n";
+	outfilebg << TILESIZE << " " << BLOCKSIZE << "\r\n";
+	outfile << TILESHEET << "\r\n";
+	outfilebg << TILESHEET << "\r\n";
+	outfile << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
+	outfilebg << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
+	for (int i=0; i < MAP_Y; ++i){
+		for(int j=0; j < MAP_X; ++j){
+			outfile << levelmap[i][j];
+			outfilebg << levelbg[i][j];
+		}
+		outfile << "\r\n";
+		outfilebg << "\r\n";
+	}
+	outfile.close();
+	outfilebg.close();
+	return ( "levels/generatedLevel.txt");
 }
 
 string TileMap::generateLevel(){
@@ -240,17 +265,17 @@ string TileMap::generateLevel(){
 		cout << map_ground[i] << endl;
 	}
 
-	for (int i= 1; i< MAP_X-1; ++i){
-		map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
-	}
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+}
 
-	for (int i= 1; i< MAP_X-1; ++i){
-		map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
-	}
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+}
 
-	for (int i= 1; i< MAP_X-1; ++i){
-		map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
-	}
+for (int i= 1; i< MAP_X-1; ++i){
+	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+}
 /*
 for (int i= 1; i< MAP_X-1; ++i){
 	map_ground[i] = (map_ground[i-1]+map_ground[i]+map_ground[i+1])/3;
@@ -378,6 +403,7 @@ void TileMap::prepareArrays()
 			tile = map[j * mapSize.x + i];
 			if(tile != 0)
 			{
+				std::cout << tile;
 				// Non-empty tile
 				nTiles++;
 				posTile = glm::vec2(i * tileSize, j * tileSize);
@@ -401,6 +427,7 @@ void TileMap::prepareArrays()
 				vertices.push_back(texCoordTile[0].x); vertices.push_back(texCoordTile[1].y);
 			}
 		}
+		std::cout << std::endl;
 	}
 
 	glGenVertexArrays(1, &vao);
@@ -524,11 +551,11 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
 		pos.y += step;
 	}
-	
+
 	if (!hit)
 	{
-		pos.y = end;	
-		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);	
+		pos.y = end;
+		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
 	}
 
 	if (hit)
