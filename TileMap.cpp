@@ -9,8 +9,8 @@
 
 using namespace std;
 
-#define MAP_X 320
-#define MAP_Y 58
+#define MAP_X 200
+#define MAP_Y 64
 #define TILESIZE 16
 #define BLOCKSIZE 32
 
@@ -125,6 +125,9 @@ string TileMap::improvedLevelGenerator(){
                 } else {
                     levelmap[i][j] = "1";
                 }
+								if(dist(generator)>0.99){
+									levelmap[i][j] = "3"; //3
+								}
 
             } else{
                 levelmap[i][j] = " ";
