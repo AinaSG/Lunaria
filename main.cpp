@@ -2,11 +2,6 @@
 #include <GL/glut.h>
 #include "Game.h"
 
-
-//Remove console (only works in Visual Studio)
-#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
-
-
 #define TIME_PER_FRAME 1000.f / 60.f // Approx. 60 fps
 
 
@@ -53,10 +48,14 @@ static void motionCallback(int x, int y)
 
 static void mouseCallback(int button, int state, int x, int y)
 {
-	if(state == GLUT_DOWN)
+	if(state == GLUT_DOWN){
 		Game::instance().mousePress(button);
-	else if(state == GLUT_UP)
+		Game::instance().mouseDown = true;
+	}
+	else if(state == GLUT_UP){
 		Game::instance().mouseRelease(button);
+		Game::instance().mouseDown = false;
+	}
 }
 
 static void drawCallback()
@@ -97,6 +96,7 @@ int main(int argc, char **argv)
 	glutSpecialFunc(specialDownCallback);
 	glutSpecialUpFunc(specialUpCallback);
 	glutMouseFunc(mouseCallback);
+	glutPassiveMotionFunc(motionCallback);
 	glutMotionFunc(motionCallback);
 
 	// GLEW will take care of OpenGL extension functions

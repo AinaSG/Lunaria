@@ -31,30 +31,30 @@ using namespace std;
 #define PERCENT_NORMAL_AND_RARE_BLOCK 95
 
 
-TileMap *TileMap::loadTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::loadTileMap(const string &levelFile, ShaderProgram &program)
 {
-	TileMap *map = new TileMap(levelFile, minCoords, program);
+	TileMap *map = new TileMap(levelFile, program);
 
 	return map;
 }
 
-TileMap *TileMap::createTileMap(const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::createTileMap(ShaderProgram &program)
 {
-	TileMap *map = new TileMap( minCoords, program);
+	TileMap *map = new TileMap(program);
 	return map;
 }
 
 
-TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap::TileMap(const string &levelFile, ShaderProgram &prog) : program(prog)
 {
 	loadLevel(levelFile);
-	prepareArrays(minCoords, program);
+	prepareArrays();
 }
 
-TileMap::TileMap(const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap::TileMap(ShaderProgram &prog) : program(prog)
 {
 	loadLevel(improvedLevelGenerator());
-	prepareArrays(minCoords, program);
+	prepareArrays();
 }
 
 TileMap::~TileMap()
@@ -75,18 +75,18 @@ string TileMap::improvedLevelGenerator(){
   Simplex* simCueva = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10 --->
   Simplex* simStone = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10
 
-	for (int i = 0; i< MAP_Y; ++i){
-		for (int j=0; j<MAP_X; ++j){
-			levelmap[i][j] = " ";
+  for (int i = 0; i< MAP_Y; ++i){
+  	for (int j=0; j<MAP_X; ++j){
+  		levelmap[i][j] = " ";
 
-			float valFloor = sim1->valSimplex(0, j);
-			float valFloor2 = sim2->valSimplex(0, j);
+  		float valFloor = sim1->valSimplex(0, j);
+  		float valFloor2 = sim2->valSimplex(0, j);
 
-			float valCueva = simCueva->valSimplex(i, j)*2;
-			float valStone = simStone->valSimplex(i, j);
+  		float valCueva = simCueva->valSimplex(i, j)*2;
+  		float valStone = simStone->valSimplex(i, j);
 
-			float valReal1 = ((float) i/50.0f > (valFloor+valFloor2)? 1 : 0);
-			float valReal2 = valReal1 - valCueva;
+  		float valReal1 = ((float) i/50.0f > (valFloor+valFloor2)? 1 : 0);
+  		float valReal2 = valReal1 - valCueva;
 
 			/*
 			cout << "valFloor: " << valFloor << endl;
@@ -97,41 +97,41 @@ string TileMap::improvedLevelGenerator(){
 			cout << "valReal2: " << valReal2 << endl;
 			cout << "----------------------------------" << endl;*/
 
-			if(valReal1 >0){
-				if(valStone > 0.8){
-					levelmap[i][j] = "2";
+  		if(valReal1 >0){
+  			if(valStone > 0.8){
+  				levelmap[i][j] = "2";
 
-				}
-				else{
-					levelmap[i][j] = "1";
-				}
-				std::uniform_real_distribution<double> dist(0,1);
-				if(dist(generator)>0.995){
-					levelmap[i][j] = "3";
-				}
-				if (i>1){
-					if ((levelmap[i-1][j] == " ") or (levelmap[i-2][j] == " ")){
-						levelmap[i][j] = "1";
-					}
-				}
-			}
+  			}
+  			else{
+  				levelmap[i][j] = "1";
+  			}
+  			std::uniform_real_distribution<double> dist(0,1);
+  			if(dist(generator)>0.995){
+  				levelmap[i][j] = "3";
+  			}
+  			if (i>1){
+  				if ((levelmap[i-1][j] == " ") or (levelmap[i-2][j] == " ")){
+  					levelmap[i][j] = "1";
+  				}
+  			}
+  		}
 
-		}
-	}
+  	}
+  }
 	//ESCRIBIM EL MAPA GENERAT AL FITXER
-	outfile << "TILEMAP" << "\r\n";
-	outfile << MAP_X << " " << MAP_Y << "\r\n";
-	outfile << TILESIZE << " " << BLOCKSIZE << "\r\n";
-	outfile << TILESHEET << "\r\n";
-	outfile << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
-	for (int i=0; i < MAP_Y; ++i){
-		for(int j=0; j < MAP_X; ++j){
-			outfile << levelmap[i][j];
-		}
-		outfile << "\r\n";
-	}
-	outfile.close();
-	return ( "levels/generatedLevel.txt");
+  outfile << "TILEMAP" << "\r\n";
+  outfile << MAP_X << " " << MAP_Y << "\r\n";
+  outfile << TILESIZE << " " << BLOCKSIZE << "\r\n";
+  outfile << TILESHEET << "\r\n";
+  outfile << TILESHEET_X << " " << TILESHEET_Y << "\r\n";
+  for (int i=0; i < MAP_Y; ++i){
+  	for(int j=0; j < MAP_X; ++j){
+  		outfile << levelmap[i][j];
+  	}
+  	outfile << "\r\n";
+  }
+  outfile.close();
+  return ( "levels/generatedLevel.txt");
 }
 
 string TileMap::generateLevel(){
@@ -240,17 +240,17 @@ string TileMap::generateLevel(){
 		cout << map_ground[i] << endl;
 	}
 
-for (int i= 1; i< MAP_X-1; ++i){
-	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
-}
+	for (int i= 1; i< MAP_X-1; ++i){
+		map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+	}
 
-for (int i= 1; i< MAP_X-1; ++i){
-	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
-}
+	for (int i= 1; i< MAP_X-1; ++i){
+		map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+	}
 
-for (int i= 1; i< MAP_X-1; ++i){
-	map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
-}
+	for (int i= 1; i< MAP_X-1; ++i){
+		map_ground[i] = map_ground[i-1]*(1-((1-cos(map_ground[i]*3.14))/2))+map_ground[i+1]*((1-cos(map_ground[i]*3.14))/2);
+	}
 /*
 for (int i= 1; i< MAP_X-1; ++i){
 	map_ground[i] = (map_ground[i-1]+map_ground[i]+map_ground[i+1])/3;
@@ -364,7 +364,7 @@ bool TileMap::loadLevel(const string &levelFile)
 	return true;
 }
 
-void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
+void TileMap::prepareArrays()
 {
 	int tile, nTiles = 0;
 	glm::vec2 posTile, texCoordTile[2], halfTexel;
@@ -380,7 +380,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 			{
 				// Non-empty tile
 				nTiles++;
-				posTile = glm::vec2(minCoords.x + i * tileSize, minCoords.y + j * tileSize);
+				posTile = glm::vec2(i * tileSize, j * tileSize);
 				texCoordTile[0] = glm::vec2(float((tile-1)%2) / tilesheetSize.x, float((tile-1)/2) / tilesheetSize.y);
 				texCoordTile[1] = texCoordTile[0] + tileTexSize;
 				//texCoordTile[0] += halfTexel;
@@ -539,3 +539,33 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 
 	return false;
 }
+
+int TileMap::getTile(glm::ivec2 coords) 
+{
+	return *tile(coords); 
+}
+
+int TileMap::getTile(int x, int y) {
+	return *tile(x,y); 
+}
+
+int TileMap::setTile(glm::ivec2 coords, int t)
+{
+	*tile(coords.x,coords.y) = t;
+	prepareArrays();
+}
+	
+int TileMap::setTile(int x, int y, int t)
+{
+	*tile(x,y) = t;
+	prepareArrays();
+}
+
+void TileMap::removeTile(int x, int y) {
+	setTile(x,y,0);
+}
+
+void TileMap::removeTile(glm::ivec2 coords) {
+	setTile(coords,0);
+}
+

@@ -22,12 +22,16 @@ public:
 	void init();
 	void update(int deltaTime);
 	void render();
+	glm::ivec2 getCameraPos() { return cameraPos; };
+
+	TileMap *map;
 
 private:
 	void initShaders();
 
 private:
-	TileMap *map, *backmap;
+	
+	TileMap  *backmap;
 	Player *player;
 
 	Sprite *background;
@@ -37,7 +41,7 @@ private:
 	
 	ShaderProgram texProgram;
 	glm::mat4 projection;
-	glm::vec2 cameraPos;
+	glm::ivec2 cameraPos;
 };
 
 

@@ -31,8 +31,8 @@ void Scene::init()
 {
 	initShaders();
 	//map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
-  	map = TileMap::createTileMap(glm::vec2(0, 0), texProgram);
-	backmap = TileMap::createTileMap(glm::vec2(0, 0), texProgram);
+  	map = TileMap::createTileMap(texProgram);
+	backmap = TileMap::createTileMap(texProgram);
 	backgroundImage.loadFromFile("images/bg.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT), glm::vec2(1.0, 1.0), &backgroundImage, &texProgram);
 
@@ -80,7 +80,7 @@ void Scene::render()
 	texProgram.setUniformMatrix4f("view",view);
 	background->render();
 
-	view = glm::translate(glm::mat4(1.0f), -glm::vec3(cameraPos - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
+	view = glm::translate(glm::mat4(1.0f), - glm::vec3(glm::vec2(cameraPos) - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
 	texProgram.setUniformMatrix4f("view", view);
 	
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);

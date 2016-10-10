@@ -19,13 +19,13 @@ class TileMap
 
 public:
 	// Tile maps can only be created inside an OpenGL context
-	static TileMap *loadTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
-	static TileMap *createTileMap(const glm::vec2 &minCoords, ShaderProgram &program);
-	static TileMap *createBackground(const TileMap* orig, const glm::vec2 &minCoords, ShaderProgram &program);
+	static TileMap *loadTileMap(const string &levelFile, ShaderProgram &program);
+	static TileMap *createTileMap(ShaderProgram &program);
+	static TileMap *createBackground(const TileMap* orig, ShaderProgram &program);
 
 
-	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
-	TileMap(const glm::vec2 &minCoords, ShaderProgram &program);
+	TileMap(const string &levelFile, ShaderProgram &program);
+	TileMap(ShaderProgram &program);
 	~TileMap();
 
 	void render() const;
@@ -43,9 +43,21 @@ public:
 	bool clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const;
 	bool clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const;
 
+	int *tile(glm::ivec2 coords) { return &map[coords.x+coords.y*mapSize.x]; }
+	int *tile(int x, int y) { return &map[x+y*mapSize.x]; }
+
+	int getTile(glm::ivec2 coords);
+	int getTile(int x, int y);
+
+	int setTile(glm::ivec2 coords, int tile);
+	int setTile(int x, int y, int tile);
+
+	void removeTile(glm::ivec2 coords);
+	void removeTile(int x, int y);
+
 private:
 	bool loadLevel(const string &levelFile);
-	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
+	void prepareArrays();
 	string generateLevel();
 	string improvedLevelGenerator();
 
@@ -58,6 +70,8 @@ private:
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
+	ShaderProgram program;
+
 
 };
 

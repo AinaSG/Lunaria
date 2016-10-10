@@ -3,6 +3,7 @@
 
 
 #include "Scene.h"
+#include <iostream>
 
 
 #define SCREEN_WIDTH 960
@@ -16,7 +17,7 @@ class Game
 {
 
 public:
-	Game() {}
+	Game() : mouseDown(false) {}
 
 
 	static Game &instance()
@@ -38,16 +39,22 @@ public:
 	void mouseMove(int x, int y);
 	void mousePress(int button);
 	void mouseRelease(int button);
+	void mouseHold();
 
 	bool getKey(int key) const;
 	bool getSpecialKey(int key) const;
 
+	glm::ivec2 getMouseWorldPos();
+	glm::ivec2 getMouseScreenPos();
+
+	bool mouseDown;
+
 private:
 	bool bPlay;                       // Continue to play game?
+	glm::ivec2 mousePos;
 	Scene scene;                      // Scene to render
 	bool keys[256], specialKeys[256]; // Store key states so that
 	                                  // we can have access at any time
-
 };
 
 
