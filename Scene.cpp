@@ -32,7 +32,7 @@ void Scene::init()
 	initShaders();
 	//map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
   	map = TileMap::createTileMap(glm::vec2(0, 0), texProgram);
-	backmap = TileMap::createTileMap(glm::vec2(0, 0), texProgram);
+	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", glm::vec2(0, 0), texProgram);
 	backgroundImage.loadFromFile("images/bg.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT), glm::vec2(1.0, 1.0), &backgroundImage, &texProgram);
 
@@ -43,9 +43,9 @@ void Scene::init()
 	player->setTileMap(map);
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
-	
+
 	currentTime = 0.0f;
-	
+
 	cameraPos = player->getPos();
 }
 
@@ -61,7 +61,7 @@ void Scene::update(int deltaTime)
 	if (cameraSpeed.x < 0 && cameraPos.x > playerPos.x - SCREEN_WIDTH/30) cameraSpeed.x -= 2;
 
 	//glm::normalize(glm::vec2(playerPos - cameraPos)) * glm::clamp(glm::distance(playerPos, cameraPos) - 200 , 0.0f, 40.0f);
-	if (glm::length(cameraSpeed) > .01f) 
+	if (glm::length(cameraSpeed) > .01f)
 	cameraPos.x += cameraSpeed.x;
 	cameraPos.y = playerPos.y;
 }
@@ -82,16 +82,16 @@ void Scene::render()
 
 	view = glm::translate(glm::mat4(1.0f), -glm::vec3(cameraPos - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
 	texProgram.setUniformMatrix4f("view", view);
-	
+
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	texProgram.setUniform4f("color", 0.5, 0.5f, 0.5f, 0.5f);
 	backmap->render();
-	
+
 
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 	map->render();
-	
+
 	player->render();
 }
 
