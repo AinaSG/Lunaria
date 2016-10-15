@@ -36,6 +36,11 @@ private:
 
 	Sprite *background;
 	Texture backgroundImage;
+
+	Sprite *inventory;
+	Texture inventoryImage;
+
+	Sprite *itemHolder;
 	
 	float currentTime;
 	

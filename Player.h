@@ -20,8 +20,8 @@ public:
 
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
-	const glm::ivec2& getPos() const;
-	const glm::ivec2& getSpeed() const;
+    glm::ivec2 getPos() const;
+    glm::ivec2 getSpeed() const;
 
 private:
 	bool bJumping;
@@ -30,7 +30,7 @@ private:
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
-	glm::ivec2 speed;
+    glm::vec2 speed;
 
 };
 

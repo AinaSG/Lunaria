@@ -402,8 +402,7 @@ void TileMap::prepareArrays()
 		{
 			tile = map[j * mapSize.x + i];
 			if(tile != 0)
-			{
-				std::cout << tile;
+            {
 				// Non-empty tile
 				nTiles++;
 				posTile = glm::vec2(i * tileSize, j * tileSize);
@@ -426,8 +425,7 @@ void TileMap::prepareArrays()
 				vertices.push_back(posTile.x); vertices.push_back(posTile.y + blockSize);
 				vertices.push_back(texCoordTile[0].x); vertices.push_back(texCoordTile[1].y);
 			}
-		}
-		std::cout << std::endl;
+        }
 	}
 
 	glGenVertexArrays(1, &vao);

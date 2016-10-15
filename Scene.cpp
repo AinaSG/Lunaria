@@ -30,13 +30,15 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	//map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
-  	map = TileMap::createTileMap(texProgram);
+	
+	map = TileMap::createTileMap(texProgram);
 	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
 
 	backgroundImage.loadFromFile("images/bg.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT), glm::vec2(1.0, 1.0), &backgroundImage, &texProgram);
 
+	inventoryImage.loadFromFile("images/inventory.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), &inventoryImage, &texProgram);
 
 	player = new Player();
 	player->init(glm::ivec2(0, 0), texProgram);
@@ -58,6 +60,7 @@ void Scene::update(int deltaTime)
 	glm::vec2 playerSpeed = glm::vec2(player->getSpeed());
 
 	glm::vec2 cameraSpeed = playerSpeed;
+
 	//if (cameraSpeed.x > 0 && cameraPos.x < playerPos.x + SCREEN_WIDTH/30) cameraSpeed.x += 2;
 	//if (cameraSpeed.x < 0 && cameraPos.x > playerPos.x - SCREEN_WIDTH/30) cameraSpeed.x -= 2;
 	if((cameraPos.x < playerPos.x) && ((playerPos.x - cameraPos.x) < (SCREEN_WIDTH/15))){
@@ -79,24 +82,25 @@ void Scene::update(int deltaTime)
 		cameraSpeed.y = playerSpeed.y;
 	}
 	//glm::normalize(glm::vec2(playerPos - cameraPos)) * glm::clamp(glm::distance(playerPos, cameraPos) - 200 , 0.0f, 40.0f);
-   if (glm::length(cameraSpeed) > .01f){
+   	if (glm::length(cameraSpeed) > .01f){
 		cameraPos.x += cameraSpeed.x;
 		cameraPos.y += cameraSpeed.y;
 	}
+	cameraPos = playerPos;
 }
 
 void Scene::render()
 {
-	glm::mat4 model;
-	glm::mat4 view;
+	glm::mat4 model(1.0f);
+	glm::mat4 view(1.0f);
 
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 
-	texProgram.setUniformMatrix4f("model", model);
 
-	view = glm::mat4(1.0);
+	texProgram.setUniformMatrix4f("model", model);
 	texProgram.setUniformMatrix4f("view",view);
+
 	background->render();
 
 	view = glm::translate(glm::mat4(1.0f), - glm::vec3(glm::vec2(cameraPos) - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
@@ -112,6 +116,17 @@ void Scene::render()
 	map->render();
 
 	player->render();
+
+	view = glm::mat4(1.0);
+	texProgram.setUniformMatrix4f("view",view);
+	
+
+	model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
+	view = glm::mat4(1.0f);
+	texProgram.setUniformMatrix4f("model", model);
+	texProgram.setUniformMatrix4f("view",view);
+
+	inventory->render();
 }
 
 void Scene::initShaders()
