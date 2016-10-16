@@ -57,35 +57,6 @@ void Scene::update(int deltaTime)
 	currentTime += deltaTime;
 	player->update(deltaTime);
 	glm::vec2 playerPos = glm::vec2(player->getPos());
-	glm::vec2 playerSpeed = glm::vec2(player->getSpeed());
-
-	glm::vec2 cameraSpeed = playerSpeed;
-
-	//if (cameraSpeed.x > 0 && cameraPos.x < playerPos.x + SCREEN_WIDTH/30) cameraSpeed.x += 2;
-	//if (cameraSpeed.x < 0 && cameraPos.x > playerPos.x - SCREEN_WIDTH/30) cameraSpeed.x -= 2;
-	if((cameraPos.x < playerPos.x) && ((playerPos.x - cameraPos.x) < (SCREEN_WIDTH/15))){
-		cameraSpeed.x = 0;
-	}
-	else if((cameraPos.x > playerPos.x) && ((cameraPos.x - playerPos.x) < (SCREEN_WIDTH/15))){
-		cameraSpeed.x = 0;
-	}
-	else{
-		cameraSpeed.x = playerSpeed.x;
-	}
-	if((cameraPos.y < playerPos.y) && (playerPos.y - cameraPos.y < (SCREEN_HEIGHT/15))){
-		cameraSpeed.y = 0;
-	}
-	else if((cameraPos.y > playerPos.y) && (cameraPos.y - playerPos.y < (SCREEN_HEIGHT/15))){
-		cameraSpeed.y = 0;
-	}
-	else{
-		cameraSpeed.y = playerSpeed.y;
-	}
-	//glm::normalize(glm::vec2(playerPos - cameraPos)) * glm::clamp(glm::distance(playerPos, cameraPos) - 200 , 0.0f, 40.0f);
-   	if (glm::length(cameraSpeed) > .01f){
-		cameraPos.x += cameraSpeed.x;
-		cameraPos.y += cameraSpeed.y;
-	}
 	cameraPos = playerPos;
 }
 

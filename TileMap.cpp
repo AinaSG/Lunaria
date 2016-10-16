@@ -375,7 +375,7 @@ bool TileMap::loadLevel(const string &levelFile)
 		{
 			fin.get(tile);
 			if(tile == ' ')
-				map[j*mapSize.x+i] = 0;
+                map[j*mapSize.x+i] = Block::Empty;
 			else
 				map[j*mapSize.x+i] = tile - int('0');
 		}
@@ -401,7 +401,7 @@ void TileMap::prepareArrays()
 		for(int i=0; i<mapSize.x; i++)
 		{
 			tile = map[j * mapSize.x + i];
-			if(tile != 0)
+            if(tile != Block::Empty)
             {
 				// Non-empty tile
 				nTiles++;
@@ -523,7 +523,35 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 
 bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
 {
-	pos.x += delta;
+
+  int sign = (delta > 0) - (delta < 0);
+
+  int step = tileSize/8 * sign;
+  int end = pos.x + delta;
+
+  bool hit = false;
+  pos.x += step;
+
+  while ((delta > 0 ? (pos.x < end) : (pos.x > end)) && !hit) {
+      hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
+      pos.x += step;
+  }
+
+  if (!hit)
+  {
+      pos.x = end;
+      hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
+  }
+
+  if (hit)
+  {
+      pos.x = ((pos.x + (tileSize - 1) * (delta < 0)) / tileSize) * tileSize;
+      return true;
+  }
+
+  return false;
+
+    /*pos.x += delta;
 
 	//Check for hit left or right depending on delta direction
 	bool hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
@@ -532,7 +560,7 @@ bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 	if (!hit)  return false;
 
 	pos.x = ((pos.x + tileSize  * (delta < 0)) / tileSize) * tileSize;
-	return true;
+    return true;*/
 }
 
 bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
@@ -546,6 +574,7 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 	pos.y += step;
 
 	while ((delta > 0 ? (pos.y < end) : (pos.y > end)) && !hit) {
+
 		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
 		pos.y += step;
 	}
@@ -558,7 +587,7 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 
 	if (hit)
 	{
-		pos.y = ((pos.y + tileSize  * (delta < 0)) / tileSize) * tileSize;
+        pos.y = ((pos.y + (tileSize - 1)  * (delta < 0)) / tileSize) * tileSize;
 		return true;
 	}
 
