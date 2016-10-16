@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include "Player.h"
 #include "Game.h"
+#include "Input.h"
 
 #define WALK_SPEED 200
 #define JUMP_SPEED 400
@@ -52,10 +53,10 @@ void Player::update(int deltaTime)
     dt = 0.017;
 	sprite->update(deltaTime);
 
-	if(Game::instance().getSpecialKey(GLUT_KEY_LEFT)){
+    if(Input::instance().getSpecialKey(GLUT_KEY_LEFT)){
 		speed.x = -WALK_SPEED;
 	}
-	else if(Game::instance().getSpecialKey(GLUT_KEY_RIGHT)){
+    else if(Input::instance().getSpecialKey(GLUT_KEY_RIGHT)){
 		speed.x = WALK_SPEED;
 	}
 	else{
@@ -64,18 +65,11 @@ void Player::update(int deltaTime)
 
     speed.y += GRAVITY*dt;
 
-    /*lastGravityUpdate += deltaTime;
-	if (lastGravityUpdate > GRAVITY)  {
-		++speed.y;
-		lastGravityUpdate =  0;
-    }*/
-
-	if(!bJumping && Game::instance().getSpecialKey(GLUT_KEY_UP)){
+    if(!bJumping && Input::instance().getSpecialKey(GLUT_KEY_UP)){
 		speed.y = -JUMP_SPEED;
 		bJumping = true;
 	}
 
-    std::cout << speed.x*dt  << "," << speed.y*dt << "     |     " << speed.x << "," << speed.y << std::endl;
     if(speed.y < 0)
     {
         //if(sprite->animation() != MOVE_LEFT)

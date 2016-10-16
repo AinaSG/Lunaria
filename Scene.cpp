@@ -3,14 +3,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Scene.h"
 #include "Game.h"
-
-
-#define SCREEN_X 32
-#define SCREEN_Y 16
+#include "Input.h"
+#include <GL/glew.h>
+#include <GL/glut.h>
+#include <sstream>
 
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 10
-
 
 Scene::Scene()
 {
@@ -37,6 +36,14 @@ void Scene::init()
 	backgroundImage.loadFromFile("images/bg.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT), glm::vec2(1.0, 1.0), &backgroundImage, &texProgram);
 
+    for (int i = 0; i < 3; ++i){
+      std::ostringstream stream;
+      stream << "images/breaking" << i << ".png";
+      breakingImage[i].loadFromFile(stream.str(), TEXTURE_PIXEL_FORMAT_RGBA);
+      breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), &breakingImage[i], &texProgram);
+    }
+
+
 	inventoryImage.loadFromFile("images/inventory.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), &inventoryImage, &texProgram);
 
@@ -49,13 +56,38 @@ void Scene::init()
 
 	currentTime = 0.0f;
 
+    breakingPos = NULL_POS;
+    breakPercent = 100;
+
 	cameraPos = player->getPos();
 }
 
 void Scene::update(int deltaTime)
 {
-	currentTime += deltaTime;
+    currentTime += deltaTime;
+
+    Input *input = &Input::instance();
+    if (input->getMouseButton(GLUT_LEFT_BUTTON)) {
+      glm::ivec2 tilePos = screenToTile(input->getMouseScreenPos());
+
+      if (tilePos != breakingPos) {
+        breakPercent = 100;
+        breakingPos = (map->getTile(tilePos) != 0) ? tilePos : NULL_POS;
+      }
+
+      if (breakingPos != NULL_POS) {
+        breakPercent -= 60.0*(deltaTime/1000.0f);
+
+        if (breakPercent <= 0) {
+           map->setTile(breakingPos,0);
+           breakPercent = 100;
+           breakingPos = NULL_POS;
+        }
+      }
+    }
+
 	player->update(deltaTime);
+
 	glm::vec2 playerPos = glm::vec2(player->getPos());
 	cameraPos = playerPos;
 }
@@ -86,10 +118,19 @@ void Scene::render()
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 	map->render();
 
-	player->render();
+    Sprite *b = nullptr;
+    if (breakingPos != NULL_POS) {
+      if (breakPercent < 25) b = breakingOverlay[0];
+      else if (breakPercent < 60) b = breakingOverlay[1];
+      else if (breakPercent < 95) b = breakingOverlay[2];
+    }
 
-	view = glm::mat4(1.0);
-	texProgram.setUniformMatrix4f("view",view);
+    if (b != nullptr) {
+      b->setPosition(breakingPos*map->getTileSize());
+      b->render();
+    }
+
+	player->render();
 	
 
 	model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
@@ -129,3 +170,9 @@ void Scene::initShaders()
 	vShader.free();
 	fShader.free();
 }
+
+glm::ivec2 Scene::worldToScreen(const glm::ivec2 &p) { return p - (cameraPos - Game::halfScreenSize); }
+glm::ivec2 Scene::screenToWorld(const glm::ivec2 &p) { return p + (cameraPos - Game::halfScreenSize); }
+
+glm::ivec2 Scene::worldToTile(const glm::ivec2 &p) { return p/map->getTileSize(); }
+glm::ivec2 Scene::screenToTile(const glm::ivec2 &p) { return screenToWorld(p)/map->getTileSize(); }
