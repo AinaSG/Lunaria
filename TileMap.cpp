@@ -5,6 +5,7 @@
 #include <time.h>
 #include <random>
 #include "TileMap.h"
+#include "ResourceManager.h"
 
 
 using namespace std;
@@ -14,7 +15,7 @@ using namespace std;
 #define TILESIZE 16
 #define BLOCKSIZE 32
 
-#define TILESHEET "images/blocks_moon.png"
+#define TILESHEET "blocks_moon.png"
 #define TILESHEET_X 2
 #define TILESHEET_Y 2
 
@@ -323,11 +324,11 @@ for (int i= 1; i< MAP_X-1; ++i){
 void TileMap::render() const
 {
 	glEnable(GL_TEXTURE_2D);
-	tilesheet.use();
+    tilesheet->use();
 	glBindVertexArray(vao);
 	glEnableVertexAttribArray(posLocation);
 	glEnableVertexAttribArray(texCoordLocation);
-	glDrawArrays(GL_TRIANGLES, 0, 6 * mapSize.x * mapSize.y);
+    glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 	glDisable(GL_TEXTURE_2D);
 }
 
@@ -358,11 +359,16 @@ bool TileMap::loadLevel(const string &levelFile)
 	getline(fin, line);
 	sstream.str(line);
 	sstream >> tilesheetFile;
-	tilesheet.loadFromFile(tilesheetFile, TEXTURE_PIXEL_FORMAT_RGBA);
-	tilesheet.setWrapS(GL_CLAMP_TO_EDGE);
-	tilesheet.setWrapT(GL_CLAMP_TO_EDGE);
-	tilesheet.setMinFilter(GL_NEAREST);
-	tilesheet.setMagFilter(GL_NEAREST);
+
+    tilesheet = ResourceManager::instance().getTexture(tilesheetFile);
+    if (tilesheet == nullptr) {
+      std::cout << "Tileset texture not founnd" << std::endl;
+      return false;
+    }
+    tilesheet->setWrapS(GL_CLAMP_TO_EDGE);
+    tilesheet->setWrapT(GL_CLAMP_TO_EDGE);
+    tilesheet->setMinFilter(GL_NEAREST);
+    tilesheet->setMagFilter(GL_NEAREST);
 	getline(fin, line);
 	sstream.str(line);
 	sstream >> tilesheetSize.x >> tilesheetSize.y;
@@ -391,11 +397,12 @@ bool TileMap::loadLevel(const string &levelFile)
 
 void TileMap::prepareArrays()
 {
-	int tile, nTiles = 0;
+    int tile;
+    nTiles = 0;
 	glm::vec2 posTile, texCoordTile[2], halfTexel;
 	vector<float> vertices;
 
-	halfTexel = glm::vec2(0.5f / tilesheet.width(), 0.5f / tilesheet.height());
+    halfTexel = glm::vec2(0.5f / tilesheet->width(), 0.5f / tilesheet->height());
 	for(int j=0; j<mapSize.y; j++)
 	{
 		for(int i=0; i<mapSize.x; i++)

@@ -66,6 +66,7 @@ private:
 	void prepareArrays();
 	string generateLevel();
 	string improvedLevelGenerator();
+    int nTiles;
 
 private:
 	GLuint vao;
@@ -73,7 +74,7 @@ private:
 	GLint posLocation, texCoordLocation;
 	glm::ivec2 position, mapSize, tilesheetSize;
 	int tileSize, blockSize;
-	Texture tilesheet;
+    Texture* tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
 	ShaderProgram program;

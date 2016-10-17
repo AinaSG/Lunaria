@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <sstream>
+#include "ResourceManager.h"
 
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 10
@@ -33,19 +34,32 @@ void Scene::init()
 	map = TileMap::createTileMap(texProgram);
 	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
 
-	backgroundImage.loadFromFile("images/bg.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	background = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT), glm::vec2(1.0, 1.0), &backgroundImage, &texProgram);
+    Texture *tex = ResourceManager::instance().getTexture("bg.png");
+    if (tex == nullptr) {
+      std::cout << "Background texture not found" << std::endl;
+      return;
+    }
+
+    background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
 
     for (int i = 0; i < 3; ++i){
       std::ostringstream stream;
-      stream << "images/breaking" << i << ".png";
-      breakingImage[i].loadFromFile(stream.str(), TEXTURE_PIXEL_FORMAT_RGBA);
-      breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), &breakingImage[i], &texProgram);
+      stream << "breaking" << i << ".png";
+      tex = ResourceManager::instance().getTexture(stream.str());
+      if (tex == nullptr) {
+        std::cout << "Breaking texture "  << i << " not found" << std::endl;
+        return;
+      }
+
+      breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), tex, &texProgram);
     }
 
-
-	inventoryImage.loadFromFile("images/inventory.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), &inventoryImage, &texProgram);
+    tex = ResourceManager::instance().getTexture("inventory.png");
+    if (tex == nullptr) {
+      std::cout << "Invere texture not found" << std::endl;
+      return;
+    }
+    inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &texProgram);
 
 	player = new Player();
 	player->init(glm::ivec2(0, 0), texProgram);

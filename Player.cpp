@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Game.h"
 #include "Input.h"
+#include "ResourceManager.h"
 
 #define WALK_SPEED 200
 #define JUMP_SPEED 400
@@ -18,9 +19,14 @@ enum PlayerAnims
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
-	speed = glm::vec2(0,0);
-	spritesheet.loadFromFile("images/bub.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
+    speed = glm::vec2(0,0);
+    Texture* tex = ResourceManager::instance().getTexture("bub.png");
+    if (tex == nullptr) {
+      std::cout << "Player texture not found" << std::endl;
+      return;
+    }
+
+    sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), tex, &shaderProgram);
 	sprite->setNumberAnimations(4);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -70,29 +76,6 @@ void Player::update(int deltaTime)
 		bJumping = true;
 	}
 
-    if(speed.y < 0)
-    {
-        //if(sprite->animation() != MOVE_LEFT)
-        //	sprite->changeAnimation(MOVE_LEFT);
-        bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), int(floor(speed.y * dt)));
-        if (hit) {
-
-            speed.y = 0;
-
-        }
-    }
-    else if(speed.y > 0)
-    {
-        //if(sprite->animation() != MOVE_RIGHT)
-        //	sprite->changeAnimation(MOVE_RIGHT);
-        bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
-        if (hit) {
-
-          speed.y = 0;
-            bJumping = false;
-        }
-    }
-
 	if(speed.x < 0)
 	{
 		if(sprite->animation() != MOVE_LEFT)
@@ -124,6 +107,29 @@ void Player::update(int deltaTime)
 		else if(sprite->animation() == MOVE_RIGHT)
 			sprite->changeAnimation(STAND_RIGHT);
 	}
+
+    if(speed.y < 0)
+    {
+        //if(sprite->animation() != MOVE_LEFT)
+        //	sprite->changeAnimation(MOVE_LEFT);
+        bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), int(floor(speed.y * dt)));
+        if (hit) {
+
+            speed.y = 0;
+
+        }
+    }
+    else if(speed.y > 0)
+    {
+        //if(sprite->animation() != MOVE_RIGHT)
+        //	sprite->changeAnimation(MOVE_RIGHT);
+        bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
+        if (hit) {
+
+          speed.y = 0;
+            bJumping = false;
+        }
+    }
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
