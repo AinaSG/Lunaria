@@ -42,10 +42,8 @@ private:
 	Player *player;
 
     Sprite *background, *breakingOverlay[3];
-    Texture backgroundImage, breakingImage[3];
 
-	Sprite *inventory;
-	Texture inventoryImage;
+    Sprite *inventory;
 
 	Sprite *itemHolder;
 	
