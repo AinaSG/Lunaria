@@ -3,14 +3,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Scene.h"
 #include "Game.h"
-
-
-#define SCREEN_X 32
-#define SCREEN_Y 16
+#include "Input.h"
+#include <GL/glew.h>
+#include <GL/glut.h>
+#include <sstream>
 
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 10
-
 
 Scene::Scene()
 {
@@ -30,12 +29,23 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	//map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
-  	map = TileMap::createTileMap(glm::vec2(0, 0), texProgram);
-	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", glm::vec2(0, 0), texProgram);
+	
+	map = TileMap::createTileMap(texProgram);
+	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
+
 	backgroundImage.loadFromFile("images/bg.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	background = Sprite::createSprite(glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT), glm::vec2(1.0, 1.0), &backgroundImage, &texProgram);
 
+    for (int i = 0; i < 3; ++i){
+      std::ostringstream stream;
+      stream << "images/breaking" << i << ".png";
+      breakingImage[i].loadFromFile(stream.str(), TEXTURE_PIXEL_FORMAT_RGBA);
+      breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), &breakingImage[i], &texProgram);
+    }
+
+
+	inventoryImage.loadFromFile("images/inventory.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), &inventoryImage, &texProgram);
 
 	player = new Player();
 	player->init(glm::ivec2(0, 0), texProgram);
@@ -46,59 +56,57 @@ void Scene::init()
 
 	currentTime = 0.0f;
 
+    breakingPos = NULL_POS;
+    breakPercent = 100;
+
 	cameraPos = player->getPos();
 }
 
 void Scene::update(int deltaTime)
 {
-	currentTime += deltaTime;
-	player->update(deltaTime);
-	glm::vec2 playerPos = glm::vec2(player->getPos());
-	glm::vec2 playerSpeed = glm::vec2(player->getSpeed());
+    currentTime += deltaTime;
 
-	glm::vec2 cameraSpeed = playerSpeed;
-	//if (cameraSpeed.x > 0 && cameraPos.x < playerPos.x + SCREEN_WIDTH/30) cameraSpeed.x += 2;
-	//if (cameraSpeed.x < 0 && cameraPos.x > playerPos.x - SCREEN_WIDTH/30) cameraSpeed.x -= 2;
-	if((cameraPos.x < playerPos.x) && ((playerPos.x - cameraPos.x) < (SCREEN_WIDTH/15))){
-		cameraSpeed.x = 0;
-	}
-	else if((cameraPos.x > playerPos.x) && ((cameraPos.x - playerPos.x) < (SCREEN_WIDTH/15))){
-		cameraSpeed.x = 0;
-	}
-	else{
-		cameraSpeed.x = playerSpeed.x;
-	}
-	if((cameraPos.y < playerPos.y) && (playerPos.y - cameraPos.y < (SCREEN_HEIGHT/15))){
-		cameraSpeed.y = 0;
-	}
-	else if((cameraPos.y > playerPos.y) && (cameraPos.y - playerPos.y < (SCREEN_HEIGHT/15))){
-		cameraSpeed.y = 0;
-	}
-	else{
-		cameraSpeed.y = playerSpeed.y;
-	}
-	//glm::normalize(glm::vec2(playerPos - cameraPos)) * glm::clamp(glm::distance(playerPos, cameraPos) - 200 , 0.0f, 40.0f);
-   if (glm::length(cameraSpeed) > .01f){
-		cameraPos.x += cameraSpeed.x;
-		cameraPos.y += cameraSpeed.y;
-	}
+    Input *input = &Input::instance();
+    if (input->getMouseButton(GLUT_LEFT_BUTTON)) {
+      glm::ivec2 tilePos = screenToTile(input->getMouseScreenPos());
+
+      if (tilePos != breakingPos) {
+        breakPercent = 100;
+        breakingPos = (map->getTile(tilePos) != 0) ? tilePos : NULL_POS;
+      }
+
+      if (breakingPos != NULL_POS) {
+        breakPercent -= 60.0*(deltaTime/1000.0f);
+
+        if (breakPercent <= 0) {
+           map->setTile(breakingPos,0);
+           breakPercent = 100;
+           breakingPos = NULL_POS;
+        }
+      }
+    }
+
+	player->update(deltaTime);
+
+	glm::vec2 playerPos = glm::vec2(player->getPos());
+	cameraPos = playerPos;
 }
 
 void Scene::render()
 {
-	glm::mat4 model;
-	glm::mat4 view;
+	glm::mat4 model(1.0f);
+	glm::mat4 view(1.0f);
 
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 
-	texProgram.setUniformMatrix4f("model", model);
 
-	view = glm::mat4(1.0);
+	texProgram.setUniformMatrix4f("model", model);
 	texProgram.setUniformMatrix4f("view",view);
+
 	background->render();
 
-	view = glm::translate(glm::mat4(1.0f), -glm::vec3(cameraPos - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
+	view = glm::translate(glm::mat4(1.0f), - glm::vec3(glm::vec2(cameraPos) - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
 	texProgram.setUniformMatrix4f("view", view);
 
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
@@ -110,7 +118,27 @@ void Scene::render()
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 	map->render();
 
+    Sprite *b = nullptr;
+    if (breakingPos != NULL_POS) {
+      if (breakPercent < 25) b = breakingOverlay[0];
+      else if (breakPercent < 60) b = breakingOverlay[1];
+      else if (breakPercent < 95) b = breakingOverlay[2];
+    }
+
+    if (b != nullptr) {
+      b->setPosition(breakingPos*map->getTileSize());
+      b->render();
+    }
+
 	player->render();
+	
+
+	model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
+	view = glm::mat4(1.0f);
+	texProgram.setUniformMatrix4f("model", model);
+	texProgram.setUniformMatrix4f("view",view);
+
+	inventory->render();
 }
 
 void Scene::initShaders()
@@ -142,3 +170,9 @@ void Scene::initShaders()
 	vShader.free();
 	fShader.free();
 }
+
+glm::ivec2 Scene::worldToScreen(const glm::ivec2 &p) { return p - (cameraPos - Game::halfScreenSize); }
+glm::ivec2 Scene::screenToWorld(const glm::ivec2 &p) { return p + (cameraPos - Game::halfScreenSize); }
+
+glm::ivec2 Scene::worldToTile(const glm::ivec2 &p) { return p/map->getTileSize(); }
+glm::ivec2 Scene::screenToTile(const glm::ivec2 &p) { return screenToWorld(p)/map->getTileSize(); }

@@ -1,7 +1,11 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include "Input.h"
 
+
+const glm::ivec2 Game::screenSize = glm::ivec2(SCREEN_WIDTH,SCREEN_HEIGHT);
+const glm::ivec2 Game::halfScreenSize = Game::screenSize/2;
 
 void Game::init()
 {
@@ -13,7 +17,7 @@ void Game::init()
 bool Game::update(int deltaTime)
 {
 	scene.update(deltaTime);
-	
+    Input::instance().update();
 	return bPlay;
 }
 
@@ -21,50 +25,6 @@ void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	scene.render();
-}
-
-void Game::keyPressed(int key)
-{
-	if(key == 27) // Escape code
-		bPlay = false;
-	keys[key] = true;
-}
-
-void Game::keyReleased(int key)
-{
-	keys[key] = false;
-}
-
-void Game::specialKeyPressed(int key)
-{
-	specialKeys[key] = true;
-}
-
-void Game::specialKeyReleased(int key)
-{
-	specialKeys[key] = false;
-}
-
-void Game::mouseMove(int x, int y)
-{
-}
-
-void Game::mousePress(int button)
-{
-}
-
-void Game::mouseRelease(int button)
-{
-}
-
-bool Game::getKey(int key) const
-{
-	return keys[key];
-}
-
-bool Game::getSpecialKey(int key) const
-{
-	return specialKeys[key];
 }
 
 

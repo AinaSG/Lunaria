@@ -1,11 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
-
-
-//Remove console (only works in Visual Studio)
-#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
-
+#include "Input.h"
 
 #define TIME_PER_FRAME 1000.f / 60.f // Approx. 60 fps
 
@@ -18,45 +14,47 @@ static Game game; // This object represents our whole game
 
 static void keyboardDownCallback(unsigned char key, int x, int y)
 {
-	Game::instance().keyPressed(key);
+    Input::instance().keyPressed(key);
 }
 
 // If a key is released this callback is called
 
 static void keyboardUpCallback(unsigned char key, int x, int y)
 {
-	Game::instance().keyReleased(key);
+    Input::instance().keyReleased(key);
 }
 
 // If a special key is pressed this callback is called
 
 static void specialDownCallback(int key, int x, int y)
 {
-	Game::instance().specialKeyPressed(key);
+    Input::instance().specialKeyPressed(key);
 }
 
 // If a special key is released this callback is called
 
 static void specialUpCallback(int key, int x, int y)
 {
-	Game::instance().specialKeyReleased(key);
+    Input::instance().specialKeyReleased(key);
 }
 
 // Same for changes in mouse cursor position
 
 static void motionCallback(int x, int y)
 {
-	Game::instance().mouseMove(x, y);
+    Input::instance().mouseMove(x, y);
 }
 
 // Same for mouse button presses or releases
 
 static void mouseCallback(int button, int state, int x, int y)
 {
-	if(state == GLUT_DOWN)
-		Game::instance().mousePress(button);
-	else if(state == GLUT_UP)
-		Game::instance().mouseRelease(button);
+	if(state == GLUT_DOWN){
+        Input::instance().mousePress(button);
+	}
+	else if(state == GLUT_UP){
+        Input::instance().mouseRelease(button);
+	}
 }
 
 static void drawCallback()
@@ -83,7 +81,7 @@ static void idleCallback()
 
 int main(int argc, char **argv)
 {
-	// GLUT initialization
+    // GLUT initialization
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
@@ -97,6 +95,7 @@ int main(int argc, char **argv)
 	glutSpecialFunc(specialDownCallback);
 	glutSpecialUpFunc(specialUpCallback);
 	glutMouseFunc(mouseCallback);
+	glutPassiveMotionFunc(motionCallback);
 	glutMotionFunc(motionCallback);
 
 	// GLEW will take care of OpenGL extension functions

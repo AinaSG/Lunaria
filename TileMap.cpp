@@ -31,30 +31,30 @@ using namespace std;
 #define PERCENT_NORMAL_AND_RARE_BLOCK 95
 
 
-TileMap *TileMap::loadTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::loadTileMap(const string &levelFile, ShaderProgram &program)
 {
-	TileMap *map = new TileMap(levelFile, minCoords, program);
+	TileMap *map = new TileMap(levelFile, program);
 
 	return map;
 }
 
-TileMap *TileMap::createTileMap(const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::createTileMap(ShaderProgram &program)
 {
-	TileMap *map = new TileMap( minCoords, program);
+	TileMap *map = new TileMap(program);
 	return map;
 }
 
 
-TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap::TileMap(const string &levelFile, ShaderProgram &prog) : program(prog)
 {
 	loadLevel(levelFile);
-	prepareArrays(minCoords, program);
+	prepareArrays();
 }
 
-TileMap::TileMap(const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap::TileMap(ShaderProgram &prog) : program(prog)
 {
 	loadLevel(improvedLevelGenerator());
-	prepareArrays(minCoords, program);
+	prepareArrays();
 }
 
 TileMap::~TileMap()
@@ -66,7 +66,6 @@ TileMap::~TileMap()
 string TileMap::improvedLevelGenerator(){
 	std::ofstream outfile( "levels/generatedLevel.txt");
 	std::ofstream outfilebg( "levels/generatedLevel_bg.txt");
-
 	vector< vector<string> > levelmap(MAP_Y, vector<string>(MAP_X));
 	vector< vector<string> > levelbg(MAP_Y, vector<string>(MAP_X));
 
@@ -376,7 +375,7 @@ bool TileMap::loadLevel(const string &levelFile)
 		{
 			fin.get(tile);
 			if(tile == ' ')
-				map[j*mapSize.x+i] = 0;
+                map[j*mapSize.x+i] = Block::Empty;
 			else
 				map[j*mapSize.x+i] = tile - int('0');
 		}
@@ -390,7 +389,7 @@ bool TileMap::loadLevel(const string &levelFile)
 	return true;
 }
 
-void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
+void TileMap::prepareArrays()
 {
 	int tile, nTiles = 0;
 	glm::vec2 posTile, texCoordTile[2], halfTexel;
@@ -402,11 +401,11 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		for(int i=0; i<mapSize.x; i++)
 		{
 			tile = map[j * mapSize.x + i];
-			if(tile != 0)
-			{
+            if(tile != Block::Empty)
+            {
 				// Non-empty tile
 				nTiles++;
-				posTile = glm::vec2(minCoords.x + i * tileSize, minCoords.y + j * tileSize);
+				posTile = glm::vec2(i * tileSize, j * tileSize);
 				texCoordTile[0] = glm::vec2(float((tile-1)%2) / tilesheetSize.x, float((tile-1)/2) / tilesheetSize.y);
 				texCoordTile[1] = texCoordTile[0] + tileTexSize;
 				//texCoordTile[0] += halfTexel;
@@ -426,7 +425,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 				vertices.push_back(posTile.x); vertices.push_back(posTile.y + blockSize);
 				vertices.push_back(texCoordTile[0].x); vertices.push_back(texCoordTile[1].y);
 			}
-		}
+        }
 	}
 
 	glGenVertexArrays(1, &vao);
@@ -524,7 +523,35 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 
 bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
 {
-	pos.x += delta;
+
+  int sign = (delta > 0) - (delta < 0);
+
+  int step = tileSize/8 * sign;
+  int end = pos.x + delta;
+
+  bool hit = false;
+  pos.x += step;
+
+  while ((delta > 0 ? (pos.x < end) : (pos.x > end)) && !hit) {
+      hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
+      pos.x += step;
+  }
+
+  if (!hit)
+  {
+      pos.x = end;
+      hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
+  }
+
+  if (hit)
+  {
+      pos.x = ((pos.x + (tileSize - 1) * (delta < 0)) / tileSize) * tileSize;
+      return true;
+  }
+
+  return false;
+
+    /*pos.x += delta;
 
 	//Check for hit left or right depending on delta direction
 	bool hit = (delta > 0) ? collisionMoveRight(pos, size) : collisionMoveLeft(pos, size);
@@ -533,7 +560,7 @@ bool TileMap::clampMoveX(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 	if (!hit)  return false;
 
 	pos.x = ((pos.x + tileSize  * (delta < 0)) / tileSize) * tileSize;
-	return true;
+    return true;*/
 }
 
 bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) const
@@ -547,6 +574,7 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 	pos.y += step;
 
 	while ((delta > 0 ? (pos.y < end) : (pos.y > end)) && !hit) {
+
 		hit = (delta > 0) ? collisionMoveDown(pos, size) : collisionMoveUp(pos, size);
 		pos.y += step;
 	}
@@ -559,9 +587,39 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 
 	if (hit)
 	{
-		pos.y = ((pos.y + tileSize  * (delta < 0)) / tileSize) * tileSize;
+        pos.y = ((pos.y + (tileSize - 1)  * (delta < 0)) / tileSize) * tileSize;
 		return true;
 	}
 
 	return false;
 }
+
+int TileMap::getTile(glm::ivec2 coords) 
+{
+	return *tile(coords); 
+}
+
+int TileMap::getTile(int x, int y) {
+	return *tile(x,y); 
+}
+
+int TileMap::setTile(glm::ivec2 coords, int t)
+{
+	*tile(coords.x,coords.y) = t;
+	prepareArrays();
+}
+	
+int TileMap::setTile(int x, int y, int t)
+{
+	*tile(x,y) = t;
+	prepareArrays();
+}
+
+void TileMap::removeTile(int x, int y) {
+	setTile(x,y,0);
+}
+
+void TileMap::removeTile(glm::ivec2 coords) {
+	setTile(coords,0);
+}
+
