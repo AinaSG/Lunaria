@@ -6,6 +6,9 @@
 #include "Game.h"
 #include "Input.h"
 #include "ResourceManager.h"
+#include "RockItem.h"
+#include "DiamondItem.h"
+#include <typeinfo>
 
 #define WALK_SPEED 200
 #define JUMP_SPEED 400
@@ -16,8 +19,12 @@ enum PlayerAnims
 	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT
 };
 
+Player::Player() : items(9) {}
+
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
+    this->shaderProgram = &shaderProgram;
+
 	bJumping = false;
     speed = glm::vec2(0,0);
     Texture* tex = ResourceManager::instance().getTexture("bub.png");
@@ -49,6 +56,33 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
+    tex = ResourceManager::instance().getTexture("inventory.png");
+    if (tex == nullptr) {
+      std::cout << "Inventory texture not found" << std::endl;
+      return;
+    }
+
+    inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    inventory->setPosition(inventoryPos);
+
+    tex = ResourceManager::instance().getTexture("current_item.png");
+    if (tex == nullptr) {
+      std::cout << "Current item texture not found" << std::endl;
+      return;
+    }
+
+    currentItemSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
+
+    for (int i = 0; i < items.size(); ++i) items[i] = new EmptyItem();
+
+    setCurrentItem(1);
+
+    giveItem<RockItem>();
+    giveItem<DiamondItem>();
+    giveItem<EmptyItem>();
+
+    std::cout << items[0]->amount;
 }
 
 
@@ -56,13 +90,14 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
     float dt = deltaTime/1000.0f;
-    dt = 0.017;
 	sprite->update(deltaTime);
 
-    if(Input::instance().getSpecialKey(GLUT_KEY_LEFT)){
+    items[currentItem]->use(deltaTime);
+
+    if(Input::instance().getKey('a')){
 		speed.x = -WALK_SPEED;
 	}
-    else if(Input::instance().getSpecialKey(GLUT_KEY_RIGHT)){
+    else if(Input::instance().getKey('d')){
 		speed.x = WALK_SPEED;
 	}
 	else{
@@ -71,7 +106,7 @@ void Player::update(int deltaTime)
 
     speed.y += GRAVITY*dt;
 
-    if(!bJumping && Input::instance().getSpecialKey(GLUT_KEY_UP)){
+    if(!bJumping && (Input::instance().getKey('w') || Input::instance().getKey(' '))){
 		speed.y = -JUMP_SPEED;
 		bJumping = true;
 	}
@@ -136,7 +171,27 @@ void Player::update(int deltaTime)
 
 void Player::render()
 {
-	sprite->render();
+  sprite->render();
+}
+
+void Player::renderInventory()
+{
+  inventory->render();
+  renderItems();
+  currentItemSprite->render();
+}
+
+void Player::renderItems()
+{
+  for (Item* i : items) {
+    i->render();
+  }
+}
+
+void Player::setCurrentItem(int n)
+{
+  currentItem = n;
+  currentItemSprite->setPosition(inventoryPos + glm::ivec2(2+45*n,2));
 }
 
 void Player::setTileMap(TileMap *tileMap)
@@ -158,4 +213,28 @@ glm::ivec2 Player::getPos() const
 glm::ivec2 Player::getSpeed() const
 {
     return glm::ivec2(speed);
+}
+
+template <class T> void Player::giveItem()
+{
+  std::cout << typeid(T).name() << std::endl;
+  if (typeid(T) == typeid(EmptyItem)) return;
+
+  for (Item* i : items) {
+    if (dynamic_cast<T*>(i) != nullptr) {
+      i->amount++;
+      return;
+    }
+  }
+
+  for (int i = 0; i < items.size(); ++i) {
+    if (dynamic_cast<EmptyItem*>(items[i]) != nullptr) {
+      delete items[i];
+      items[i] = new T();
+      items[i]->init(*shaderProgram);
+      items[i]->setPosition(inventoryPos + glm::ivec2(10+45*i,10));
+      return;
+    }
+  }
+  std::cout << "Inventory full" << std::endl;
 }

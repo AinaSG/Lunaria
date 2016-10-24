@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 #include <glm/glm.hpp>
+#include <GL/glew.h>
+#include <GL/glut.h>
 
 
 class Input

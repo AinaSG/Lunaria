@@ -32,30 +32,25 @@ public:
 
     glm::ivec2 breakingPos;
     int breakPercent;
+    const glm::ivec2 NULL_POS = glm::ivec2(-1,-1);
+
+    void mineBlock(float deltaTime, float speed = 100.0f);
 
 private:
 	void initShaders();
 
-private:
-
-	TileMap  *backmap;
+    TileMap *backmap;
 	Player *player;
 
     Sprite *background, *breakingOverlay[3];
-
-    Sprite *inventory;
 
 	Sprite *itemHolder;
 	
 	float currentTime;
 	
-	ShaderProgram texProgram;
+    ShaderProgram texProgram;
 	glm::mat4 projection;
 	glm::ivec2 cameraPos;
-
-    const glm::ivec2 NULL_POS = glm::ivec2(-1,-1);
-
-
 };
 
 

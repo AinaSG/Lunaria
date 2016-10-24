@@ -16,8 +16,13 @@ using namespace std;
 #define BLOCKSIZE 32
 
 #define TILESHEET "blocks_moon.png"
+\
+
 #define TILESHEET_X 2
+
+
 #define TILESHEET_Y 2
+\
 
 #define MAP_FREQ_RESOLUTION 30
 #define MAP_AMPL_CONSTANT 20

@@ -1,4 +1,4 @@
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3")
 cmake_minimum_required(VERSION 2.8)
 
 cmake_policy(SET CMP0015 NEW)
@@ -31,7 +31,7 @@ link_directories(${GLUT_LIBRARY_DIRS})
 link_directories(${GLEW_LIBRARY_DIRS})
 link_directories(${SOIL_LIBRARY_DIRS})
 
-add_executable(${appName} Player.h Player.cpp AnimKeyframes.h Simplex.h Simplex.cpp Sprite.h Sprite.cpp Input.h Input.cpp ResourceManager.cpp ResourceManager.h TileMap.h TileMap.cpp Texture.h Texture.cpp Scene.h Scene.cpp Shader.h Shader.cpp ShaderProgram.h ShaderProgram.cpp Game.h Game.cpp main.cpp)
+add_executable(${appName} Player.h Player.cpp AnimKeyframes.h DiamondItem.h DiamondItem.cpp RockItem.h RockItem.cpp EmptyItem.h EmptyItem.cpp Item.h Item.cpp Simplex.h Simplex.cpp Sprite.h Sprite.cpp Input.h Input.cpp ResourceManager.cpp ResourceManager.h TileMap.h TileMap.cpp Texture.h Texture.cpp Scene.h Scene.cpp Shader.h Shader.cpp ShaderProgram.h ShaderProgram.cpp Game.h Game.cpp main.cpp)
 
 target_link_libraries(${appName} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES} ${FREETYPE_LIBRARIES}) # ${GLM_LIBRARIES}
 

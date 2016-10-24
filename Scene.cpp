@@ -4,8 +4,6 @@
 #include "Scene.h"
 #include "Game.h"
 #include "Input.h"
-#include <GL/glew.h>
-#include <GL/glut.h>
 #include <sstream>
 #include "ResourceManager.h"
 
@@ -25,7 +23,6 @@ Scene::~Scene()
 	if(player != NULL)
 		delete player;
 }
-
 
 void Scene::init()
 {
@@ -54,13 +51,6 @@ void Scene::init()
       breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), tex, &texProgram);
     }
 
-    tex = ResourceManager::instance().getTexture("inventory.png");
-    if (tex == nullptr) {
-      std::cout << "Invere texture not found" << std::endl;
-      return;
-    }
-    inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &texProgram);
-
 	player = new Player();
 	player->init(glm::ivec2(0, 0), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -79,26 +69,6 @@ void Scene::init()
 void Scene::update(int deltaTime)
 {
     currentTime += deltaTime;
-
-    Input *input = &Input::instance();
-    if (input->getMouseButton(GLUT_LEFT_BUTTON)) {
-      glm::ivec2 tilePos = screenToTile(input->getMouseScreenPos());
-
-      if (tilePos != breakingPos) {
-        breakPercent = 100;
-        breakingPos = (map->getTile(tilePos) != 0) ? tilePos : NULL_POS;
-      }
-
-      if (breakingPos != NULL_POS) {
-        breakPercent -= 60.0*(deltaTime/1000.0f);
-
-        if (breakPercent <= 0) {
-           map->setTile(breakingPos,0);
-           breakPercent = 100;
-           breakingPos = NULL_POS;
-        }
-      }
-    }
 
 	player->update(deltaTime);
 
@@ -152,7 +122,7 @@ void Scene::render()
 	texProgram.setUniformMatrix4f("model", model);
 	texProgram.setUniformMatrix4f("view",view);
 
-	inventory->render();
+    player->renderInventory();
 }
 
 void Scene::initShaders()
@@ -190,3 +160,27 @@ glm::ivec2 Scene::screenToWorld(const glm::ivec2 &p) { return p + (cameraPos - G
 
 glm::ivec2 Scene::worldToTile(const glm::ivec2 &p) { return p/map->getTileSize(); }
 glm::ivec2 Scene::screenToTile(const glm::ivec2 &p) { return screenToWorld(p)/map->getTileSize(); }
+
+
+void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
+{
+  glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
+  glm::ivec2 tilePos = screenToTile(mousePos);
+
+  bool hitBlock = map->getTile(tilePos) != Block::Empty;
+
+  if (hitBlock && tilePos != breakingPos) {
+    breakPercent = 100;
+    breakingPos = tilePos;
+  }
+
+  if (hitBlock) {
+    breakPercent -= speed*(deltaTime/1000.0f);
+
+    if (breakPercent <= 0) {
+       map->setTile(breakingPos,0);
+       breakPercent = 100;
+       breakingPos = NULL_POS;
+    }
+  }
+}

@@ -4,6 +4,8 @@
 
 #include "Sprite.h"
 #include "TileMap.h"
+#include "Item.h"
+#include "EmptyItem.h"
 
 
 // Player is basically a Sprite that represents the player. As such it has
@@ -14,23 +16,36 @@ class Player
 {
 
 public:
+    Player();
+
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
 	void update(int deltaTime);
 	void render();
+    void renderInventory();
 
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
     glm::ivec2 getPos() const;
     glm::ivec2 getSpeed() const;
 
+    template <class T> void giveItem();
+
+
 private:
 	bool bJumping;
 	glm::ivec2 tileMapDispl, posPlayer;
     Texture spritesheet;
-	Sprite *sprite;
+    Sprite *sprite, *inventory, *currentItemSprite;
+    ShaderProgram *shaderProgram;
+    int currentItem;
+    const glm::ivec2 inventoryPos = glm::ivec2(10,10);
+
 	TileMap *map;
     glm::vec2 speed;
+    vector<Item*> items;
 
+    void renderItems();
+    void setCurrentItem(int n);
 };
 
 

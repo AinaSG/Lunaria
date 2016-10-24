@@ -30,10 +30,10 @@ public:
 
     static const glm::ivec2 screenSize;
     static const glm::ivec2 halfScreenSize;
+    Scene scene;                      // Scene to render	                                  // we can have access at any time
 
 private:
 	bool bPlay;                       // Continue to play game?
-	Scene scene;                      // Scene to render	                                  // we can have access at any time
 };
 
 
