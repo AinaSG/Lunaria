@@ -34,7 +34,7 @@ public:
 
 private:
 	bool bPlay;                       // Continue to play game?
-};
+	};
 
 
 #endif // _GAME_INCLUDE

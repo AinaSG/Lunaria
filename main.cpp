@@ -57,11 +57,6 @@ static void mouseCallback(int button, int state, int x, int y)
 	}
 }
 
-static void mouseWheelCallback(int button, int dir)
-{
-  Input::instance().mouseWheel(button,dir);
-}
-
 static void drawCallback()
 {
 	Game::instance().render();

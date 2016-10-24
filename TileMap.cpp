@@ -135,7 +135,11 @@ string TileMap::improvedLevelGenerator(){
 								}
 
             } else{
+
                 levelmap[i][j] = " ";
+								if((valReal2 < -0.7)and(i>0)and(j>0)and(i<MAP_Y-1)and(j<MAP_X-1)){
+									if((levelmap[i+1][j]!="4")and(levelmap[i-1][j]!="4")and(levelmap[i][j+1]!="4")and(levelmap[i][j-1]!="4")and(levelmap[i+1][j+1]!="4")and(levelmap[i+1][j-1]!="4")and(levelmap[i-1][j+1]!="4")and(levelmap[i-1][j-1]!="4")) levelmap[i][j] = "4";
+								}
             }
 			}
 
@@ -606,13 +610,13 @@ bool TileMap::clampMoveY(glm::ivec2 &pos, const glm::ivec2 &size, int delta) con
 	return false;
 }
 
-int TileMap::getTile(glm::ivec2 coords) 
+int TileMap::getTile(glm::ivec2 coords)
 {
-	return *tile(coords); 
+	return *tile(coords);
 }
 
 int TileMap::getTile(int x, int y) {
-	return *tile(x,y); 
+	return *tile(x,y);
 }
 
 int TileMap::setTile(glm::ivec2 coords, int t)
@@ -620,7 +624,7 @@ int TileMap::setTile(glm::ivec2 coords, int t)
 	*tile(coords.x,coords.y) = t;
 	prepareArrays();
 }
-	
+
 int TileMap::setTile(int x, int y, int t)
 {
 	*tile(x,y) = t;
@@ -634,4 +638,3 @@ void TileMap::removeTile(int x, int y) {
 void TileMap::removeTile(glm::ivec2 coords) {
 	setTile(coords,0);
 }
-

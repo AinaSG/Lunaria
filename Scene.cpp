@@ -4,6 +4,8 @@
 #include "Scene.h"
 #include "Game.h"
 #include "Input.h"
+#include <GL/glew.h>
+#include <GL/glut.h>
 #include <sstream>
 #include "ResourceManager.h"
 
@@ -12,146 +14,205 @@
 
 Scene::Scene()
 {
-	map = NULL;
-	player = NULL;
+  map = NULL;
+  player = NULL;
 }
 
 Scene::~Scene()
 {
-	if(map != NULL)
-		delete map;
-	if(player != NULL)
-		delete player;
+  if(map != NULL)
+    delete map;
+  if(player != NULL)
+    delete player;
 }
+
 
 void Scene::init()
 {
-	initShaders();
-	
-	map = TileMap::createTileMap(texProgram);
-	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
+  initShaders();
 
-    Texture *tex = ResourceManager::instance().getTexture("bg.png");
+  map = TileMap::createTileMap(texProgram);
+  backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
+
+  Texture *tex = ResourceManager::instance().getTexture("bg.png");
+  if (tex == nullptr) {
+    std::cout << "Background texture not found" << std::endl;
+    return;
+  }
+
+  background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
+
+  for (int i = 0; i < 3; ++i){
+    std::ostringstream stream;
+    stream << "breaking" << i << ".png";
+    tex = ResourceManager::instance().getTexture(stream.str());
     if (tex == nullptr) {
-      std::cout << "Background texture not found" << std::endl;
+      std::cout << "Breaking texture "  << i << " not found" << std::endl;
       return;
     }
 
-    background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
+    breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), tex, &texProgram);
+  }
 
-    for (int i = 0; i < 3; ++i){
-      std::ostringstream stream;
-      stream << "breaking" << i << ".png";
-      tex = ResourceManager::instance().getTexture(stream.str());
-      if (tex == nullptr) {
-        std::cout << "Breaking texture "  << i << " not found" << std::endl;
-        return;
+  tex = ResourceManager::instance().getTexture("inventory.png");
+  if (tex == nullptr) {
+    std::cout << "Invere texture not found" << std::endl;
+    return;
+  }
+  inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &texProgram);
+
+  player = new Player();
+  player->init(glm::ivec2(0, 0), texProgram);
+  player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+  player->setTileMap(map);
+
+  for (int i = 0; i< map->getMapSize().y; ++i){
+    for (int j = 0; j<  map->getMapSize().x; ++j){
+      if(map->getTile(j,i) == 4){
+        //Creem un enemic aqui
+
+        Enemy *newEnemy = new Enemy();
+        newEnemy->init(glm::ivec2(0, 0), texProgram);
+        newEnemy->setPosition(glm::vec2(j * map->getTileSize(), i * map->getTileSize()));
+        newEnemy->setTileMap(map);
+
+        //Afegim l'enemic a la llista d'enemics
+        enemyVector.push_back(newEnemy);
+
+        //Posem aire al tilemap a on l'spawn
+        map->setTile(j, i, 0);
       }
-
-      breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), tex, &texProgram);
     }
+  }
+  /*
+    testEnemy = new Enemy();
+    testEnemy->init(glm::ivec2(0, 0), texProgram);
+    testEnemy->setPosition(glm::vec2(INIT_TESTENEMY_X_TILES * map->getTileSize(), INIT_TESTENEMY_Y_TILES * map->getTileSize()));
+    testEnemy->setTileMap(map);*/
 
-	player = new Player();
-	player->init(glm::ivec2(0, 0), texProgram);
-	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-	player->setTileMap(map);
+  projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
+  currentTime = 0.0f;
 
-	currentTime = 0.0f;
+  breakingPos = NULL_POS;
+  breakPercent = 100;
 
-    breakingPos = NULL_POS;
-    breakPercent = 100;
-
-	cameraPos = player->getPos();
+  cameraPos = player->getPos();
 }
 
 void Scene::update(int deltaTime)
 {
-    currentTime += deltaTime;
+  currentTime += deltaTime;
 
-	player->update(deltaTime);
-    cameraPos = glm::vec2(player->getPos());
+  player->update(deltaTime);
+
+  for (int i = 0; i< enemyVector.size(); ++i){
+    enemyVector[i]->update(deltaTime);
+  }
+  for (int i = 0; i< rockEnemyVector.size(); ++i){
+    rockEnemyVector[i]->update(deltaTime);
+  }
+
+  cameraPos = glm::vec2(player->getPos());
 }
 
 void Scene::render()
 {
-	glm::mat4 model(1.0f);
-	glm::mat4 view(1.0f);
+  glm::mat4 model(1.0f);
+  glm::mat4 view(1.0f);
 
-	texProgram.use();
-	texProgram.setUniformMatrix4f("projection", projection);
-
-
-	texProgram.setUniformMatrix4f("model", model);
-	texProgram.setUniformMatrix4f("view",view);
-
-	background->render();
-
-	view = glm::translate(glm::mat4(1.0f), - glm::vec3(glm::vec2(cameraPos) - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
-	texProgram.setUniformMatrix4f("view", view);
-
-	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
-
-	texProgram.setUniform4f("color", 0.5, 0.5f, 0.5f, 0.5f);
-	backmap->render();
+  texProgram.use();
+  texProgram.setUniformMatrix4f("projection", projection);
 
 
-	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	map->render();
+  texProgram.setUniformMatrix4f("model", model);
+  texProgram.setUniformMatrix4f("view",view);
 
-    Sprite *b = nullptr;
-    if (breakingPos != NULL_POS) {
-      if (breakPercent < 25) b = breakingOverlay[0];
-      else if (breakPercent < 60) b = breakingOverlay[1];
-      else if (breakPercent < 95) b = breakingOverlay[2];
-    }
+  background->render();
 
-    if (b != nullptr) {
-      b->setPosition(breakingPos*map->getTileSize());
-      b->render();
-    }
+  view = glm::translate(glm::mat4(1.0f), - glm::vec3(glm::vec2(cameraPos) - glm::vec2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2) , 0));
+  texProgram.setUniformMatrix4f("view", view);
 
-	player->render();
-	
+  texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
-	model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
-	view = glm::mat4(1.0f);
-	texProgram.setUniformMatrix4f("model", model);
-	texProgram.setUniformMatrix4f("view",view);
+  texProgram.setUniform4f("color", 0.5, 0.5f, 0.5f, 0.5f);
+  backmap->render();
 
-    player->renderInventory();
+
+  texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+  map->render();
+
+  Sprite *b = nullptr;
+  if (breakingPos != NULL_POS) {
+    if (breakPercent < 25) b = breakingOverlay[0];
+    else if (breakPercent < 60) b = breakingOverlay[1];
+    else if (breakPercent < 95) b = breakingOverlay[2];
+  }
+
+  if (b != nullptr) {
+    b->setPosition(breakingPos*map->getTileSize());
+    b->render();
+  }
+
+  player->render();
+  for (int i = 0; i< enemyVector.size(); ++i){
+    enemyVector[i]->render();
+  }
+
+  for (int i = 0; i< rockEnemyVector.size(); ++i){
+    rockEnemyVector[i]->render();
+  }
+  //testEnemy->render();
+
+
+  model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
+  view = glm::mat4(1.0f);
+  texProgram.setUniformMatrix4f("model", model);
+  texProgram.setUniformMatrix4f("view",view);
+
+  player->renderInventory();
 }
 
 void Scene::initShaders()
 {
-	Shader vShader, fShader;
+  Shader vShader, fShader;
 
-	vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
-	if(!vShader.isCompiled())
-	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
-	}
-	fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
-	if(!fShader.isCompiled())
-	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
-	}
-	texProgram.init();
-	texProgram.addShader(vShader);
-	texProgram.addShader(fShader);
-	texProgram.link();
-	if(!texProgram.isLinked())
-	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << texProgram.log() << endl << endl;
-	}
-	texProgram.bindFragmentOutput("outColor");
-	vShader.free();
-	fShader.free();
+  vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
+  if(!vShader.isCompiled())
+  {
+    cout << "Vertex Shader Error" << endl;
+    cout << "" << vShader.log() << endl << endl;
+  }
+  fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
+  if(!fShader.isCompiled())
+  {
+    cout << "Fragment Shader Error" << endl;
+    cout << "" << fShader.log() << endl << endl;
+  }
+  texProgram.init();
+  texProgram.addShader(vShader);
+  texProgram.addShader(fShader);
+  texProgram.link();
+  if(!texProgram.isLinked())
+  {
+    cout << "Shader Linking Error" << endl;
+    cout << "" << texProgram.log() << endl << endl;
+  }
+  texProgram.bindFragmentOutput("outColor");
+  vShader.free();
+  fShader.free();
 }
+
+void Scene::add_rockEnemy(const glm::ivec2 &p){
+  RockEnemy *newEnemy = new RockEnemy();
+  newEnemy->init(glm::ivec2(0, 0), texProgram);
+  newEnemy->setPosition(p);
+  newEnemy->setTileMap(map);
+
+  //Afegim l'enemic a la llista d'enemics
+  rockEnemyVector.push_back(newEnemy);
+}
+
 
 glm::ivec2 Scene::worldToScreen(const glm::ivec2 &p) { return p - (cameraPos - Game::halfScreenSize); }
 glm::ivec2 Scene::screenToWorld(const glm::ivec2 &p) { return p + (cameraPos - Game::halfScreenSize); }
@@ -177,9 +238,9 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
     breakPercent -= speed*(deltaTime/1000.0f);
 
     if (breakPercent <= 0) {
-       map->setTile(breakingPos,0);
-       breakPercent = 100;
-       breakingPos = NULL_POS;
+      map->setTile(breakingPos,0);
+      breakPercent = 100;
+      breakingPos = NULL_POS;
     }
   }
 }
