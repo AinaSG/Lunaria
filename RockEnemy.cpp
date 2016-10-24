@@ -2,33 +2,33 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "Enemy.h"
+#include "RockEnemy.h"
 #include "Game.h"
 #include "Input.h"
 #include "ResourceManager.h"
 
 
 
-enum EnemyAnims
+enum RockEnemyAnims
 {
 	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT
 };
 
-void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
+void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
-	walkSpeed = 100;
-	jumpSpeed = 200;
-	strategy = 1;
+	walkSpeed = 210;
+	jumpSpeed = 50;
+	strategy = 2;
 
 	waiting = false;
 	waitime = 0;
 	waitdir = false;
 
-	speed = glm::vec2(0,0);
-	Texture* tex = ResourceManager::instance().getTexture("evil_bub.png");
+	speed = glm::vec2(0, -100);
+	Texture* tex = ResourceManager::instance().getTexture("rock_bub.png");
     if (tex == nullptr) {
-      std::cout << "Enemy texture not found" << std::endl;
+      std::cout << "RockEnemy texture not found" << std::endl;
       return;
     }
 
@@ -59,7 +59,7 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 
 
-void Enemy::update(int deltaTime)
+void RockEnemy::update(int deltaTime)
 {
     float dt = deltaTime/1000.0f;
 		Player * player = Game::instance().scene.player;
@@ -68,7 +68,7 @@ void Enemy::update(int deltaTime)
 
 	//decide strategy
 	if(glm::distance(glm::vec2(player->getPos()), glm::vec2(position))>200){
-		strategy = 1;
+		strategy = 2;
 	}
 	else{
 		strategy = 2;

@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "RockEnemy.h"
 #include <vector>
 
 // Scene contains all the entities of our game.
@@ -30,6 +31,8 @@ public:
 	glm::ivec2 worldToTile(const glm::ivec2 &p);
 	glm::ivec2 screenToTile(const glm::ivec2 &p);
 
+	void add_rockEnemy(const glm::ivec2 &p);
+
 	TileMap *map;
 
 	glm::ivec2 breakingPos;
@@ -38,6 +41,7 @@ public:
 	Player *player;
 
 	vector<Enemy*> enemyVector;
+	vector<RockEnemy*> rockEnemyVector;
 	//Enemy *testEnemy;
 
 private:

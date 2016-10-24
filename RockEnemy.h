@@ -1,5 +1,5 @@
-#ifndef _ENEMY_INCLUDE
-#define _ENEMY_INCLUDE
+#ifndef _ROCKENEMY_INCLUDE
+#define _ROCKENEMY_INCLUDE
 
 
 #include "Sprite.h"
@@ -7,11 +7,11 @@
 #include "Character.h"
 
 
-// Enemy is basically a Sprite that represents the enemy. As such it has
+// RockEnemy is basically a Sprite that represents the rockenemy. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
 
 
-class Enemy : public Character
+class RockEnemy : public Character
 {
 
 public:
@@ -24,4 +24,4 @@ public:
 };
 
 
-#endif // _ENEMY_INCLUDE
+#endif // _ROCKENEMY_INCLUDE

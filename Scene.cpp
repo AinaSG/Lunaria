@@ -135,6 +135,9 @@ void Scene::update(int deltaTime)
 	for (int i = 0; i< enemyVector.size(); ++i){
 		enemyVector[i]->update(deltaTime);
 	}
+	for (int i = 0; i< rockEnemyVector.size(); ++i){
+		rockEnemyVector[i]->update(deltaTime);
+	}
 	//testEnemy->update(deltaTime);
 
 	glm::vec2 playerPos = glm::vec2(player->getPos());
@@ -183,6 +186,10 @@ void Scene::render()
 	for (int i = 0; i< enemyVector.size(); ++i){
 		enemyVector[i]->render();
 	}
+
+	for (int i = 0; i< rockEnemyVector.size(); ++i){
+		rockEnemyVector[i]->render();
+	}
 	//testEnemy->render();
 
 
@@ -223,6 +230,17 @@ void Scene::initShaders()
 	vShader.free();
 	fShader.free();
 }
+
+void Scene::add_rockEnemy(const glm::ivec2 &p){
+	RockEnemy *newEnemy = new RockEnemy();
+	newEnemy->init(glm::ivec2(0, 0), texProgram);
+	newEnemy->setPosition(p);
+	newEnemy->setTileMap(map);
+
+	//Afegim l'enemic a la llista d'enemics
+	rockEnemyVector.push_back(newEnemy);
+}
+
 
 glm::ivec2 Scene::worldToScreen(const glm::ivec2 &p) { return p - (cameraPos - Game::halfScreenSize); }
 glm::ivec2 Scene::screenToWorld(const glm::ivec2 &p) { return p + (cameraPos - Game::halfScreenSize); }
