@@ -17,7 +17,7 @@ enum RockEnemyAnims
 void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
-	walkSpeed = 210;
+	walkSpeed = 180;
 	jumpSpeed = 50;
 	strategy = 2;
 

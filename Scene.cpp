@@ -206,7 +206,9 @@ void Scene::initShaders()
 void Scene::add_rockEnemy(const glm::ivec2 &p){
   RockEnemy *newEnemy = new RockEnemy();
   newEnemy->init(glm::ivec2(0, 0), texProgram);
-  newEnemy->setPosition(p);
+  glm::ivec2 spawnPos = p;
+  spawnPos.y = spawnPos.y-30;
+  newEnemy->setPosition(spawnPos);
   newEnemy->setTileMap(map);
 
   //Afegim l'enemic a la llista d'enemics
@@ -226,6 +228,8 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
   glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
   glm::ivec2 tilePos = screenToTile(mousePos);
 
+
+
   int block = map->getTile(tilePos);
   bool hitBlock = block != Block::Empty;
 
@@ -238,6 +242,11 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
     breakPercent -= speed*(deltaTime/1000.0f);
 
     if (breakPercent <= 0) {
+
+      if (rand()%10 == 1){
+          add_rockEnemy(screenToWorld(mousePos));
+      }
+      
       map->setTile(breakingPos,0);
       breakPercent = 100;
       breakingPos = NULL_POS;
