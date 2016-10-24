@@ -1,19 +1,18 @@
-#include "DiamondItem.h"
+#include "BlockItem.h"
 #include "Input.h"
 #include "Game.h"
 
-DiamondItem::DiamondItem()
+BlockItem::BlockItem()
 {
-
 }
 
-void DiamondItem::init(ShaderProgram &sp)
+void BlockItem::init(ShaderProgram &sp)
 {
-  Item::init("moondiamonds.png", sp);
+  Item::init("moonground.png", sp);
   amount = 1;
 }
 
-void DiamondItem::use(float deltaTime)
+void BlockItem::use(float deltaTime)
 {
   Scene* scene = &Game::instance().scene;
   if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
@@ -24,7 +23,7 @@ void DiamondItem::use(float deltaTime)
     glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
     glm::ivec2 tilePos =  scene->screenToTile(mousePos);
     if (scene->map->getTile(tilePos) == Block::Empty) {
-      scene->map->setTile(tilePos, Block::BlueMaterial);
+      scene->map->setTile(tilePos, Block::Rock);
     }
   }
 

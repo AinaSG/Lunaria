@@ -2,10 +2,10 @@
 #define BLOCKITEM_H
 #include "Item.h"
 
-class RockItem : public Item
+class BlockItem : public Item
 {
 public:
-  RockItem();
+  BlockItem();
   void init(ShaderProgram &sp);
   void use(float deltaTime);
 

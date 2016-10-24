@@ -71,9 +71,7 @@ void Scene::update(int deltaTime)
     currentTime += deltaTime;
 
 	player->update(deltaTime);
-
-	glm::vec2 playerPos = glm::vec2(player->getPos());
-	cameraPos = playerPos;
+    cameraPos = glm::vec2(player->getPos());
 }
 
 void Scene::render()
@@ -167,7 +165,8 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
   glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
   glm::ivec2 tilePos = screenToTile(mousePos);
 
-  bool hitBlock = map->getTile(tilePos) != Block::Empty;
+  int block = map->getTile(tilePos);
+  bool hitBlock = block != Block::Empty;
 
   if (hitBlock && tilePos != breakingPos) {
     breakPercent = 100;

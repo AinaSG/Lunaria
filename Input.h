@@ -28,6 +28,7 @@ public:
     void mouseMove(int x, int y);
     void mousePress(int button);
     void mouseRelease(int button);
+    void mouseWheel(int button, int state);
 
     //Getters
     bool getKey(int key) const;
@@ -41,11 +42,13 @@ public:
     bool getKeyHold(int key) const;
     bool getSpecialKeyHold(int key) const;
     bool getMouseButtonHold(int button) const;
+    int getMouseWheel() const;
 
     glm::ivec2 getMouseScreenPos();
 
 private:
     bool lastMouseDown[3], mouseDown[3]; //GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, and GLUT_RIGHT_BUTTON
+    int mouseWheelState;
     glm::ivec2 mousePos;
     bool keys[256], lastKeys[256], specialKeys[256], lastSpecialKeys[256];
         // Store key states so that

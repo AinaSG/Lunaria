@@ -57,6 +57,11 @@ static void mouseCallback(int button, int state, int x, int y)
 	}
 }
 
+static void mouseWheelCallback(int button, int dir)
+{
+  Input::instance().mouseWheel(button,dir);
+}
+
 static void drawCallback()
 {
 	Game::instance().render();
@@ -97,7 +102,7 @@ int main(int argc, char **argv)
 	glutKeyboardUpFunc(keyboardUpCallback);
 	glutSpecialFunc(specialDownCallback);
 	glutSpecialUpFunc(specialUpCallback);
-	glutMouseFunc(mouseCallback);
+    glutMouseFunc(mouseCallback);
 	glutPassiveMotionFunc(motionCallback);
 	glutMotionFunc(motionCallback);
 

@@ -80,7 +80,7 @@ string TileMap::improvedLevelGenerator(){
 
 	Simplex* sim1 = new Simplex(&generator, 20.0f, 0.0f, 0.1f);//100 ----->MASTER_VALUE/3
   Simplex* sim2 = new Simplex(&generator, 250.0f, 0.0f, 0.9f); //1100 --->MASTER_VALUE*5
-  Simplex* simCueva = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10 --->
+  Simplex* simCueva = new Simplex(&generator, 10.0f, 0.0f, 0.9f); //10 --->
   Simplex* simStone = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10
 
 	for (int i = 0; i< MAP_Y; ++i){
@@ -405,7 +405,7 @@ void TileMap::prepareArrays()
     int tile;
     nTiles = 0;
 	glm::vec2 posTile, texCoordTile[2], halfTexel;
-	vector<float> vertices;
+    vector<float> vertices;
 
     halfTexel = glm::vec2(0.5f / tilesheet->width(), 0.5f / tilesheet->height());
 	for(int j=0; j<mapSize.y; j++)

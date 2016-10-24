@@ -6,13 +6,14 @@
 #include "TileMap.h"
 #include "Item.h"
 #include "EmptyItem.h"
+#include "Character.h"
 
 
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
 
 
-class Player
+class Player : public Character
 {
 
 public:
@@ -32,16 +33,12 @@ public:
 
 
 private:
-	bool bJumping;
-	glm::ivec2 tileMapDispl, posPlayer;
-    Texture spritesheet;
-    Sprite *sprite, *inventory, *currentItemSprite;
+    glm::ivec2 tileMapDispl;
+    Sprite *inventory, *currentItemSprite;
     ShaderProgram *shaderProgram;
     int currentItem;
     const glm::ivec2 inventoryPos = glm::ivec2(10,10);
 
-	TileMap *map;
-    glm::vec2 speed;
     vector<Item*> items;
 
     void renderItems();

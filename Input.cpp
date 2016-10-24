@@ -7,6 +7,7 @@ void Input::update(){
   std::copy(std::begin(keys), std::end(keys), std::begin(lastKeys));
   std::copy(std::begin(specialKeys), std::end(specialKeys), std::begin(lastSpecialKeys));
   std::copy(std::begin(mouseDown), std::end(mouseDown), std::begin(lastMouseDown));
+  mouseWheelState = 0;
 }
 
 void Input::keyPressed(int key)
@@ -41,8 +42,10 @@ void Input::mousePress(int button)
 
 void Input::mouseRelease(int button)
 {
-   mouseDown[button] = false;
+  if (button < 3) mouseDown[button] = false;
+  else mouseWheelState = button == 3 ? -1 : button == 4 ? 1 : 0;
 }
+
 
 
 bool Input::getKey(int key) const { return keys[key]; }
@@ -56,6 +59,8 @@ bool Input::getMouseButtonDown(int button) const { return mouseDown[button] && !
 bool Input::getKeyHold(int key) const { return keys[key] && lastKeys[key]; }
 bool Input::getSpecialKeyHold(int key) const { return specialKeys[key] && lastSpecialKeys[key]; }
 bool Input::getMouseButtonHold(int button) const { return mouseDown[button] && lastMouseDown[button]; }
+
+int Input::getMouseWheel() const { return mouseWheelState; }
 
 glm::ivec2 Input::getMouseScreenPos()
 {

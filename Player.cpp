@@ -6,13 +6,10 @@
 #include "Game.h"
 #include "Input.h"
 #include "ResourceManager.h"
-#include "RockItem.h"
-#include "DiamondItem.h"
+#include "BlockItem.h"
 #include <typeinfo>
 
-#define WALK_SPEED 200
-#define JUMP_SPEED 400
-#define GRAVITY 500
+
 
 enum PlayerAnims
 {
@@ -26,15 +23,17 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     this->shaderProgram = &shaderProgram;
 
 	bJumping = false;
-    speed = glm::vec2(0,0);
-    Texture* tex = ResourceManager::instance().getTexture("bub.png");
+	walkSpeed = 200;
+	jumpSpeed = 400;
+	speed = glm::vec2(0,0);
+	Texture* tex = ResourceManager::instance().getTexture("bub.png");
     if (tex == nullptr) {
       std::cout << "Player texture not found" << std::endl;
       return;
     }
 
     sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), tex, &shaderProgram);
-	sprite->setNumberAnimations(4);
+	  sprite->setNumberAnimations(4);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
 		sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
@@ -54,7 +53,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 
     tex = ResourceManager::instance().getTexture("inventory.png");
     if (tex == nullptr) {
@@ -78,8 +77,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
     setCurrentItem(1);
 
-    giveItem<RockItem>();
-    giveItem<DiamondItem>();
+    giveItem<BlockItem>();
     giveItem<EmptyItem>();
 
     std::cout << items[0]->amount;
@@ -90,15 +88,22 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
     float dt = deltaTime/1000.0f;
+
 	sprite->update(deltaTime);
+
+    if (Input::instance().getMouseWheel() > 0) {
+      setCurrentItem(++currentItem%9);
+    } else if (Input::instance().getMouseWheel() < 0) {
+      setCurrentItem((--currentItem+9)%9);
+    }
 
     items[currentItem]->use(deltaTime);
 
     if(Input::instance().getKey('a')){
-		speed.x = -WALK_SPEED;
+        speed.x = -walkSpeed;
 	}
     else if(Input::instance().getKey('d')){
-		speed.x = WALK_SPEED;
+        speed.x = walkSpeed;
 	}
 	else{
 		speed.x = 0;
@@ -107,7 +112,7 @@ void Player::update(int deltaTime)
     speed.y += GRAVITY*dt;
 
     if(!bJumping && (Input::instance().getKey('w') || Input::instance().getKey(' '))){
-		speed.y = -JUMP_SPEED;
+		speed.y = -jumpSpeed;
 		bJumping = true;
 	}
 
@@ -116,7 +121,7 @@ void Player::update(int deltaTime)
 		if(sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
 
-        bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), int(speed.x * dt));
+        bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
 		if(hit) {
 
 			sprite->changeAnimation(STAND_LEFT);
@@ -128,12 +133,12 @@ void Player::update(int deltaTime)
 		if(sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
 
-        bool hit = map->clampMoveX(posPlayer, glm::ivec2(32, 32), int(speed.x * dt));
+        bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
 		if(hit) {
 
 			sprite->changeAnimation(STAND_RIGHT);
-			speed.x = 0;	
-		} 
+			speed.x = 0;
+		}
 	}
 	else
 	{
@@ -147,7 +152,7 @@ void Player::update(int deltaTime)
     {
         //if(sprite->animation() != MOVE_LEFT)
         //	sprite->changeAnimation(MOVE_LEFT);
-        bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), int(floor(speed.y * dt)));
+        bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
         if (hit) {
 
             speed.y = 0;
@@ -158,7 +163,7 @@ void Player::update(int deltaTime)
     {
         //if(sprite->animation() != MOVE_RIGHT)
         //	sprite->changeAnimation(MOVE_RIGHT);
-        bool hit = map->clampMoveY(posPlayer, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
+        bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
         if (hit) {
 
           speed.y = 0;
@@ -166,7 +171,7 @@ void Player::update(int deltaTime)
         }
     }
 
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
 void Player::render()
@@ -201,13 +206,13 @@ void Player::setTileMap(TileMap *tileMap)
 
 void Player::setPosition(const glm::vec2 &pos)
 {
-	posPlayer = pos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+    position = pos;
+    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
 glm::ivec2 Player::getPos() const
 {
-	return posPlayer;
+    return position;
 }
 
 glm::ivec2 Player::getSpeed() const
