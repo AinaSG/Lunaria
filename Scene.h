@@ -6,6 +6,8 @@
 #include "ShaderProgram.h"
 #include "TileMap.h"
 #include "Player.h"
+#include "Enemy.h"
+#include <vector>
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -19,19 +21,24 @@ public:
 
 	void init();
 	void update(int deltaTime);
-    void render();
-    glm::ivec2 getCameraPos() const { return cameraPos; }
+	void render();
+	glm::ivec2 getCameraPos() const { return cameraPos; }
 
-    glm::ivec2 worldToScreen(const glm::ivec2 &p);
-    glm::ivec2 screenToWorld(const glm::ivec2 &p);
+	glm::ivec2 worldToScreen(const glm::ivec2 &p);
+	glm::ivec2 screenToWorld(const glm::ivec2 &p);
 
-    glm::ivec2 worldToTile(const glm::ivec2 &p);
-    glm::ivec2 screenToTile(const glm::ivec2 &p);
+	glm::ivec2 worldToTile(const glm::ivec2 &p);
+	glm::ivec2 screenToTile(const glm::ivec2 &p);
 
 	TileMap *map;
 
-    glm::ivec2 breakingPos;
-    int breakPercent;
+	glm::ivec2 breakingPos;
+	int breakPercent;
+
+	Player *player;
+
+	vector<Enemy*> enemyVector;
+	//Enemy *testEnemy;
 
 private:
 	void initShaders();
@@ -39,21 +46,21 @@ private:
 private:
 
 	TileMap  *backmap;
-	Player *player;
 
-    Sprite *background, *breakingOverlay[3];
 
-    Sprite *inventory;
+	Sprite *background, *breakingOverlay[3];
+
+	Sprite *inventory;
 
 	Sprite *itemHolder;
-	
+
 	float currentTime;
-	
+
 	ShaderProgram texProgram;
 	glm::mat4 projection;
 	glm::ivec2 cameraPos;
 
-    const glm::ivec2 NULL_POS = glm::ivec2(-1,-1);
+	const glm::ivec2 NULL_POS = glm::ivec2(-1,-1);
 
 
 };

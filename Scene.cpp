@@ -12,10 +12,15 @@
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 10
 
+#define INIT_TESTENEMY_X_TILES 7
+#define INIT_TESTENEMY_Y_TILES 10
+
+
 Scene::Scene()
 {
 	map = NULL;
 	player = NULL;
+	//testEnemy = NULL;
 }
 
 Scene::~Scene()
@@ -24,13 +29,15 @@ Scene::~Scene()
 		delete map;
 	if(player != NULL)
 		delete player;
+	//if(testEnemy != NULL)
+		//delete testEnemy;
 }
 
 
 void Scene::init()
 {
 	initShaders();
-	
+
 	map = TileMap::createTileMap(texProgram);
 	backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
 
@@ -65,6 +72,30 @@ void Scene::init()
 	player->init(glm::ivec2(0, 0), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
+
+	for (int i = 0; i< map->getMapSize().y; ++i){
+		for (int j = 0; j<  map->getMapSize().x; ++j){
+			if(map->getTile(j,i) == 4){
+				//Creem un enemic aqui
+
+				Enemy *newEnemy = new Enemy();
+				newEnemy->init(glm::ivec2(0, 0), texProgram);
+				newEnemy->setPosition(glm::vec2(j * map->getTileSize(), i * map->getTileSize()));
+				newEnemy->setTileMap(map);
+
+				//Afegim l'enemic a la llista d'enemics
+				enemyVector.push_back(newEnemy);
+
+				//Posem aire al tilemap a on l'spawn
+				map->setTile(j, i, 0);
+			}
+		}
+	}
+	/*
+	testEnemy = new Enemy();
+	testEnemy->init(glm::ivec2(0, 0), texProgram);
+	testEnemy->setPosition(glm::vec2(INIT_TESTENEMY_X_TILES * map->getTileSize(), INIT_TESTENEMY_Y_TILES * map->getTileSize()));
+	testEnemy->setTileMap(map);*/
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 
@@ -101,6 +132,10 @@ void Scene::update(int deltaTime)
     }
 
 	player->update(deltaTime);
+	for (int i = 0; i< enemyVector.size(); ++i){
+		enemyVector[i]->update(deltaTime);
+	}
+	//testEnemy->update(deltaTime);
 
 	glm::vec2 playerPos = glm::vec2(player->getPos());
 	cameraPos = playerPos;
@@ -145,7 +180,11 @@ void Scene::render()
     }
 
 	player->render();
-	
+	for (int i = 0; i< enemyVector.size(); ++i){
+		enemyVector[i]->render();
+	}
+	//testEnemy->render();
+
 
 	model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
 	view = glm::mat4(1.0f);
