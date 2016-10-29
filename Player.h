@@ -25,6 +25,7 @@ public:
     void renderHUD();
     void renderLife();
     void renderShop();
+    void renderHelp();
     void rendeShopItems();
     void renderCrosshair();
     void renderHitEffect();
@@ -53,6 +54,7 @@ private:
     glm::ivec2 tileMapDispl;
     Sprite *inventorySprite, *currentItemSprite, *currentItemShopSprite, *crosshairSprite, *heartSprite, *hitSprite, *shopSprite;
     Sprite *taladroSprite, *stage1Sprite, *stage2Sprite, *stage3Sprite, *potionSprite, *swordSprite;
+    Sprite *taladroHelpSprite, *stage1HelpSprite, *stage2HelpSprite, *stage3HelpSprite, *potionHelpSprite, *swordHelpSprite;
     Sprite *taladroSpriteBW, *stage1SpriteBW, *stage2SpriteBW, *stage3SpriteBW, *potionSpriteBW, *swordSpriteBW;
 
     const glm::ivec2 taladroPos = glm::ivec2(865,668);
@@ -69,6 +71,9 @@ private:
 
     int postHitCounter;
     bool hitEffect;
+
+    bool showHelp = false;
+    const glm::ivec2 helpPos = glm::ivec2(765,544);
 
     const glm::ivec2 inventoryPos = glm::ivec2(10,10);
     const glm::ivec2 shopPos = glm::ivec2(765,658);

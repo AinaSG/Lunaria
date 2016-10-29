@@ -249,6 +249,67 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 
     ////////////////////////END SHOP ITEMS /////////////////////////////////////////////
+    ////////////////////////LOADING HELP ///////////////////////////////////////////////
+    tex = ResourceManager::instance().getTexture("help_drill.png");
+
+    if (tex == nullptr) {
+      std::cout << "Drill help texture not found" << std::endl;
+      return;
+    }
+
+    taladroHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    taladroHelpSprite->setPosition(helpPos);
+
+    tex = ResourceManager::instance().getTexture("help_1s.png");
+
+    if (tex == nullptr) {
+      std::cout << "S1 help texture not found" << std::endl;
+      return;
+    }
+
+    stage1HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage1HelpSprite->setPosition(helpPos);
+
+    tex = ResourceManager::instance().getTexture("help_2s.png");
+
+    if (tex == nullptr) {
+      std::cout << "S2 help texture not found" << std::endl;
+      return;
+    }
+
+    stage2HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage2HelpSprite->setPosition(helpPos);
+
+    tex = ResourceManager::instance().getTexture("help_3s.png");
+
+    if (tex == nullptr) {
+      std::cout << "S3 help texture not found" << std::endl;
+      return;
+    }
+
+    stage3HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage3HelpSprite->setPosition(helpPos);
+
+    tex = ResourceManager::instance().getTexture("help_medicine.png");
+
+    if (tex == nullptr) {
+      std::cout << "Medicine help texture not found" << std::endl;
+      return;
+    }
+
+    potionHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    potionHelpSprite->setPosition(helpPos);
+
+    tex = ResourceManager::instance().getTexture("help_sword.png");
+
+    if (tex == nullptr) {
+      std::cout << "Sword help texture not found" << std::endl;
+      return;
+    }
+
+    swordHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    swordHelpSprite->setPosition(helpPos);
+    ////////////////////////END HELP ///////////////////////////////////////////////////
 
     for (int i = 0; i < items.size(); ++i) items[i] = new EmptyItem();
 
@@ -280,6 +341,16 @@ void Player::update(int deltaTime)
   checkShop();
 
 	sprite->update(deltaTime);
+
+  if (Input::instance().getSpecialKeyDown(GLUT_KEY_RIGHT)) {
+    setCurrentItemShop(++currentItemShop%4);
+  } else if (Input::instance().getSpecialKeyDown(GLUT_KEY_LEFT)) {
+    setCurrentItemShop((--currentItemShop+4)%4);
+  }
+
+  if (Input::instance().getSpecialKeyDown(GLUT_KEY_UP)) {
+    showHelp = !showHelp;
+  }
 
     for (int i = 1; i <= 9; ++i) {
       if (Input::instance().getKeyDown('0' + i)) {
@@ -399,11 +470,38 @@ void Player::renderHUD()
   renderItems();
   renderLife();
   renderShop();
+  renderHelp();
   if (hitEffect){
     renderHitEffect();
   }
   currentItemSprite->render();
   currentItemShopSprite->render();
+}
+
+void Player::renderHelp()
+{
+  if(showHelp){
+    if (currentItemShop == 0){
+      potionHelpSprite->render();
+    }
+    else if (currentItemShop == 1){
+      swordHelpSprite->render();
+    }
+    else if (currentItemShop == 2){
+      taladroHelpSprite->render();
+    }
+    else {
+      if(shipStage == 0){
+          stage1HelpSprite->render();
+      }
+      else if (shipStage == 1){
+          stage2HelpSprite->render();
+      }
+      else {
+          stage3HelpSprite->render();
+      }
+    }
+  }
 }
 
 void Player::renderLife()
