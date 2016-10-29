@@ -25,6 +25,8 @@ void BlockItem::use(float deltaTime)
     return;
   }
   else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
+    if (scene->player->isJumping()) return;
+
     glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
     glm::ivec2 tilePos =  scene->screenToTile(mousePos);
     glm::vec2 worldPos = scene->screenToWorld(mousePos);

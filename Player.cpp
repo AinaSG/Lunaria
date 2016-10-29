@@ -8,8 +8,7 @@
 #include "ResourceManager.h"
 #include "BlockItem.h"
 #include <typeinfo>
-
-
+#include <string>
 
 enum PlayerAnims
 {
@@ -126,12 +125,11 @@ void Player::update(int deltaTime)
       setCurrentItem((--currentItem+9)%9);
     }
 
-    if (!bJumping) {
-      items[currentItem]->use(deltaTime);
-      if (items[currentItem]->amount == 0) {
-        delete items[currentItem];
-        items[currentItem] = new EmptyItem();
-      }
+
+    items[currentItem]->use(deltaTime);
+    if (items[currentItem]->amount == 0) {
+      delete items[currentItem];
+      items[currentItem] = new EmptyItem();
     }
 
     if(Input::instance().getKey('a')){
@@ -235,8 +233,16 @@ void Player::renderHUD()
 
 void Player::renderItems()
 {
-  for (Item* i : items) {
-    i->render();
+  int i= 0;
+  for (Item* item : items) {
+    item->render();
+
+    if (item->amount > 0) {
+      string n = std::to_string(item->amount);
+      Game::instance().scene.boldText.render(n,glm::ivec2(10+45*i + (item->amount > 10 ? 16 : 21),75),15,glm::vec4(1.0f,174.0f/255.0f,0.0f,1.0f));
+      shaderProgram->use();
+    }
+    ++i;
   }
 }
 

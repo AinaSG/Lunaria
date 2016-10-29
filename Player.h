@@ -35,6 +35,8 @@ public:
     void attack(int hit_damage = -1);
     template <class T> void giveItem(int param = 0);
 
+    bool isJumping() { return bJumping; }
+
 private:
     glm::ivec2 tileMapDispl;
     Sprite *inventorySprite, *currentItemSprite, *crosshairSprite;

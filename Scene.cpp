@@ -86,12 +86,6 @@ void Scene::init()
       }
     }
   }
-  /*
-    testEnemy = new Enemy();
-    testEnemy->init(glm::ivec2(0, 0), texProgram);
-    testEnemy->setPosition(glm::vec2(INIT_TESTENEMY_X_TILES * map->getTileSize(), INIT_TESTENEMY_Y_TILES * map->getTileSize()));
-    testEnemy->setTileMap(map);*/
-
   projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 
   currentTime = 0.0f;
@@ -100,6 +94,12 @@ void Scene::init()
   breakPercent = 100;
 
   cameraPos = player->getPos();
+
+  if(!text.init("fonts/OpenSans-Regular.ttf"))
+      cout << "Could not load font!!!" << endl;
+
+   if(!boldText.init("fonts/OpenSans-ExtraBold.ttf"))
+      cout << "Could not load bold font!!!" << endl;
 }
 
 void Scene::update(int deltaTime)

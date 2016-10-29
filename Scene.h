@@ -9,6 +9,7 @@
 #include "Enemy.h"
 #include "RockEnemy.h"
 #include <vector>
+#include "Text.h"
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -44,6 +45,8 @@ public:
 	vector<RockEnemy*> rockEnemyVector;
 
     void mineBlock(float deltaTime, float speed = 100.0f);
+
+    Text text, boldText;
 
 private:
 	void initShaders();

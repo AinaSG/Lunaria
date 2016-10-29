@@ -15,6 +15,8 @@ void Item::init(string textureName, ShaderProgram &shaderProgram)
 {
   amount = 0;
   Texture * tex = ResourceManager::instance().getTexture(textureName);
+  tex->setMagFilter(GL_NEAREST);
+  tex->setMinFilter(GL_NEAREST);
   sprite = Sprite::createSprite(glm::ivec2(32,32),glm::vec2(1.0f,1.0f),tex, &shaderProgram);
 }
 
