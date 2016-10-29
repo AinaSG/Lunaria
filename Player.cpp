@@ -33,6 +33,10 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	kb_speed_x = 200;
 	kb_speed_y = 200;
 
+  timePostHit = 10;
+  postHitCounter = 0;
+  hitEffect = false;
+
 	life = 10;
 	damage = 1;
 	speed = glm::vec2(0,0);
@@ -43,6 +47,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     }
 
     sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+
 	  sprite->setNumberAnimations(6);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -79,12 +84,29 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     inventorySprite = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
     inventorySprite->setPosition(inventoryPos);
 
+    tex = ResourceManager::instance().getTexture("hit.png");
+    if (tex == nullptr) {
+      std::cout << "Hit texture not found" << std::endl;
+      return;
+    }
+    hitSprite = Sprite::createSprite(glm::ivec2(960,720), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    hitSprite->setPosition(glm::vec2(0,0));
+
     tex = ResourceManager::instance().getTexture("current_item.png");
     if (tex == nullptr) {
       std::cout << "Current item texture not found" << std::endl;
       return;
     }
     currentItemSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
+    tex = ResourceManager::instance().getTexture("hrt.png");
+
+    if (tex == nullptr) {
+      std::cout << "Heart texture not found" << std::endl;
+      return;
+    }
+
+    heartSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
 
     tex = ResourceManager::instance().getTexture("cross3.png");
     if (tex == nullptr) {
@@ -111,6 +133,14 @@ void Player::update(int deltaTime)
 
     glm::ivec2 chPos = Game::instance().scene.worldToScreen(getCrosshairPos());
     Input::instance().setMousePosition(chPos);
+
+    if(hitEffect){
+      postHitCounter = postHitCounter + deltaTime;
+    }
+    if(postHitCounter > timePostHit ){
+      postHitCounter = 0;
+      hitEffect = false;
+    }
 
 	sprite->update(deltaTime);
 
@@ -230,7 +260,28 @@ void Player::renderHUD()
 {
   inventorySprite->render();
   renderItems();
+  renderLife();
+  if (hitEffect){
+    renderHitEffect();
+  }
   currentItemSprite->render();
+}
+
+void Player::renderLife()
+{
+  int x_heart = 900;
+  int y_heart = 20;
+  int distance_bh = 37;
+
+  for (int i=0; i < life; ++i){
+    heartSprite->setPosition(glm::vec2(x_heart-(i*distance_bh), y_heart));
+    heartSprite->render();
+  }
+}
+
+void Player::postDamage(){
+  hitEffect  = true;
+  cout <<"POSTDAM" << endl;
 }
 
 void Player::renderItems()
@@ -244,6 +295,12 @@ void Player::renderCrosshair()
 {
   crosshairSprite->setPosition(getCrosshairPos() - glm::ivec2(5,5));
   crosshairSprite->render();
+}
+
+void Player::renderHitEffect()
+{
+  cout <<"HIIT" << endl;
+  hitSprite->render();
 }
 
 void Player::setCurrentItem(int n)

@@ -23,7 +23,11 @@ public:
 	void update(int deltaTime);
 	void render();
     void renderHUD();
+    void renderLife();
     void renderCrosshair();
+    void renderHitEffect();
+
+    void postDamage();
 
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
@@ -37,9 +41,14 @@ public:
 
 private:
     glm::ivec2 tileMapDispl;
-    Sprite *inventorySprite, *currentItemSprite, *crosshairSprite;
+    Sprite *inventorySprite, *currentItemSprite, *crosshairSprite, *heartSprite, *hitSprite;
     ShaderProgram *shaderProgram;
     int currentItem;
+
+    int timePostHit;
+    int postHitCounter;
+    bool hitEffect;
+
     const glm::ivec2 inventoryPos = glm::ivec2(10,10);
     const glm::ivec2 hitbox =  glm::ivec2(16,32);
 
