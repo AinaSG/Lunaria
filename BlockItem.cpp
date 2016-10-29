@@ -6,9 +6,10 @@ BlockItem::BlockItem()
 {
 }
 
-void BlockItem::init(ShaderProgram &sp)
+void BlockItem::init(ShaderProgram &sp, int param)
 {
-  Item::init("moonground.png", sp);
+  Item::init(filenames[param-1], sp);
+  blockID = param;
   amount = 1;
 }
 
@@ -23,7 +24,8 @@ void BlockItem::use(float deltaTime)
     glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
     glm::ivec2 tilePos =  scene->screenToTile(mousePos);
     if (scene->map->getTile(tilePos) == Block::Empty) {
-      scene->map->setTile(tilePos, Block::Rock);
+      scene->map->setTile(tilePos, blockID);
+      --amount;
     }
   }
 

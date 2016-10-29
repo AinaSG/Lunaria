@@ -78,8 +78,8 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
     setCurrentItem(1);
 
-    giveItem<BlockItem>();
-    giveItem<EmptyItem>();
+    giveItem<BlockItem>(Block::RedMaterial);
+    giveItem<BlockItem>(Block::Rock);
 
     std::cout << items[0]->amount;
 }
@@ -92,13 +92,25 @@ void Player::update(int deltaTime)
 
 	sprite->update(deltaTime);
 
-    if (Input::instance().getMouseWheel() > 0) {
+    for (int i = 1; i <= 9; ++i) {
+      if (Input::instance().getKeyDown('0' + i)) {
+        setCurrentItem(i-1);
+      }
+    }
+
+    if (Input::instance().getMouseWheel() < 0) {
       setCurrentItem(++currentItem%9);
-    } else if (Input::instance().getMouseWheel() < 0) {
+    } else if (Input::instance().getMouseWheel() > 0) {
       setCurrentItem((--currentItem+9)%9);
     }
 
-    items[currentItem]->use(deltaTime);
+    if (!bJumping) {
+      items[currentItem]->use(deltaTime);
+      if (items[currentItem]->amount == 0) {
+        delete items[currentItem];
+        items[currentItem] = new EmptyItem();
+      }
+    }
 
     if(Input::instance().getKey('a')){
         speed.x = -walkSpeed;
@@ -221,14 +233,17 @@ glm::ivec2 Player::getSpeed() const
     return glm::ivec2(speed);
 }
 
-template <class T> void Player::giveItem()
+template <class T> void Player::giveItem(int param /* = 0 */)
 {
   std::cout << typeid(T).name() << std::endl;
   if (typeid(T) == typeid(EmptyItem)) return;
 
   for (Item* i : items) {
     if (dynamic_cast<T*>(i) != nullptr) {
-      i->amount++;
+      if (typeid(T) == typeid(BlockItem)) {
+        if (dynamic_cast<BlockItem*>(i)->getBlockID() != param) continue;
+      }
+      if (i->amount != -1) i->amount++;
       return;
     }
   }
@@ -237,7 +252,7 @@ template <class T> void Player::giveItem()
     if (dynamic_cast<EmptyItem*>(items[i]) != nullptr) {
       delete items[i];
       items[i] = new T();
-      items[i]->init(*shaderProgram);
+      items[i]->init(*shaderProgram, param);
       items[i]->setPosition(inventoryPos + glm::ivec2(10+45*i,10));
       return;
     }

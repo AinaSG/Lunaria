@@ -17,7 +17,7 @@ public:
   ~Item();
 
   virtual void use(float deltaTime) = 0;
-  virtual void init(ShaderProgram &sp) = 0;
+  virtual void init(ShaderProgram &sp, int param = 0) = 0;
 
   void render();
   void setPosition(glm::ivec2 pos) { if (sprite != nullptr) sprite->setPosition(pos); }
