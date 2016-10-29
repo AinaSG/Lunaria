@@ -23,6 +23,11 @@ void BlockItem::use(float deltaTime)
   else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
     glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
     glm::ivec2 tilePos =  scene->screenToTile(mousePos);
+    glm::vec2 worldPos = scene->screenToWorld(mousePos);
+    glm::vec2 playerPos = scene->player->getPos();
+
+    if (glm::distance(worldPos,playerPos) > 60) return;
+
     if (scene->map->getTile(tilePos) == Block::Empty) {
       scene->map->setTile(tilePos, blockID);
       --amount;

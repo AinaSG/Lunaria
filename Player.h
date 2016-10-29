@@ -38,6 +38,7 @@ private:
     ShaderProgram *shaderProgram;
     int currentItem;
     const glm::ivec2 inventoryPos = glm::ivec2(10,10);
+    const glm::ivec2 hitbox =  glm::ivec2(16,32);
 
     vector<Item*> items;
 
