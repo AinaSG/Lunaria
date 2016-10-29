@@ -108,7 +108,7 @@ void Scene::update(int deltaTime)
 
   player->update(deltaTime);
   if (player->isDead()){
-   std::cout << "MI DED" << std::endl;
+   //std::cout << "MI DED" << std::endl;
   }
 
   for (int i = 0; i< enemyVector.size(); ++i){

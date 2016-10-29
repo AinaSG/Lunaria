@@ -122,10 +122,10 @@ void Player::update(int deltaTime)
     }
 
     if(Input::instance().getKey('a')){
-        speed.x = -walkSpeed;
+			if (speed.x <= 0 or bJumping) speed.x = -walkSpeed;
 	}
     else if(Input::instance().getKey('d')){
-        speed.x = walkSpeed;
+        if (speed.x >= 0 or bJumping ) speed.x = walkSpeed;
 	}
 	else{
 		if (!hit){
