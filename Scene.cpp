@@ -191,7 +191,7 @@ void Scene::render()
   texProgram.setUniformMatrix4f("view",view);
 
 
-  player->renderInventory();
+  player->renderHUD();
 }
 
 void Scene::initShaders()
@@ -250,6 +250,8 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
   glm::ivec2 tilePos = screenToTile(mousePos);
 
   int block = map->getTile(tilePos);
+  if (block == Block::BedRock) return;
+
   bool hitBlock = block != Block::Empty;
 
   if (hitBlock && tilePos != breakingPos) {

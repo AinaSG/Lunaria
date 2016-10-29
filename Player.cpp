@@ -226,7 +226,7 @@ void Player::render()
   sprite->render();
 }
 
-void Player::renderInventory()
+void Player::renderHUD()
 {
   inventorySprite->render();
   renderItems();

@@ -17,7 +17,8 @@ enum Block {
   Empty         = 0,
   Rock          = 1,
   BlueMaterial  = 2,
-  RedMaterial   = 3
+  RedMaterial   = 3,
+  BedRock       = 4
 };
 
 class TileMap
