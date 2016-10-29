@@ -22,6 +22,10 @@ public:
 	void setPosition(const glm::vec2 &pos);
     glm::ivec2 getPos() const;
     glm::ivec2 getSpeed() const;
+		int getLife();
+		void setLife( int l);
+		bool isDead();
+		int dealDamage(int damage);
 
 protected:
 	bool bJumping;
@@ -32,6 +36,9 @@ protected:
     glm::vec2 speed;
 		int walkSpeed;
 		int jumpSpeed;
+		int life;
+		bool dead;
+		int damage;
 		const int GRAVITY = 500;
 
 };

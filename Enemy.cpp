@@ -21,6 +21,9 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
   jumpSpeed = 200;
   strategy = 1;
 
+  life = 3;
+  damage = 2;
+
   waiting = false;
   waitime = 0;
   waitdir = false;

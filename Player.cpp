@@ -25,8 +25,9 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	bJumping = false;
 	walkSpeed = 200;
 	jumpSpeed = 400;
+	life = 10;
 	speed = glm::vec2(0,0);
-	Texture* tex = ResourceManager::instance().getTexture("bub.png");
+	Texture* tex = ResourceManager::instance().getTexture("bub_astIP.png");
     if (tex == nullptr) {
       std::cout << "Player texture not found" << std::endl;
       return;

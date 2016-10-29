@@ -21,6 +21,9 @@ void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	jumpSpeed = 50;
 	strategy = 2;
 
+	life = 2;
+	damage = 1;
+
 	waiting = false;
 	waitime = 0;
 	waitdir = false;

@@ -16,8 +16,9 @@ void Character::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	cout << "leliao" << endl;
 	bJumping = false;
+	dead = false;
 	speed = glm::vec2(0,0);
-	spritesheet.loadFromFile("images/bub.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheet.loadFromFile("images/bub_astIP.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(4);
 
@@ -144,6 +145,30 @@ void Character::setPosition(const glm::vec2 &pos)
 glm::ivec2 Character::getPos() const
 {
 	return position;
+}
+
+int Character::getLife()
+{
+	return life;
+}
+
+void Character::setLife( int l)
+{
+	life = l;
+}
+
+bool Character::isDead()
+{
+	return dead;
+}
+
+int Character::dealDamage(int damage)
+{
+	life = life - damage;
+	if (life < 0 ){
+		life = 0;
+		dead = true;
+	}
 }
 
 glm::ivec2 Character::getSpeed() const
