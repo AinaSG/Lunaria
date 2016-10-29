@@ -27,6 +27,9 @@ public:
 		bool isDead() const;
 		int dealDamage(int damage,glm::vec2 enemy_pos);
 		bool pointInside(glm::vec2 click);
+		virtual void postDamage();
+
+		bool hitEffect = false;
 
 protected:
 	bool bJumping;

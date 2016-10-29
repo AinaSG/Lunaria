@@ -32,6 +32,10 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	kb_speed_x = 200;
 	kb_speed_y = 200;
 
+  timePostHit = 10;
+  postHitCounter = 0;
+  hitEffect = false;
+
 	life = 10;
 	damage = 1;
 	speed = glm::vec2(0,0);
@@ -42,6 +46,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     }
 
     sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+
 	  sprite->setNumberAnimations(6);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -78,12 +83,40 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     inventorySprite = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
     inventorySprite->setPosition(inventoryPos);
 
+    tex = ResourceManager::instance().getTexture("hit.png");
+    if (tex == nullptr) {
+      std::cout << "Hit texture not found" << std::endl;
+      return;
+    }
+    hitSprite = Sprite::createSprite(glm::ivec2(960,720), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    hitSprite->setPosition(glm::vec2(0,0));
+
     tex = ResourceManager::instance().getTexture("current_item.png");
     if (tex == nullptr) {
       std::cout << "Current item texture not found" << std::endl;
       return;
     }
     currentItemSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    currentItemShopSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
+    tex = ResourceManager::instance().getTexture("hrt.png");
+
+    if (tex == nullptr) {
+      std::cout << "Heart texture not found" << std::endl;
+      return;
+    }
+
+    heartSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
+    tex = ResourceManager::instance().getTexture("shop.png");
+
+    if (tex == nullptr) {
+      std::cout << "Shop texture not found" << std::endl;
+      return;
+    }
+
+    shopSprite = Sprite::createSprite(glm::ivec2(185,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    shopSprite->setPosition(shopPos);
 
     tex = ResourceManager::instance().getTexture("cross3.png");
     if (tex == nullptr) {
@@ -92,10 +125,134 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     }
     crosshairSprite = Sprite::createSprite(glm::ivec2(11,11), glm::vec2(1.0, 1.0), tex, &shaderProgram);
 
+    /////////////////////LOADING SHOP ITEMS////////////////////////////////////////////
+    tex = ResourceManager::instance().getTexture("taladro.png");
+
+    if (tex == nullptr) {
+      std::cout << "Taladro texture not found" << std::endl;
+      return;
+    }
+
+    taladroSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    taladroSprite->setPosition(taladroPos);
+
+    tex = ResourceManager::instance().getTexture("taladro_bw.png");
+
+    if (tex == nullptr) {
+      std::cout << "Taladro_bw texture not found" << std::endl;
+      return;
+    }
+
+    taladroSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    taladroSpriteBW->setPosition(taladroPos);
+
+    tex = ResourceManager::instance().getTexture("fase1.png");
+
+    if (tex == nullptr) {
+      std::cout << "Stage1 texture not found" << std::endl;
+      return;
+    }
+
+    stage1Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage1Sprite->setPosition(stagePos);
+
+    tex = ResourceManager::instance().getTexture("fase1_bw.png");
+
+    if (tex == nullptr) {
+      std::cout << "Stage1_bw texture not found" << std::endl;
+      return;
+    }
+
+    stage1SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage1SpriteBW->setPosition(stagePos);
+
+    tex = ResourceManager::instance().getTexture("fase2.png");
+
+    if (tex == nullptr) {
+      std::cout << "Stage2 texture not found" << std::endl;
+      return;
+    }
+
+    stage2Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage2Sprite->setPosition(stagePos);
+
+    tex = ResourceManager::instance().getTexture("fase2_bw.png");
+
+    if (tex == nullptr) {
+      std::cout << "Stage2_bw texture not found" << std::endl;
+      return;
+    }
+
+    stage2SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage2SpriteBW->setPosition(stagePos);
+
+    tex = ResourceManager::instance().getTexture("fase3.png");
+
+    if (tex == nullptr) {
+      std::cout << "Stage3 texture not found" << std::endl;
+      return;
+    }
+
+    stage3Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage3Sprite->setPosition(stagePos);
+
+    tex = ResourceManager::instance().getTexture("fase3_bw.png");
+
+    if (tex == nullptr) {
+      std::cout << "Stage3_bw texture not found" << std::endl;
+      return;
+    }
+
+    stage3SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    stage3SpriteBW->setPosition(stagePos);
+
+    tex = ResourceManager::instance().getTexture("medi.png");
+
+    if (tex == nullptr) {
+      std::cout << "Potion texture not found" << std::endl;
+      return;
+    }
+
+    potionSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    potionSprite->setPosition(potionPos);
+
+    tex = ResourceManager::instance().getTexture("medi_bw.png");
+
+    if (tex == nullptr) {
+      std::cout << "Potion_bw texture not found" << std::endl;
+      return;
+    }
+
+    potionSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    potionSpriteBW->setPosition(potionPos);
+
+    tex = ResourceManager::instance().getTexture("sword.png");
+
+    if (tex == nullptr) {
+      std::cout << "Sword texture not found" << std::endl;
+      return;
+    }
+
+    swordSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    swordSprite->setPosition(swordPos);
+
+    tex = ResourceManager::instance().getTexture("sword_bw.png");
+
+    if (tex == nullptr) {
+      std::cout << "Sword_bw texture not found" << std::endl;
+      return;
+    }
+
+    swordSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    swordSpriteBW->setPosition(swordPos);
+
+
+    ////////////////////////END SHOP ITEMS /////////////////////////////////////////////
 
     for (int i = 0; i < items.size(); ++i) items[i] = new EmptyItem();
 
     setCurrentItem(0);
+    setCurrentItemShop(0);
 
     giveItem<BlockItem>(Block::Rock);
     delete items[0];
@@ -110,6 +267,16 @@ void Player::update(int deltaTime)
 
     glm::ivec2 chPos = Game::instance().scene.worldToScreen(getCrosshairPos());
     Input::instance().setMousePosition(chPos);
+
+    if(hitEffect){
+      postHitCounter = postHitCounter + deltaTime;
+    }
+    if(postHitCounter > timePostHit ){
+      postHitCounter = 0;
+      hitEffect = false;
+    }
+
+  checkShop();
 
 	sprite->update(deltaTime);
 
@@ -228,7 +395,30 @@ void Player::renderHUD()
 {
   inventorySprite->render();
   renderItems();
+  renderLife();
+  renderShop();
+  if (hitEffect){
+    renderHitEffect();
+  }
   currentItemSprite->render();
+  currentItemShopSprite->render();
+}
+
+void Player::renderLife()
+{
+  int x_heart = 900;
+  int y_heart = 20;
+  int distance_bh = 37;
+
+  for (int i=0; i < life; ++i){
+    heartSprite->setPosition(glm::vec2(x_heart-(i*distance_bh), y_heart));
+    heartSprite->render();
+  }
+}
+
+void Player::postDamage(){
+  hitEffect  = true;
+  cout <<"POSTDAM" << endl;
 }
 
 void Player::renderItems()
@@ -246,16 +436,83 @@ void Player::renderItems()
   }
 }
 
+void Player::checkShop(){
+
+}
+
+void Player::renderShop()
+{
+  shopSprite->render();
+  if (can_buy_potion){
+    potionSprite->render();
+  }
+  else{
+    potionSpriteBW->render();
+  }
+  if (can_buy_espasa){
+    swordSprite->render();
+  }
+  else{
+    swordSpriteBW->render();
+  }
+  if (can_buy_taladro){
+    taladroSprite->render();
+  }
+  else{
+    taladroSpriteBW->render();
+  }
+
+  if(shipStage==0){
+    if (can_buy_stage){
+      stage1Sprite->render();
+    }
+    else{
+      stage1SpriteBW->render();
+    }
+  }
+  else if(shipStage==1){
+    if (can_buy_stage){
+      stage2Sprite->render();
+    }
+    else{
+      stage2SpriteBW->render();
+    }
+
+  }
+  else {
+    if (can_buy_stage){
+      stage3Sprite->render();
+    }
+    else{
+      stage3SpriteBW->render();
+    }
+
+  }
+
+}
+
 void Player::renderCrosshair()
 {
   crosshairSprite->setPosition(getCrosshairPos() - glm::ivec2(5,5));
   crosshairSprite->render();
 }
 
+void Player::renderHitEffect()
+{
+  cout <<"HIIT" << endl;
+  hitSprite->render();
+}
+
 void Player::setCurrentItem(int n)
 {
   currentItem = n;
   currentItemSprite->setPosition(inventoryPos + glm::ivec2(2+45*n,2));
+}
+
+void Player::setCurrentItemShop(int n)
+{
+  currentItemShop = n;
+  currentItemShopSprite->setPosition(shopPos + glm::ivec2(2+45*n,2));
 }
 
 void Player::setTileMap(TileMap *tileMap)
