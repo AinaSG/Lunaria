@@ -23,9 +23,18 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     this->shaderProgram = &shaderProgram;
 
 	bJumping = false;
+	hit = false;
 	walkSpeed = 200;
 	jumpSpeed = 400;
+
+	my_size_x = 32;
+	my_size_y = 32;
+
+	kb_speed_x = 200;
+	kb_speed_y = 200;
+
 	life = 10;
+	damage = 1;
 	speed = glm::vec2(0,0);
 	Texture* tex = ResourceManager::instance().getTexture("bub_astIP.png");
     if (tex == nullptr) {
@@ -33,8 +42,8 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
       return;
     }
 
-    sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), tex, &shaderProgram);
-      sprite->setNumberAnimations(6);
+    sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+	  sprite->setNumberAnimations(6);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
 		sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
@@ -67,21 +76,27 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
       std::cout << "Inventory texture not found" << std::endl;
       return;
     }
-
-    inventory = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    inventory->setPosition(inventoryPos);
+    inventorySprite = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+    inventorySprite->setPosition(inventoryPos);
 
     tex = ResourceManager::instance().getTexture("current_item.png");
     if (tex == nullptr) {
       std::cout << "Current item texture not found" << std::endl;
       return;
     }
-
     currentItemSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
+    tex = ResourceManager::instance().getTexture("cross3.png");
+    if (tex == nullptr) {
+      std::cout << "Crosshair texture not found" << std::endl;
+      return;
+    }
+    crosshairSprite = Sprite::createSprite(glm::ivec2(11,11), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
 
     for (int i = 0; i < items.size(); ++i) items[i] = new EmptyItem();
 
-    setCurrentItem(4);
+    setCurrentItem(0);
 
     giveItem<BlockItem>(Block::Rock);
     delete items[0];
@@ -93,6 +108,9 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
     float dt = deltaTime/1000.0f;
+
+    glm::ivec2 chPos = Game::instance().scene.worldToScreen(getCrosshairPos());
+    Input::instance().setMousePosition(chPos);
 
 	sprite->update(deltaTime);
 
@@ -123,7 +141,9 @@ void Player::update(int deltaTime)
         speed.x = walkSpeed;
 	}
 	else{
-		speed.x = 0;
+		if (!hit){
+			speed.x = 0;
+		}
 	}
 
     speed.y += GRAVITY*dt;
@@ -135,33 +155,37 @@ void Player::update(int deltaTime)
 
 	if(speed.x < 0)
     {
-        bool hit = map->clampMoveX(position, hitbox, int(speed.x * dt));
-        if(hit) {
+        bool wasHit = map->clampMoveX(position, hitbox, int(speed.x * dt));
+        if(wasHit) {
 			speed.x = 0;
 		}
 	}
 	else if(speed.x > 0)
     {
 
-        bool hit = map->clampMoveX(position, hitbox, int(speed.x * dt));
-        if(hit) {
+        bool wasHit = map->clampMoveX(position, hitbox, int(speed.x * dt));
+        if(wasHit) {
 			speed.x = 0;
 		}
     }
 
     if(speed.y < 0)
     {
-        bool hit = map->clampMoveY(position, hitbox, int(floor(speed.y * dt)));
-        if (hit) {
+        bool wasHit = map->clampMoveY(position, hitbox, int(floor(speed.y * dt)));
+        if (wasHit) {
+
             speed.y = 0;
+
         }
     }
     else if(speed.y > 0)
     {
-        bool hit = map->clampMoveY(position, hitbox, int(ceil(speed.y * dt)));
-        if (hit) {
+        bool wasHit = map->clampMoveY(position, hitbox, int(ceil(speed.y * dt)));
+        if (wasHit) {
+
           speed.y = 0;
           bJumping = false;
+		  hit = false;
         }
     }
 
@@ -204,7 +228,7 @@ void Player::render()
 
 void Player::renderInventory()
 {
-  inventory->render();
+  inventorySprite->render();
   renderItems();
   currentItemSprite->render();
 }
@@ -214,6 +238,12 @@ void Player::renderItems()
   for (Item* i : items) {
     i->render();
   }
+}
+
+void Player::renderCrosshair()
+{
+  crosshairSprite->setPosition(getCrosshairPos() - glm::ivec2(5,5));
+  crosshairSprite->render();
 }
 
 void Player::setCurrentItem(int n)
@@ -243,9 +273,43 @@ glm::ivec2 Player::getSpeed() const
     return glm::ivec2(speed);
 }
 
+void Player::attack(int hit_damage)
+{
+	if (hit_damage == -1) hit_damage = damage;
+	Scene* scene = &(Game::instance().scene);
+	glm::ivec2 click_pos = scene->screenToWorld(Input::instance().getMouseScreenPos());
+
+    for(int i = 0; i<scene->enemyVector.size(); ++i){
+        //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
+        if (scene->enemyVector[i]->pointInside(click_pos)){
+            scene->enemyVector[i]->dealDamage(damage, position);
+            break;
+        }
+    }
+
+    for(int i = 0; i<scene->rockEnemyVector.size(); ++i){
+        //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
+        if (scene->rockEnemyVector[i]->pointInside(click_pos)){
+            scene->rockEnemyVector[i]->dealDamage(damage, position);
+            break;
+        }
+    }
+}
+
+glm::ivec2 Player::getCrosshairPos() const
+{
+  glm::vec2 mousePos = Game::instance().scene.screenToWorld(Input::instance().getMouseScreenPos());
+  glm::vec2 myPos = glm::vec2(position + glm::ivec2(8,16));
+  glm::vec2 chVector = mousePos - myPos;
+
+  if (glm::length(chVector) > 60.0f) {
+    chVector = glm::normalize(chVector) * 60.0f;
+  }
+  return myPos + chVector;
+}
+
 template <class T> void Player::giveItem(int param /* = 0 */)
 {
-  std::cout << typeid(T).name() << std::endl;
   if (typeid(T) == typeid(EmptyItem)) return;
 
   for (Item* i : items) {

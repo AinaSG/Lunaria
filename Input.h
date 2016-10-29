@@ -30,6 +30,8 @@ public:
     void mouseRelease(int button);
     void mouseWheel(int button, int state);
 
+    void setMousePosition(glm::ivec2 pos);
+
     //Getters
     bool getKey(int key) const;
     bool getSpecialKey(int key) const;

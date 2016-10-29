@@ -21,12 +21,23 @@ void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	jumpSpeed = 50;
 	strategy = 2;
 
+	hit = false;
+
 	life = 2;
 	damage = 1;
 
 	waiting = false;
 	waitime = 0;
 	waitdir = false;
+
+	kb_speed_x = 400;
+  kb_speed_y = 200;
+
+	my_size_x = 32;
+  my_size_y = 32;
+
+	waitattack = 500;
+  timewaited_attack = 0;
 
 	speed = glm::vec2(0, -100);
 	Texture* tex = ResourceManager::instance().getTexture("rock_bub.png");
@@ -35,7 +46,7 @@ void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
       return;
     }
 
-    sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+    sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), tex, &shaderProgram);
 	  sprite->setNumberAnimations(4);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -67,6 +78,7 @@ void RockEnemy::update(int deltaTime)
     float dt = deltaTime/1000.0f;
 		Player * player = Game::instance().scene.player;
 
+	int dist_to_player = glm::distance(glm::vec2(player->getPos()), glm::vec2(position));
 	sprite->update(deltaTime);
 
 	//decide strategy
@@ -135,8 +147,8 @@ void RockEnemy::update(int deltaTime)
 			if(sprite->animation() != MOVE_LEFT)
 				sprite->changeAnimation(MOVE_LEFT);
 
-	        bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
-			if(hit) {
+	        bool hited = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
+			if(hited) {
 
 				sprite->changeAnimation(STAND_LEFT);
 				speed.x = 0;
@@ -147,8 +159,8 @@ void RockEnemy::update(int deltaTime)
 			if(sprite->animation() != MOVE_RIGHT)
 				sprite->changeAnimation(MOVE_RIGHT);
 
-	        bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
-			if(hit) {
+	        bool hited = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
+			if(hited) {
 
 				sprite->changeAnimation(STAND_RIGHT);
 				speed.x = 0;
@@ -166,8 +178,8 @@ void RockEnemy::update(int deltaTime)
 	    {
 	        //if(sprite->animation() != MOVE_LEFT)
 	        //	sprite->changeAnimation(MOVE_LEFT);
-	        bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
-	        if (hit) {
+	        bool hited = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
+	        if (hited) {
 
 	            speed.y = 0;
 
@@ -177,13 +189,22 @@ void RockEnemy::update(int deltaTime)
 	    {
 	        //if(sprite->animation() != MOVE_RIGHT)
 	        //	sprite->changeAnimation(MOVE_RIGHT);
-	        bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
-	        if (hit) {
+	        bool hited = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
+	        if (hited) {
 
 	          speed.y = 0;
 	            bJumping = false;
 	        }
 	    }
+
+			timewaited_attack = timewaited_attack + deltaTime;
+
+		  if(dist_to_player <= 15){
+		    if (timewaited_attack >= waitattack){
+		      timewaited_attack = 0;
+		      player->dealDamage(damage, position);
+		    }
+		  }
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }

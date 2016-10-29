@@ -9,6 +9,7 @@
 #include <sstream>
 #include "BlockItem.h"
 #include "ResourceManager.h"
+#include <algorithm>
 
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 10
@@ -106,13 +107,30 @@ void Scene::update(int deltaTime)
   currentTime += deltaTime;
 
   player->update(deltaTime);
+  if (player->isDead()){
+   std::cout << "MI DED" << std::endl;
+  }
 
   for (int i = 0; i< enemyVector.size(); ++i){
     enemyVector[i]->update(deltaTime);
   }
+
+  enemyVector.erase(std::remove_if(
+    enemyVector.begin(), enemyVector.end(),
+    [](const Enemy* enemy) {
+        return enemy->isDead(); // put your condition here
+    }), enemyVector.end());
+
+
   for (int i = 0; i< rockEnemyVector.size(); ++i){
     rockEnemyVector[i]->update(deltaTime);
   }
+
+  rockEnemyVector.erase(std::remove_if(
+    rockEnemyVector.begin(), rockEnemyVector.end(),
+    [](const RockEnemy* rockenemy) {
+        return rockenemy->isDead(); // put your condition here
+    }), rockEnemyVector.end());
 
   cameraPos = glm::vec2(player->getPos());
 }
@@ -165,11 +183,13 @@ void Scene::render()
   }
   //testEnemy->render();
 
+ player->renderCrosshair();
 
   model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
   view = glm::mat4(1.0f);
   texProgram.setUniformMatrix4f("model", model);
   texProgram.setUniformMatrix4f("view",view);
+
 
   player->renderInventory();
 }
@@ -228,7 +248,6 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
 {
   glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
   glm::ivec2 tilePos = screenToTile(mousePos);
-  if (glm::distance(glm::vec2(tilePos*map->getTileSize()+map->getTileSize()/2), glm::vec2(player->getPos()+glm::ivec2(16,16))) > 60) return;
 
   int block = map->getTile(tilePos);
   bool hitBlock = block != Block::Empty;
@@ -246,7 +265,7 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
       if (rand()%10 == 1){
           add_rockEnemy(screenToWorld(mousePos));
       }
-      
+
       map->setTile(breakingPos,0);
       player->giveItem<BlockItem>(block);
       breakPercent = 100;

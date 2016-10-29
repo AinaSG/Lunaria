@@ -15,6 +15,10 @@ void BlockItem::init(ShaderProgram &sp, int param)
 
 void BlockItem::use(float deltaTime)
 {
+  if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
+  {
+    Game::instance().scene.player->attack();
+  }
   Scene* scene = &Game::instance().scene;
   if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
     scene->mineBlock(deltaTime);
@@ -25,8 +29,6 @@ void BlockItem::use(float deltaTime)
     glm::ivec2 tilePos =  scene->screenToTile(mousePos);
     glm::vec2 worldPos = scene->screenToWorld(mousePos);
     glm::vec2 playerPos = scene->player->getPos();
-
-    if (glm::distance(worldPos,playerPos) > 60) return;
 
     if (scene->map->getTile(tilePos) == Block::Empty) {
       scene->map->setTile(tilePos, blockID);

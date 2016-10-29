@@ -46,6 +46,12 @@ void Input::mouseRelease(int button)
   else mouseWheelState = button == 3 ? -1 : button == 4 ? 1 : 0;
 }
 
+void Input::setMousePosition(glm::ivec2 pos)
+{
+  glutWarpPointer(pos.x, pos.y);
+  mouseMove(pos.x,pos.y);
+}
+
 
 
 bool Input::getKey(int key) const { return keys[key]; }

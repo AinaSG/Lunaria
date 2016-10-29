@@ -157,18 +157,38 @@ void Character::setLife( int l)
 	life = l;
 }
 
-bool Character::isDead()
+bool Character::isDead() const
 {
 	return dead;
 }
 
-int Character::dealDamage(int damage)
+int Character::dealDamage(int damage, glm::vec2 enemy_pos)
 {
+	cout << "damage" << endl;
 	life = life - damage;
-	if (life < 0 ){
+	hit = true;
+	cout << life << endl;
+	//speed = speed + glm::normalize(glm::vec2(position)-enemy_pos)*2000.0f;
+	if(enemy_pos.x < position.x){
+		speed.y = speed.y - kb_speed_y;
+		speed.x = speed.x + kb_speed_x;
+	}
+	else{
+		speed.y = speed.y - kb_speed_y;
+		speed.x = speed.x - kb_speed_x;
+	}
+	if (life <= 0 ){
 		life = 0;
 		dead = true;
 	}
+}
+
+bool Character::pointInside(glm::vec2 click){
+	if((click.x >(position.x))	and (click.x < (position.x + my_size_x))
+		and (click.y >(position.y))	and (click.y < (position.y + my_size_y))){
+			return true;
+		}
+		return false;
 }
 
 glm::ivec2 Character::getSpeed() const

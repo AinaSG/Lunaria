@@ -23,18 +23,21 @@ public:
 	void update(int deltaTime);
 	void render();
     void renderInventory();
+    void renderCrosshair();
 
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
+
     glm::ivec2 getPos() const;
     glm::ivec2 getSpeed() const;
+    glm::ivec2 getCrosshairPos() const;
 
+    void attack(int hit_damage = -1);
     template <class T> void giveItem(int param = 0);
-
 
 private:
     glm::ivec2 tileMapDispl;
-    Sprite *inventory, *currentItemSprite;
+    Sprite *inventorySprite, *currentItemSprite, *crosshairSprite;
     ShaderProgram *shaderProgram;
     int currentItem;
     const glm::ivec2 inventoryPos = glm::ivec2(10,10);
