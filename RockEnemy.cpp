@@ -33,14 +33,14 @@ void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	kb_speed_x = 400;
   kb_speed_y = 200;
 
-	my_size_x = 32;
-  my_size_y = 32;
+	my_size_x = 16;
+  my_size_y = 16;
 
 	waitattack = 500;
   timewaited_attack = 0;
 
 	speed = glm::vec2(0, -100);
-	Texture* tex = ResourceManager::instance().getTexture("rock_bub.png");
+	Texture* tex = ResourceManager::instance().getTexture("rock_bub_IP.png");
     if (tex == nullptr) {
       std::cout << "RockEnemy texture not found" << std::endl;
       return;
