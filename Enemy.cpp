@@ -28,7 +28,13 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
   waitime = 0;
   waitdir = false;
 
+  kb_speed_x = 800;
+  kb_speed_y = 200;
+
   hit = false;
+
+  my_size_x = 32;
+  my_size_y = 32;
 
   waitattack = 1000;
   timewaited_attack = 0;
@@ -40,7 +46,7 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     return;
   }
 
-  sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+  sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), tex, &shaderProgram);
   sprite->setNumberAnimations(4);
 
   sprite->setAnimationSpeed(STAND_LEFT, 8);

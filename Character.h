@@ -24,8 +24,9 @@ public:
     glm::ivec2 getSpeed() const;
 		int getLife();
 		void setLife( int l);
-		bool isDead();
+		bool isDead() const;
 		int dealDamage(int damage,glm::vec2 enemy_pos);
+		bool pointInside(glm::vec2 click);
 
 protected:
 	bool bJumping;
@@ -36,6 +37,12 @@ protected:
     glm::vec2 speed;
 		int walkSpeed;
 		int jumpSpeed;
+		int my_size_x;
+		int my_size_y;
+
+		int kb_speed_x;
+		int kb_speed_y;
+
 		int life;
 		bool dead;
 		bool hit;

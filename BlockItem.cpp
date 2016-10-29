@@ -15,6 +15,10 @@ void BlockItem::init(ShaderProgram &sp, int param)
 
 void BlockItem::use(float deltaTime)
 {
+  if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
+  {
+    Game::instance().scene.player->attack();
+  }
   Scene* scene = &Game::instance().scene;
   if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
     scene->mineBlock(deltaTime);

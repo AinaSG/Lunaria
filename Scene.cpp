@@ -9,6 +9,7 @@
 #include <sstream>
 #include "BlockItem.h"
 #include "ResourceManager.h"
+#include <algorithm>
 
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 10
@@ -106,13 +107,30 @@ void Scene::update(int deltaTime)
   currentTime += deltaTime;
 
   player->update(deltaTime);
+  if (player->isDead()){
+   std::cout << "MI DED" << std::endl;
+  }
 
   for (int i = 0; i< enemyVector.size(); ++i){
     enemyVector[i]->update(deltaTime);
   }
+
+  enemyVector.erase(std::remove_if(
+    enemyVector.begin(), enemyVector.end(),
+    [](const Enemy* enemy) {
+        return enemy->isDead(); // put your condition here
+    }), enemyVector.end());
+
+
   for (int i = 0; i< rockEnemyVector.size(); ++i){
     rockEnemyVector[i]->update(deltaTime);
   }
+
+  rockEnemyVector.erase(std::remove_if(
+    rockEnemyVector.begin(), rockEnemyVector.end(),
+    [](const RockEnemy* rockenemy) {
+        return rockenemy->isDead(); // put your condition here
+    }), rockEnemyVector.end());
 
   cameraPos = glm::vec2(player->getPos());
 }
@@ -246,7 +264,7 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
       if (rand()%10 == 1){
           add_rockEnemy(screenToWorld(mousePos));
       }
-      
+
       map->setTile(breakingPos,0);
       player->giveItem<BlockItem>(block);
       breakPercent = 100;

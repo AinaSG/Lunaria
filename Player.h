@@ -29,6 +29,8 @@ public:
     glm::ivec2 getPos() const;
     glm::ivec2 getSpeed() const;
 
+  void attack(int hit_damage = -1);
+
     template <class T> void giveItem(int param = 0);
 
 

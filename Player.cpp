@@ -26,7 +26,15 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	hit = false;
 	walkSpeed = 200;
 	jumpSpeed = 400;
+
+	my_size_x = 32;
+	my_size_y = 32;
+
+	kb_speed_x = 200;
+	kb_speed_y = 200;
+
 	life = 10;
+	damage = 1;
 	speed = glm::vec2(0,0);
 	Texture* tex = ResourceManager::instance().getTexture("bub_astIP.png");
     if (tex == nullptr) {
@@ -34,7 +42,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
       return;
     }
 
-    sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+    sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), tex, &shaderProgram);
 	  sprite->setNumberAnimations(4);
 
 		sprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -235,6 +243,29 @@ glm::ivec2 Player::getPos() const
 glm::ivec2 Player::getSpeed() const
 {
     return glm::ivec2(speed);
+}
+
+void Player::attack(int hit_damage)
+{
+	if (hit_damage == -1) hit_damage = damage;
+	Scene* scene = &(Game::instance().scene);
+	glm::ivec2 click_pos = scene->screenToWorld(Input::instance().getMouseScreenPos());
+	if(glm::distance(glm::vec2(click_pos), glm::vec2(position)) < 600){
+		for(int i = 0; i<scene->enemyVector.size(); ++i){
+			//glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
+			if (scene->enemyVector[i]->pointInside(click_pos)){
+				scene->enemyVector[i]->dealDamage(damage, position);
+				break;
+			}
+		}
+		for(int i = 0; i<scene->rockEnemyVector.size(); ++i){
+			//glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
+			if (scene->rockEnemyVector[i]->pointInside(click_pos)){
+				scene->rockEnemyVector[i]->dealDamage(damage, position);
+				break;
+			}
+		}
+	}
 }
 
 template <class T> void Player::giveItem(int param /* = 0 */)
