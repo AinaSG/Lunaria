@@ -29,7 +29,7 @@ public:
     glm::ivec2 getPos() const;
     glm::ivec2 getSpeed() const;
 
-    template <class T> void giveItem();
+    template <class T> void giveItem(int param = 0);
 
 
 private:

@@ -4,10 +4,15 @@
 
 class BlockItem : public Item
 {
+private:
+  int blockID;
+  const string filenames[3] = { "moonground.png", "moondiamonds.png", "moonrubies.png" };
+
 public:
   BlockItem();
-  void init(ShaderProgram &sp);
+  void init(ShaderProgram &sp, int param = 0);
   void use(float deltaTime);
+  int getBlockID() { return blockID; }
 
 };
 

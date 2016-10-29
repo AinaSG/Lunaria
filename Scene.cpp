@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <sstream>
+#include "BlockItem.h"
 #include "ResourceManager.h"
 
 #define INIT_PLAYER_X_TILES 4
@@ -227,8 +228,7 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
 {
   glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
   glm::ivec2 tilePos = screenToTile(mousePos);
-
-
+  if (glm::distance(glm::vec2(tilePos*map->getTileSize()+map->getTileSize()/2), glm::vec2(player->getPos()+glm::ivec2(16,16))) > 60) return;
 
   int block = map->getTile(tilePos);
   bool hitBlock = block != Block::Empty;
@@ -248,6 +248,7 @@ void Scene::mineBlock(float deltaTime, float speed /* = 100.0f */)
       }
       
       map->setTile(breakingPos,0);
+      player->giveItem<BlockItem>(block);
       breakPercent = 100;
       breakingPos = NULL_POS;
     }
