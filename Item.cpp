@@ -1,5 +1,7 @@
 #include "Item.h"
 #include "ResourceManager.h"
+#include "Game.h"
+#include "Input.h"
 
 Item::Item()
 {
@@ -9,6 +11,18 @@ Item::Item()
 Item::~Item()
 {
   if (sprite != nullptr) delete sprite;
+}
+
+void Item::use(float deltaTime)
+{
+  if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
+  {
+    Game::instance().scene.player->attack();
+  }
+  if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON))
+  {
+    Game::instance().scene.mineBlock(deltaTime);
+  }
 }
 
 void Item::init(string textureName, ShaderProgram &shaderProgram)
@@ -22,7 +36,6 @@ void Item::init(string textureName, ShaderProgram &shaderProgram)
 
 void Item::render()
 {
-
   if (sprite != NULL) sprite->render();
 }
 

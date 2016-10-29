@@ -16,7 +16,7 @@ public:
   Item();
   ~Item();
 
-  virtual void use(float deltaTime) = 0;
+  virtual void use(float deltaTime);
   virtual void init(ShaderProgram &sp, int param = 0) = 0;
 
   void render();

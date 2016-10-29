@@ -7,8 +7,7 @@ class EmptyItem : public Item
 {
 public:
   EmptyItem() : Item() {}
-  void init(ShaderProgram &sp, int param = 0) override { }
-  void use(float deltaTime) override;
+  void init(ShaderProgram &sp, int param = 0) override { amount = -1; }
 };
 
 #endif // EMPTYITEM_H

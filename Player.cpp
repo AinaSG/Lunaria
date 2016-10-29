@@ -5,9 +5,8 @@
 #include "Player.h"
 #include "Game.h"
 #include "Input.h"
+#include "DrillItem.h"
 #include "ResourceManager.h"
-#include "BlockItem.h"
-#include <typeinfo>
 #include <string>
 
 enum PlayerAnims
@@ -249,14 +248,15 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
     ////////////////////////END SHOP ITEMS /////////////////////////////////////////////
 
-    for (int i = 0; i < items.size(); ++i) items[i] = new EmptyItem();
+    for (int i = 0; i < items.size(); ++i) {
+      items[i] = new EmptyItem();
+      items[i]->init(shaderProgram);
+    }
 
     setCurrentItem(0);
     setCurrentItemShop(0);
 
-    giveItem<BlockItem>(Block::Rock);
-    delete items[0];
-    items[0] = new EmptyItem();
+    giveItem<DrillItem>();
 }
 
 
@@ -292,11 +292,11 @@ void Player::update(int deltaTime)
       setCurrentItem((--currentItem+9)%9);
     }
 
-
     items[currentItem]->use(deltaTime);
     if (items[currentItem]->amount == 0) {
       delete items[currentItem];
       items[currentItem] = new EmptyItem();
+      items[currentItem]->init(*shaderProgram);
     }
 
     if(Input::instance().getKey('a')){
@@ -569,30 +569,4 @@ glm::ivec2 Player::getCrosshairPos() const
     chVector = glm::normalize(chVector) * 60.0f;
   }
   return myPos + chVector;
-}
-
-template <class T> void Player::giveItem(int param /* = 0 */)
-{
-  if (typeid(T) == typeid(EmptyItem)) return;
-
-  for (Item* i : items) {
-    if (dynamic_cast<T*>(i) != nullptr) {
-      if (typeid(T) == typeid(BlockItem)) {
-        if (dynamic_cast<BlockItem*>(i)->getBlockID() != param) continue;
-      }
-      if (i->amount != -1) i->amount++;
-      return;
-    }
-  }
-
-  for (int i = 0; i < items.size(); ++i) {
-    if (dynamic_cast<EmptyItem*>(items[i]) != nullptr) {
-      delete items[i];
-      items[i] = new T();
-      items[i]->init(*shaderProgram, param);
-      items[i]->setPosition(inventoryPos + glm::ivec2(10+45*i,10));
-      return;
-    }
-  }
-  std::cout << "Inventory full" << std::endl;
 }

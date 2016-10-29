@@ -7,7 +7,8 @@
 #include "Item.h"
 #include "EmptyItem.h"
 #include "Character.h"
-
+#include "BlockItem.h"
+#include <typeinfo>
 
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
@@ -47,9 +48,32 @@ public:
     glm::ivec2 getCrosshairPos() const;
 
     void attack(int hit_damage = -1);
-    template <class T> void giveItem(int param = 0);
-
     bool isJumping() { return bJumping; }
+
+    template <class T> void giveItem(int param = 0) {
+
+      if (typeid(T) == typeid(EmptyItem)) return;
+
+      for (Item* i : items) {
+        if (dynamic_cast<T*>(i) != nullptr) {
+          if (typeid(T) == typeid(BlockItem)) {
+            if (dynamic_cast<BlockItem*>(i)->getBlockID() != param) continue;
+          }
+          if (i->amount != -1) i->amount++;
+          return;
+        }
+      }
+
+      for (int i = 0; i < items.size(); ++i) {
+        if (dynamic_cast<EmptyItem*>(items[i]) != nullptr) {
+          delete items[i];
+          items[i] = new T();
+          items[i]->init(*shaderProgram, param);
+          items[i]->setPosition(inventoryPos + glm::ivec2(10+45*i,10));
+          return;
+        }
+      }
+    };
 
 private:
     glm::ivec2 tileMapDispl;
