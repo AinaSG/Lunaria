@@ -23,6 +23,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     this->shaderProgram = &shaderProgram;
 
 	bJumping = false;
+	hit = false;
 	walkSpeed = 200;
 	jumpSpeed = 400;
 	life = 10;
@@ -119,7 +120,9 @@ void Player::update(int deltaTime)
         speed.x = walkSpeed;
 	}
 	else{
-		speed.x = 0;
+		if (!hit){
+			speed.x = 0;
+		}
 	}
 
     speed.y += GRAVITY*dt;
@@ -134,8 +137,8 @@ void Player::update(int deltaTime)
 		if(sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
 
-        bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
-		if(hit) {
+        bool hited = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
+		if(hited) {
 
 			sprite->changeAnimation(STAND_LEFT);
 			speed.x = 0;
@@ -146,8 +149,8 @@ void Player::update(int deltaTime)
 		if(sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
 
-        bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
-		if(hit) {
+        bool hited = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
+		if(hited) {
 
 			sprite->changeAnimation(STAND_RIGHT);
 			speed.x = 0;
@@ -165,8 +168,8 @@ void Player::update(int deltaTime)
     {
         //if(sprite->animation() != MOVE_LEFT)
         //	sprite->changeAnimation(MOVE_LEFT);
-        bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
-        if (hit) {
+        bool hited = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
+        if (hited) {
 
             speed.y = 0;
 
@@ -176,11 +179,12 @@ void Player::update(int deltaTime)
     {
         //if(sprite->animation() != MOVE_RIGHT)
         //	sprite->changeAnimation(MOVE_RIGHT);
-        bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
-        if (hit) {
+        bool hited = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
+        if (hited) {
 
           speed.y = 0;
             bJumping = false;
+						hit = false;
         }
     }
 

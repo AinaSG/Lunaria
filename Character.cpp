@@ -162,9 +162,21 @@ bool Character::isDead()
 	return dead;
 }
 
-int Character::dealDamage(int damage)
+int Character::dealDamage(int damage, glm::vec2 enemy_pos)
 {
+	cout << "damage" << endl;
 	life = life - damage;
+	hit = true;
+	cout << life << endl;
+	//speed = speed + glm::normalize(glm::vec2(position)-enemy_pos)*2000.0f;
+	if(enemy_pos.x < position.x){
+		speed.y = speed.y - 0.5*jumpSpeed;
+		speed.x = speed.x + 2*walkSpeed;
+	}
+	else{
+		speed.y = speed.y - 0.5*jumpSpeed;
+		speed.x = speed.x - 2*walkSpeed;
+	}
 	if (life < 0 ){
 		life = 0;
 		dead = true;

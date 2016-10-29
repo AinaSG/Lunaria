@@ -20,6 +20,8 @@ public:
 	int strategy; //1 = Wander, 2 = Attack
 	bool waiting;
 	int waitime;
+
+	
 	bool waitdir; //true = <--- ; false = --->
 };
 

@@ -28,6 +28,11 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
   waitime = 0;
   waitdir = false;
 
+  hit = false;
+
+  waitattack = 1000;
+  timewaited_attack = 0;
+
   speed = glm::vec2(0,0);
   Texture* tex = ResourceManager::instance().getTexture("evil_bub.png");
   if (tex == nullptr) {
@@ -68,9 +73,10 @@ void Enemy::update(int deltaTime)
   Player * player = Game::instance().scene.player;
 
   sprite->update(deltaTime);
+  int dist_to_player = glm::distance(glm::vec2(player->getPos()), glm::vec2(position));
 
   //decide strategy
-  if(glm::distance(glm::vec2(player->getPos()), glm::vec2(position))>200){
+  if(dist_to_player > 200){
     strategy = 1;
   }
   else{
@@ -131,8 +137,8 @@ void Enemy::update(int deltaTime)
     if(sprite->animation() != MOVE_LEFT)
       sprite->changeAnimation(MOVE_LEFT);
 
-    bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
-    if(hit) {
+    bool hited = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
+    if(hited) {
 
       sprite->changeAnimation(STAND_LEFT);
       speed.x = 0;
@@ -143,8 +149,8 @@ void Enemy::update(int deltaTime)
     if(sprite->animation() != MOVE_RIGHT)
       sprite->changeAnimation(MOVE_RIGHT);
 
-    bool hit = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
-    if(hit) {
+    bool hited = map->clampMoveX(position, glm::ivec2(32, 32), int(speed.x * dt));
+    if(hited) {
 
       sprite->changeAnimation(STAND_RIGHT);
       speed.x = 0;
@@ -162,8 +168,8 @@ void Enemy::update(int deltaTime)
   {
     //if(sprite->animation() != MOVE_LEFT)
     //	sprite->changeAnimation(MOVE_LEFT);
-    bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
-    if (hit) {
+    bool hited = map->clampMoveY(position, glm::ivec2(32, 32), int(floor(speed.y * dt)));
+    if (hited) {
 
       speed.y = 0;
 
@@ -173,11 +179,20 @@ void Enemy::update(int deltaTime)
   {
     //if(sprite->animation() != MOVE_RIGHT)
     //	sprite->changeAnimation(MOVE_RIGHT);
-    bool hit = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
-    if (hit) {
+    bool hited = map->clampMoveY(position, glm::ivec2(32, 32), int(ceil(speed.y * dt)));
+    if (hited) {
 
       speed.y = 0;
       bJumping = false;
+    }
+  }
+
+  timewaited_attack = timewaited_attack + deltaTime;
+
+  if(dist_to_player <= 15){
+    if (timewaited_attack >= waitattack){
+      timewaited_attack = 0;
+        player->dealDamage(damage, position);
     }
   }
 

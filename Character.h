@@ -25,7 +25,7 @@ public:
 		int getLife();
 		void setLife( int l);
 		bool isDead();
-		int dealDamage(int damage);
+		int dealDamage(int damage,glm::vec2 enemy_pos);
 
 protected:
 	bool bJumping;
@@ -38,7 +38,12 @@ protected:
 		int jumpSpeed;
 		int life;
 		bool dead;
+		bool hit;
 		int damage;
+
+		int waitattack;
+		int timewaited_attack;
+
 		const int GRAVITY = 500;
 
 };
