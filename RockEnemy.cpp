@@ -33,8 +33,8 @@ void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	kb_speed_x = 400;
   kb_speed_y = 200;
 
-	my_size_x = 16;
-  my_size_y = 16;
+	my_size_x = 32;
+  my_size_y = 32;
 
 	waitattack = 500;
   timewaited_attack = 0;

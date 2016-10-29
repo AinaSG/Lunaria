@@ -22,7 +22,9 @@ public:
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
 	void update(int deltaTime);
 	void render();
+  
     void renderInventory();
+    void renderLife();
     void renderCrosshair();
 
 	void setTileMap(TileMap *tileMap);

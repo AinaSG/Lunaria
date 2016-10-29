@@ -233,6 +233,11 @@ void Player::renderInventory()
   currentItemSprite->render();
 }
 
+void Player::renderLife()
+{
+  
+}
+
 void Player::renderItems()
 {
   for (Item* i : items) {

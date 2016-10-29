@@ -138,13 +138,59 @@ string TileMap::improvedLevelGenerator(){
 
                 levelmap[i][j] = " ";
 								if((valReal2 < -0.7)and(i>0)and(j>0)and(i<MAP_Y-1)and(j<MAP_X-1)){
-									if((levelmap[i+1][j]!="4")and(levelmap[i-1][j]!="4")and(levelmap[i][j+1]!="4")and(levelmap[i][j-1]!="4")and(levelmap[i+1][j+1]!="4")and(levelmap[i+1][j-1]!="4")and(levelmap[i-1][j+1]!="4")and(levelmap[i-1][j-1]!="4")) levelmap[i][j] = "4";
+									if((levelmap[i+1][j]!="5")and(levelmap[i-1][j]!="5")and(levelmap[i][j+1]!="5")and(levelmap[i][j-1]!="5")and(levelmap[i+1][j+1]!="5")and(levelmap[i+1][j-1]!="5")and(levelmap[i-1][j+1]!="5")and(levelmap[i-1][j-1]!="5")) levelmap[i][j] = "5";
 								}
             }
+
 			}
 
 		}
 	}
+
+	for (int i = 0; i < MAP_X; ++i){
+		levelmap[MAP_Y-1][i] = "4";
+		int heigh = rand()%3;
+		if(heigh >= 1){
+		levelmap[MAP_Y-2][i] = "4";
+		}
+		if(heigh >= 2){
+		levelmap[MAP_Y-3][i] = "4";
+		}
+	}
+
+	for (int i = 0; i < MAP_X; ++i){
+		levelmap[0][i] = "4";
+		int heigh = rand()%3;
+		if(heigh >= 1){
+		levelmap[1][i] = "4";
+		}
+		if(heigh >= 2){
+		levelmap[2][i] = "4";
+		}
+	}
+
+	for (int i = 0; i < MAP_Y; ++i){
+		levelmap[i][0] = "4";
+		int heigh = rand()%3;
+		if(heigh >= 1){
+		levelmap[i][1] = "4";
+		}
+		if(heigh >= 2){
+		levelmap[i][2] = "4";
+		}
+	}
+
+	for (int i = 0; i < MAP_Y; ++i){
+		levelmap[i][MAP_X-1] = "4";
+		int heigh = rand()%3;
+		if(heigh >= 1){
+		levelmap[i][MAP_X-2] = "4";
+		}
+		if(heigh >= 2){
+		levelmap[i][MAP_X-3] = "4";
+		}
+	}
+
 	//ESCRIBIM EL MAPA GENERAT AL FITXER
 	outfile << "TILEMAP" << "\r\n";
 	outfilebg << "TILEMAP" << "\r\n";

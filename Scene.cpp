@@ -70,7 +70,7 @@ void Scene::init()
 
   for (int i = 0; i< map->getMapSize().y; ++i){
     for (int j = 0; j<  map->getMapSize().x; ++j){
-      if(map->getTile(j,i) == 4){
+      if(map->getTile(j,i) == 5){
         //Creem un enemic aqui
 
         Enemy *newEnemy = new Enemy();

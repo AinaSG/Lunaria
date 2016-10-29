@@ -28,7 +28,7 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
   waitime = 0;
   waitdir = false;
 
-  kb_speed_x = 800;
+  kb_speed_x = 300;
   kb_speed_y = 200;
 
   hit = false;
@@ -102,17 +102,23 @@ void Enemy::update(int deltaTime)
     waitime = waitime + deltaTime;
 
     if (waiting){
-      speed.x = 0;
+      if(!hit){
+        speed.x = 0;
+      }
       speed.y += GRAVITY*dt;
 
     }
     else {
       if (waitdir){
-        speed.x = -walkSpeed;
+        if(!hit){
+          speed.x = -walkSpeed;
+        }
         speed.y += GRAVITY*dt;
       }
       else {
-        speed.x = walkSpeed;
+        if(!hit){
+          speed.x = walkSpeed;
+        }
         speed.y += GRAVITY*dt;
       }
     }
@@ -120,13 +126,19 @@ void Enemy::update(int deltaTime)
 
   if (strategy == 2){ //Attack
     if(player->getPos().x < position.x){
-      speed.x = -walkSpeed;
+      if(!hit){
+        speed.x = -walkSpeed;
+      }
     }
     else if(player->getPos().x > position.x){
-      speed.x = walkSpeed;
+      if(!hit){
+        speed.x = walkSpeed;
+      }
     }
     else{
-      speed.x = 0;
+      if(!hit){
+        speed.x = 0;
+      }
     }
 
     speed.y += GRAVITY*dt;
@@ -147,7 +159,9 @@ void Enemy::update(int deltaTime)
     if(hited) {
 
       sprite->changeAnimation(STAND_LEFT);
-      speed.x = 0;
+      if(!hit){
+        speed.x = 0;
+      }
     }
   }
   else if(speed.x > 0)
@@ -159,7 +173,9 @@ void Enemy::update(int deltaTime)
     if(hited) {
 
       sprite->changeAnimation(STAND_RIGHT);
-      speed.x = 0;
+      if(!hit){
+        speed.x = 0;
+      }
     }
   }
   else
@@ -190,6 +206,7 @@ void Enemy::update(int deltaTime)
 
       speed.y = 0;
       bJumping = false;
+      hit = false;
     }
   }
 
