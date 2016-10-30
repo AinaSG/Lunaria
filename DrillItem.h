@@ -12,7 +12,9 @@ public:
   void init(ShaderProgram &sp, int param = 0) {
     Item::init("taladro.png", sp);
     type = "Drill";
-    amount = 1;}
+    amount = 1;
+  }
+
   void use(float deltaTime)
     {
       if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
@@ -21,9 +23,7 @@ public:
       }
       Scene* scene = &Game::instance().scene;
       if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
-        scene->mineBlock(deltaTime);
-        scene->mineBlock(deltaTime);
-        scene->mineBlock(deltaTime);
+        scene->mineBlock(deltaTime,300);
         return;
       }
       else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {

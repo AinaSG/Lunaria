@@ -708,7 +708,7 @@ void Player::attack(int hit_damage)
     for(int i = 0; i<scene->enemyVector.size(); ++i){
         //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
         if (scene->enemyVector[i]->pointInside(click_pos)){
-            scene->enemyVector[i]->dealDamage(damage, position);
+            scene->enemyVector[i]->dealDamage(hit_damage, position);
             break;
         }
     }
@@ -716,7 +716,7 @@ void Player::attack(int hit_damage)
     for(int i = 0; i<scene->rockEnemyVector.size(); ++i){
         //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
         if (scene->rockEnemyVector[i]->pointInside(click_pos)){
-            scene->rockEnemyVector[i]->dealDamage(damage, position);
+            scene->rockEnemyVector[i]->dealDamage(hit_damage, position);
             break;
         }
     }

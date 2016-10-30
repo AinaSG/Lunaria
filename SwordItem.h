@@ -18,8 +18,7 @@ public:
     {
       if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
       {
-        Game::instance().scene.player->attack();
-        Game::instance().scene.player->attack();
+        Game::instance().scene.player->attack(2);
       }
       Scene* scene = &Game::instance().scene;
       if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
