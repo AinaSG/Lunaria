@@ -12,6 +12,6 @@ void main()
 	// Pass texture coordinates to access a given texture atlas
 	texCoordFrag = texCoord + texCoordDispl;
 	// Transform position from pixel coordinates to clipping coordinates
-	gl_Position = projection * model * view * vec4(position, 0.0, 1.0);
+	gl_Position = (projection * view * model) * vec4(position, 0.0, 1.0);
 }
 

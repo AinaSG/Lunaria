@@ -12,6 +12,8 @@ public:
   void update(int deltaTime);
   void render();
 
+  Sprite* test;
+
 };
 
 #endif // MENUSCENE_H

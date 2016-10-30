@@ -124,25 +124,24 @@ void GameScene::update(int deltaTime) {
 void GameScene::render()
 {
   glm::mat4 model(1.0f);
-  glm::mat4 view(1.0f);
+  glm::mat4 view = translate(glm::mat4(1.0f),glm::vec3(0.5,0.5,0));
 
   texProgram.use();
   texProgram.setUniformMatrix4f("projection", projection);
-
 
   texProgram.setUniformMatrix4f("model", model);
   texProgram.setUniformMatrix4f("view",view);
 
   background->render();
 
-  view = glm::translate(glm::mat4(1.0f), - glm::vec3(glm::vec2(cameraPos) - glm::vec2(Game::halfScreenSize) , 0));
+  glm::vec3 v = glm::vec3(glm::ivec2(cameraPos) - glm::ivec2(Game::halfScreenSize),0);
+  view = glm::translate(glm::mat4(1.0f), - v  + glm::vec3(0.5,0.5,0));
   texProgram.setUniformMatrix4f("view", view);
 
   texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
   texProgram.setUniform4f("color", 0.5, 0.5f, 0.5f, 0.5f);
   backmap->render();
-
 
   texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
   map->render();

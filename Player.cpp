@@ -41,7 +41,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	life = 10;
 	damage = 1;
 	speed = glm::vec2(0,0);
-	Texture* tex = ResourceManager::instance().getTexture("bub_astIP.png");
+	Texture* tex = ResourceManager::instance().getTexture("bub_astIP_sword.png");
     if (tex == nullptr) {
       std::cout << "Player texture not found" << std::endl;
       return;

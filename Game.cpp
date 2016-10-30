@@ -10,10 +10,11 @@ const glm::ivec2 Game::halfScreenSize = Game::screenSize/2;
 void Game::init()
 {
 	bPlay = true;
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
     nextScene = nullptr;
     scene = new MenuScene();
+    scene->init();
 
     if(!text.init("fonts/OpenSans-Regular.ttf"))
         cout << "Could not load font!!!" << endl;

@@ -18,6 +18,10 @@ void Scene::init()
   initShaders();
 }
 
+void Scene::update(int deltaTime) { }
+
+void Scene::render() { }
+
 void Scene::initShaders()
 {
   Shader vShader, fShader;
