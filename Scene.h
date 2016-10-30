@@ -16,10 +16,9 @@
 
 class Scene
 {
-
 public:
-    Scene() {};
-    virtual ~Scene() {};
+    Scene() {}
+    virtual ~Scene() {}
 
     virtual void init();
     virtual void update(int deltaTime) = 0;

@@ -20,105 +20,105 @@ GameScene::GameScene()
 
 GameScene::~GameScene()
 {
-    if (map != nullptr)     delete map;
-    if (backmap != nullptr) delete backmap;
-    if (player != nullptr)  delete player;
+  if (map != nullptr)     delete map;
+  if (backmap != nullptr) delete backmap;
+  if (player != nullptr)  delete player;
 
-    //Sprites ( memory leaks (?) )
-    if (background != nullptr) delete background;
-    if (breakingOverlay[0] != nullptr) delete breakingOverlay[0];
-    if (breakingOverlay[1] != nullptr) delete breakingOverlay[1];
-    if (breakingOverlay[2] != nullptr) delete breakingOverlay[2];
+  //Sprites ( memory leaks (?) )
+  if (background != nullptr) delete background;
+  if (breakingOverlay[0] != nullptr) delete breakingOverlay[0];
+  if (breakingOverlay[1] != nullptr) delete breakingOverlay[1];
+  if (breakingOverlay[2] != nullptr) delete breakingOverlay[2];
 
-    for (int i = 0; i < enemyVector.size(); ++i) {
-        if (enemyVector[i] != nullptr) delete enemyVector[i];
-    }
-    for (int i = 0; i < rockEnemyVector.size(); ++i) {
-        if (rockEnemyVector[i] != nullptr) delete rockEnemyVector[i];
-    }
+  for (int i = 0; i < enemyVector.size(); ++i) {
+    if (enemyVector[i] != nullptr) delete enemyVector[i];
+  }
+  for (int i = 0; i < rockEnemyVector.size(); ++i) {
+    if (rockEnemyVector[i] != nullptr) delete rockEnemyVector[i];
+  }
 }
 
 void GameScene::init() {
-    Scene::init();
+  Scene::init();
 
-    map = TileMap::createTileMap(texProgram);
-    backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
+  map = TileMap::createTileMap(texProgram);
+  backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
 
-    Texture *tex = ResourceManager::instance().getTexture("bg.png");
+  Texture *tex = ResourceManager::instance().getTexture("bg.png");
+  if (tex == nullptr) {
+    std::cout << "Background texture not found" << std::endl;
+    return;
+  }
+
+  background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
+
+  for (int i = 0; i < 3; ++i){
+    std::ostringstream stream;
+    stream << "breaking" << i << ".png";
+    tex = ResourceManager::instance().getTexture(stream.str());
     if (tex == nullptr) {
-      std::cout << "Background texture not found" << std::endl;
+      std::cout << "Breaking texture "  << i << " not found" << std::endl;
       return;
     }
 
-    background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
+    breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), tex, &texProgram);
+  }
 
-    for (int i = 0; i < 3; ++i){
-      std::ostringstream stream;
-      stream << "breaking" << i << ".png";
-      tex = ResourceManager::instance().getTexture(stream.str());
-      if (tex == nullptr) {
-        std::cout << "Breaking texture "  << i << " not found" << std::endl;
-        return;
-      }
+  player = new Player();
+  player->init(glm::ivec2(0, 0), texProgram);
+  player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+  player->setTileMap(map);
 
-      breakingOverlay[i] = Sprite::createSprite(glm::ivec2(16,16), glm::vec2(1.0, 1.0), tex, &texProgram);
-    }
+  for (int i = 0; i< map->getMapSize().y; ++i){
+    for (int j = 0; j<  map->getMapSize().x; ++j){
+      if(map->getTile(j,i) == 5){
+        //Creem un enemic aqui
 
-    player = new Player();
-    player->init(glm::ivec2(0, 0), texProgram);
-    player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-    player->setTileMap(map);
+        Enemy *newEnemy = new Enemy();
+        newEnemy->init(glm::ivec2(0, 0), texProgram);
+        newEnemy->setPosition(glm::vec2(j * map->getTileSize(), i * map->getTileSize()));
+        newEnemy->setTileMap(map);
 
-    for (int i = 0; i< map->getMapSize().y; ++i){
-      for (int j = 0; j<  map->getMapSize().x; ++j){
-        if(map->getTile(j,i) == 5){
-          //Creem un enemic aqui
+        //Afegim l'enemic a la llista d'enemics
+        enemyVector.push_back(newEnemy);
 
-          Enemy *newEnemy = new Enemy();
-          newEnemy->init(glm::ivec2(0, 0), texProgram);
-          newEnemy->setPosition(glm::vec2(j * map->getTileSize(), i * map->getTileSize()));
-          newEnemy->setTileMap(map);
-
-          //Afegim l'enemic a la llista d'enemics
-          enemyVector.push_back(newEnemy);
-
-          //Posem aire al tilemap a on l'spawn
-          map->setTile(j, i, 0);
-        }
+        //Posem aire al tilemap a on l'spawn
+        map->setTile(j, i, 0);
       }
     }
+  }
 
-    breakingPos = NULL_POS;
-    breakPercent = 100;
+  breakingPos = NULL_POS;
+  breakPercent = 100;
 
-    cameraPos = player->getPos();
+  cameraPos = player->getPos();
 }
 
 void GameScene::update(int deltaTime) {
-    player->update(deltaTime);
+  player->update(deltaTime);
 
-    for (int i = 0; i< enemyVector.size(); ++i){
-      enemyVector[i]->update(deltaTime);
-    }
+  for (int i = 0; i< enemyVector.size(); ++i){
+    enemyVector[i]->update(deltaTime);
+  }
 
-    enemyVector.erase(std::remove_if(
-      enemyVector.begin(), enemyVector.end(),
-      [](const Enemy* enemy) {
-          return enemy->isDead(); // put your condition here
-      }), enemyVector.end());
+  enemyVector.erase(std::remove_if(
+                      enemyVector.begin(), enemyVector.end(),
+                      [](const Enemy* enemy) {
+    return enemy->isDead(); // put your condition here
+  }), enemyVector.end());
 
 
-    for (int i = 0; i< rockEnemyVector.size(); ++i){
-      rockEnemyVector[i]->update(deltaTime);
-    }
+  for (int i = 0; i< rockEnemyVector.size(); ++i){
+    rockEnemyVector[i]->update(deltaTime);
+  }
 
-    rockEnemyVector.erase(std::remove_if(
-      rockEnemyVector.begin(), rockEnemyVector.end(),
-      [](const RockEnemy* rockenemy) {
-          return rockenemy->isDead(); // put your condition here
-      }), rockEnemyVector.end());
+  rockEnemyVector.erase(std::remove_if(
+                          rockEnemyVector.begin(), rockEnemyVector.end(),
+                          [](const RockEnemy* rockenemy) {
+    return rockenemy->isDead(); // put your condition here
+  }), rockEnemyVector.end());
 
-    cameraPos = glm::vec2(player->getPos());
+  cameraPos = glm::vec2(player->getPos());
 }
 
 void GameScene::render()
@@ -167,15 +167,12 @@ void GameScene::render()
   for (int i = 0; i< rockEnemyVector.size(); ++i){
     rockEnemyVector[i]->render();
   }
-  //testEnemy->render();
 
- player->renderCrosshair();
+  player->renderCrosshair();
 
-  model = glm::translate(glm::mat4(1.0), glm::vec3(10,10,10));
   view = glm::mat4(1.0f);
   texProgram.setUniformMatrix4f("model", model);
   texProgram.setUniformMatrix4f("view",view);
-
 
   player->renderHUD();
 }
@@ -200,6 +197,7 @@ void GameScene::mineBlock(float deltaTime, float speed /* = 100.0f */)
 
   int block = map->getTile(tilePos);
   if (block == Block::BedRock) return;
+  if (block == Block::Ruby && speed < 200) return;
 
   bool hitBlock = block != Block::Empty;
 
@@ -214,7 +212,7 @@ void GameScene::mineBlock(float deltaTime, float speed /* = 100.0f */)
     if (breakPercent <= 0) {
 
       if (rand()%10 == 1){
-          add_rockEnemy(screenToWorld(mousePos));
+        add_rockEnemy(screenToWorld(mousePos));
       }
 
       map->setTile(breakingPos,0);

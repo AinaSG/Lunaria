@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include "GameScene.h"
+#include "MenuScene.h"
 #include <iostream>
 
 #define SCREEN_WIDTH 960
@@ -18,29 +19,32 @@ public:
 
   Game() {}
 
-	static Game &instance()
-	{
-		static Game G;
-		return G;
-	}
+  static Game &instance()
+  {
+    static Game G;
+    return G;
+  }
 
-    static GameScene* gameScene() {
-      return static_cast<GameScene*>(instance().scene);
-    }
+  static GameScene* gameScene() {
+    return dynamic_cast<GameScene*>(instance().scene);
+  }
 
-	void init();
-	bool update(int deltaTime);
-	void render();
+  void init();
+  bool update(int deltaTime);
+  void render();
 
-    static const glm::ivec2 screenSize;
-    static const glm::ivec2 halfScreenSize;
-    Scene* scene;                      // Scene to render	                                  /
-    // we can have access at any time
+  void startGame();
 
-    Text text, boldText;
+  static const glm::ivec2 screenSize;
+  static const glm::ivec2 halfScreenSize;
+  Scene* scene;                      // Scene to render	                                  /
+  // we can have access at any time
+
+  Text text, boldText;
 private:
-	bool bPlay;                       // Continue to play game?
-	};
+  bool bPlay;                       // Continue to play game?
+  Scene* nextScene;
+};
 
 
 #endif // _GAME_INCLUDE

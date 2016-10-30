@@ -13,7 +13,7 @@ public:
   void init(ShaderProgram &sp, int param = 0) {
     Item::init("taladro.png", sp);
     type = "Drill";
-    amount = 1;
+    amount = -1;
   }
 
   void use(float deltaTime) {

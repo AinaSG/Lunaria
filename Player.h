@@ -22,6 +22,8 @@ public:
 
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
 	void update(int deltaTime);
+  void buy();
+
 	void render();
     void renderHUD();
     void renderLife();
@@ -114,6 +116,7 @@ private:
     void checkShop();
     void setCurrentItem(int n);
     void setCurrentItemShop(int n);
+    void updateViewItems();
 };
 
 
