@@ -14,12 +14,21 @@ Sprite *Sprite::createSprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInS
 
 Sprite::Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Texture *spritesheet, ShaderProgram *program)
 {
+<<<<<<< HEAD
+	float vertices[24] = {0.f, 0.f, 0.f, 0.f,
+												quadSize.x, 0.f, sizeInSpritesheet.x, 0.f,
+												quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y,
+												0.f, 0.f, 0.f, 0.f,
+												quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y,
+												0.f, quadSize.y, 0.f, sizeInSpritesheet.y};
+=======
   float vertices[24] = {0.f, 0.f, 0.f, 0.f,
                         quadSize.x, 0.f, sizeInSpritesheet.x, 0.f,
                         quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y,
                         0.f, 0.f, 0.f, 0.f,
                         quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y,
                         0.f, quadSize.y, 0.f, sizeInSpritesheet.y};
+>>>>>>> 4015aba790e6e63040f281d808340878fea42b48
 
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
@@ -101,12 +110,11 @@ int Sprite::animation() const
   return currentAnimation;
 }
 
+void Sprite::changeTexture(Texture *spritesheet){
+	texture = spritesheet;
+}
+
 void Sprite::setPosition(const glm::vec2 &pos)
 {
   position = pos;
-}
-
-void Sprite::changeTexture(Texture *spritesheet)
-{
-	texture = spritesheet;
 }
