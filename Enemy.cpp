@@ -77,7 +77,7 @@ void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Enemy::update(int deltaTime)
 {
   float dt = deltaTime/1000.0f;
-  Player * player = Game::instance().scene.player;
+  Player * player = Game::gameScene()->player;
 
   sprite->update(deltaTime);
   int dist_to_player = glm::distance(glm::vec2(player->getPos()), glm::vec2(position));
@@ -224,7 +224,7 @@ void Enemy::update(int deltaTime)
 }
 
 void Enemy::onDeath() {
-  Player * player = Game::instance().scene.player;
+  Player * player = Game::gameScene()->player;
 	player->giveItem<BoneItem>();
 
 	cout << "givin' bone" << endl;

@@ -430,10 +430,15 @@ bool TileMap::loadLevel(const string &levelFile)
 	tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
 
 	map = new int[mapSize.x * mapSize.y];
+    noise = new glm::vec3[mapSize.x * mapSize.y];
+
 	for(int j=0; j<mapSize.y; j++)
 	{
 		for(int i=0; i<mapSize.x; i++)
 		{
+
+            noise[j*mapSize.x+i] = glm::vec3(float(rand() % 1000)/1200, float(rand() % 1000)/1200,float(rand()%100)/300 + 0.1f);
+
 			fin.get(tile);
 			if(tile == ' ')
                 map[j*mapSize.x+i] = Block::Empty;
@@ -446,6 +451,8 @@ bool TileMap::loadLevel(const string &levelFile)
 #endif
 	}
 	fin.close();
+
+
 
 	return true;
 }
@@ -466,15 +473,18 @@ void TileMap::prepareArrays()
             if(tile != Block::Empty)
             {
 				// Non-empty tile
+                glm::vec3 tileNoise = noise[j * mapSize.x];
 				nTiles++;
 				posTile = glm::vec2(i * tileSize, j * tileSize);
 				texCoordTile[0] = glm::vec2(float((tile-1)%2) / tilesheetSize.x, float((tile-1)/2) / tilesheetSize.y);
 				texCoordTile[1] = texCoordTile[0] + tileTexSize;
 				//texCoordTile[0] += halfTexel;
 				texCoordTile[1] -= halfTexel;
+
 				// First triangle
 				vertices.push_back(posTile.x); vertices.push_back(posTile.y);
 				vertices.push_back(texCoordTile[0].x); vertices.push_back(texCoordTile[0].y);
+                //vertices.push_back(tileNoise.x); vertices.push_back(tileNoise.y); vertices.push_back(tileNoise.z);
 				vertices.push_back(posTile.x + blockSize); vertices.push_back(posTile.y);
 				vertices.push_back(texCoordTile[1].x); vertices.push_back(texCoordTile[0].y);
 				vertices.push_back(posTile.x + blockSize); vertices.push_back(posTile.y + blockSize);

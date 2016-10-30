@@ -3,6 +3,7 @@
 #include "Item.h"
 #include "Input.h"
 #include "Game.h"
+#include "GameScene.h"
 
 
 class DrillItem : public Item
@@ -15,21 +16,21 @@ public:
     amount = 1;
   }
 
-  void use(float deltaTime)
+  void use(float deltaTime) {
+    GameScene* scene = Game::gameScene();
+    if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
     {
-      if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
-      {
-        Game::instance().scene.player->attack();
-      }
-      Scene* scene = &Game::instance().scene;
-      if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
-        scene->mineBlock(deltaTime,300);
-        return;
-      }
-      else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
-      }
+      scene->player->attack();
+    }
+
+    if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
+      scene->mineBlock(deltaTime,300);
       return;
     }
+    else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
+    }
+    return;
+  }
 
 };
 

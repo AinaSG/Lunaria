@@ -11,12 +11,19 @@ void Game::init()
 {
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-	scene.init();
+    scene = (Scene*) new GameScene();
+    scene->init();
+
+    if(!text.init("fonts/OpenSans-Regular.ttf"))
+        cout << "Could not load font!!!" << endl;
+
+     if(!boldText.init("fonts/OpenSans-ExtraBold.ttf"))
+        cout << "Could not load bold font!!!" << endl;
 }
 
 bool Game::update(int deltaTime)
 {
-	scene.update(deltaTime);
+    scene->update(deltaTime);
     Input::instance().update();
 	return bPlay;
 }
@@ -24,7 +31,7 @@ bool Game::update(int deltaTime)
 void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	scene.render();
+    scene->render();
 }
 
 
