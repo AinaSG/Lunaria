@@ -91,7 +91,7 @@ private:
     const glm::ivec2 stagePos = glm::ivec2(910,668);
     const glm::ivec2 potionPos = glm::ivec2(775,668);
     const glm::ivec2 swordPos = glm::ivec2(820,668);
-
+    const int maxLife = 14;
 
     ShaderProgram *shaderProgram;
     int currentItem;

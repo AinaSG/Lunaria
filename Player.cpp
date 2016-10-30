@@ -519,8 +519,8 @@ void Player::renderHelp()
 
 void Player::renderLife()
 {
-  int x_heart = 900;
-  int y_heart = 20;
+  int x_heart = 918;
+  int y_heart = 10;
   int distance_bh = 37;
 
   for (int i=0; i < life; ++i){
@@ -729,7 +729,7 @@ void Player::attack(int hit_damage)
 }
 
 void Player::heal(int hp){
-  life = life + hp;
+  life = std::min(life + hp,maxLife);
 }
 
 void Player::buy(){
