@@ -180,13 +180,18 @@ int Character::dealDamage(int damage, glm::vec2 enemy_pos)
 	if (life <= 0 ){
 		life = 0;
 		dead = true;
+		onDeath();
 	}
 
 	postDamage();
 }
 
 void Character::postDamage(){
-	
+
+}
+
+void Character::onDeath(){
+
 }
 
 bool Character::pointInside(glm::vec2 click){

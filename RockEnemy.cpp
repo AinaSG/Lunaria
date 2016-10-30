@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "RockEnemy.h"
+#include "GlueItem.h"
 #include "Game.h"
 #include "Input.h"
 #include "ResourceManager.h"
@@ -69,6 +70,13 @@ void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 
+}
+
+void RockEnemy::onDeath() {
+  Player * player = Game::instance().scene.player;
+	player->giveItem<GlueItem>();
+
+	cout << "givin' glue" << endl;
 }
 
 

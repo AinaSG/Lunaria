@@ -28,6 +28,7 @@ public:
 		int dealDamage(int damage,glm::vec2 enemy_pos);
 		bool pointInside(glm::vec2 click);
 		virtual void postDamage();
+		virtual void onDeath();
 
 		bool hitEffect = false;
 

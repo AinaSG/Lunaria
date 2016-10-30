@@ -17,6 +17,7 @@ class RockEnemy : public Character
 public:
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
 	void update(int deltaTime);
+	void onDeath();
 	int strategy; //1 = Wander, 2 = Attack
 	bool waiting;
 	int waitime;

@@ -39,4 +39,10 @@ void Item::render()
   if (sprite != NULL) sprite->render();
 }
 
+string Item::getType(){
+  return type;
+}
 
+void Item::spend(int num){
+  amount = amount - num;
+}

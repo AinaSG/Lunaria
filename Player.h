@@ -32,6 +32,8 @@ public:
     void renderHitEffect();
 
     void postDamage();
+    void onDeath();
+    void heal(int hp);
 
     bool can_buy_potion = false;
     bool can_buy_taladro = false;

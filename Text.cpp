@@ -35,7 +35,7 @@ Text::~Text()
 bool Text::init(const char *filename)
 {
 	FT_Error error;
-	
+
 	if(!bLibInit)
 	{
 		error = FT_Init_FreeType(&Text::library);
@@ -47,7 +47,7 @@ bool Text::init(const char *filename)
 	if(error)
 		return false;
 	FT_Set_Pixel_Sizes(face, ATLAS_FONT_SIZE, ATLAS_FONT_SIZE);
-	
+
 	if(!extractCharSizes(&maxCharWidth, &maxCharHeight))
 		return false;
 	fontSize = maxCharHeight;
@@ -58,12 +58,12 @@ bool Text::init(const char *filename)
 		return false;
 	createTextureAtlas();
 	initShaders();
-	
+
 	glm::vec2 geom[2] = {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f)};
 	glm::vec2 texCoords[2] = {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f)};
-	
+
 	quad = TexturedQuad::createTexturedQuad(geom, texCoords, program);
-	
+
 	return true;
 }
 
@@ -181,7 +181,7 @@ bool Text::extractCharSizes(int *maxCharWidth, int *maxCharHeight)
 		*maxCharWidth = glm::max(*maxCharWidth, (int)face->glyph->bitmap.width);
 		*maxCharHeight = glm::max(*maxCharHeight, (int)face->glyph->bitmap.rows);
 	}
-	
+
 	return true;
 }
 
@@ -214,6 +214,3 @@ void Text::createTextureAtlas()
 	textureAtlas.setWrapS(GL_CLAMP_TO_EDGE);
 	textureAtlas.setWrapT(GL_CLAMP_TO_EDGE);
 }
-
-
-

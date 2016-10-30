@@ -6,6 +6,8 @@
 #include "Game.h"
 #include "Input.h"
 #include "DrillItem.h"
+#include "MedicineItem.h"
+#include "SwordItem.h"
 #include "ResourceManager.h"
 #include <string>
 
@@ -318,6 +320,9 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     setCurrentItemShop(0);
 
     giveItem<DrillItem>();
+    giveItem<MedicineItem>();
+    giveItem<MedicineItem>();
+    giveItem<SwordItem>();
 }
 
 
@@ -457,6 +462,10 @@ void Player::update(int deltaTime)
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x - 8 ), float(tileMapDispl.y + position.y)));
 }
 
+void Player::onDeath() {
+  //AQUÍ ELPLAYER MUERE
+}
+
 void Player::render()
 {
   sprite->render();
@@ -535,7 +544,63 @@ void Player::renderItems()
 }
 
 void Player::checkShop(){
+  /*
+  bool can_buy_potion = false;
+  bool can_buy_taladro = false;
+  bool can_buy_espasa = false;
+  bool can_buy_stage = false;
 
+  int shipStage = 0;*/
+
+  int h_stone = 0;
+  int h_diamonds = 0;
+  int h_rubies = 0;
+  int h_bones = 0;
+  int h_glue = 0;
+
+  for (Item* item : items) {
+    string i_type = item->getType();
+    if (i_type == "Stone") h_stone = item->amount;
+    if (i_type == "Diamond") h_diamonds =item->amount;
+    if (i_type == "Ruby") h_rubies = item->amount;
+    if (i_type == "Bone") h_bones = item->amount;
+    if (i_type == "Glue") h_glue =item->amount;
+  }
+
+  //Medicine 2 Stone 1 Diamond
+  //Drill 10 stone 2 diamonds
+  //Sword 2 rubies 5 diamonds
+  //Stage1 10 stone 5 diamonds
+  //Stage2 3 diamonds 2 rubies 5 monster bones
+  //Stage3 5 diamonds 3 rubies 4 monster glue
+
+  if (h_stone>=2 and h_diamonds>=1){
+     can_buy_potion = true;
+  }
+  else {
+    can_buy_potion = false;
+  }
+  if (h_stone>=10 and h_diamonds>=2){
+     can_buy_taladro = true;
+  }
+  else {
+    can_buy_taladro = false;
+  }
+  if (h_rubies>=2 and h_diamonds>=5){
+     can_buy_espasa = true;
+  }
+  else {
+    can_buy_espasa = false;
+  }
+
+  if ((shipStage == 0 and h_stone>=10 and h_diamonds>=5) or
+     (shipStage == 1 and h_diamonds>=3 and h_rubies>=2 and h_bones>=5) or
+     (shipStage == 2 and h_diamonds>=5 and h_rubies>=3 and h_glue>=4)){
+       can_buy_stage = true;
+     }
+  else {
+    can_buy_stage = false;
+  }
 }
 
 void Player::renderShop()
@@ -655,6 +720,10 @@ void Player::attack(int hit_damage)
             break;
         }
     }
+}
+
+void Player::heal(int hp){
+  life = life + hp;
 }
 
 glm::ivec2 Player::getCrosshairPos() const

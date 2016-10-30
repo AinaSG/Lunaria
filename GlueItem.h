@@ -1,18 +1,18 @@
-#ifndef DRILLITEM_H
-#define DRILLITEM_H
+#ifndef GLUEITEM_H
+#define GLUEITEM_H
 #include "Item.h"
 #include "Input.h"
 #include "Game.h"
 
-
-class DrillItem : public Item
+class GlueItem : public Item
 {
 public:
-  DrillItem() {}
+  GlueItem() {}
   void init(ShaderProgram &sp, int param = 0) {
-    Item::init("taladro.png", sp);
-    type = "Drill";
-    amount = 1;}
+    Item::init("cola.png", sp);
+    type = "Glue";
+    amount = 1;
+  }
   void use(float deltaTime)
     {
       if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
@@ -22,15 +22,12 @@ public:
       Scene* scene = &Game::instance().scene;
       if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
         scene->mineBlock(deltaTime);
-        scene->mineBlock(deltaTime);
-        scene->mineBlock(deltaTime);
         return;
       }
       else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
       }
       return;
     }
-
 };
 
-#endif // DRILLITEM_H
+#endif // GLUEITEM_H

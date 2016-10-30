@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "Game.h"
 #include "Input.h"
+#include "BoneItem.h"
 #include "ResourceManager.h"
 
 
@@ -220,4 +221,11 @@ void Enemy::update(int deltaTime)
   }
 
   sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+}
+
+void Enemy::onDeath() {
+  Player * player = Game::instance().scene.player;
+	player->giveItem<BoneItem>();
+
+	cout << "givin' bone" << endl;
 }

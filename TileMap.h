@@ -15,9 +15,9 @@
 
 enum Block {
   Empty         = 0,
-  Rock          = 1,
-  BlueMaterial  = 2,
-  RedMaterial   = 3,
+  Stone         = 1,
+  Diamond       = 2,
+  Ruby          = 3,
   BedRock       = 4
 };
 
@@ -85,4 +85,3 @@ private:
 
 
 #endif // _TILE_MAP_INCLUDE
-

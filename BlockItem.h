@@ -13,6 +13,7 @@ public:
   void init(ShaderProgram &sp, int param = 0);
   void use(float deltaTime);
   int getBlockID() { return blockID; }
+  
 
 };
 

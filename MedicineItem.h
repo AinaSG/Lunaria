@@ -1,18 +1,19 @@
-#ifndef DRILLITEM_H
-#define DRILLITEM_H
+#ifndef MEDICINEITEM_H
+#define MEDICINEITEM_H
 #include "Item.h"
 #include "Input.h"
 #include "Game.h"
 
 
-class DrillItem : public Item
+class MedicineItem : public Item
 {
 public:
-  DrillItem() {}
+  MedicineItem() {}
   void init(ShaderProgram &sp, int param = 0) {
-    Item::init("taladro.png", sp);
-    type = "Drill";
-    amount = 1;}
+    Item::init("medi.png", sp);
+    type = "Medicine";
+    amount = 1;
+  }
   void use(float deltaTime)
     {
       if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
@@ -22,15 +23,14 @@ public:
       Scene* scene = &Game::instance().scene;
       if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
         scene->mineBlock(deltaTime);
-        scene->mineBlock(deltaTime);
-        scene->mineBlock(deltaTime);
         return;
       }
       else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
+        Game::instance().scene.player->heal(2);
+        --amount;
       }
       return;
     }
-
 };
 
-#endif // DRILLITEM_H
+#endif // MEDICINEITEM_H

@@ -22,7 +22,7 @@ struct CharMetrics
 
 
 // Using Freetype the Text class is capable of building a texture atlas
-// for a given font and size. Combining with TexturedQuad allows it 
+// for a given font and size. Combining with TexturedQuad allows it
 // to render text strings
 
 
@@ -32,20 +32,20 @@ class Text
 public:
 	Text();
 	~Text();
-	
+
 	bool init(const char *filename);
 	void destroy();
-	
+
 	ShaderProgram &getProgram();
 	int getSize() const;
 	void render(char c, const glm::vec2 &pixel, int size, const glm::vec4 &color);
 	void render(const string &str, const glm::vec2 &pixel, int size, const glm::vec4 &color);
-	
+
 private:
 	void initShaders();
 	bool extractCharSizes(int *maxCharWidth, int *maxCharHeight);
 	void createTextureAtlas();
-	
+
 private:
 	int fontSize, textureSize, maxCharWidth, maxCharHeight;
 	FT_Face face;
@@ -56,10 +56,8 @@ private:
 
 	static bool bLibInit;
 	static FT_Library library;
-	
+
 };
 
 
 #endif // _TEXT_INCLUDE
-
-
