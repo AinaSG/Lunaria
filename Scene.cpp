@@ -42,7 +42,7 @@ void Scene::init()
     return;
   }
 
-  background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
+  background = Sprite::createSprite(Game::screenSize+glm::ivec2(1,1), glm::vec2(1.0, 1.0), tex, &texProgram);
 
   for (int i = 0; i < 3; ++i){
     std::ostringstream stream;
