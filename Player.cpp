@@ -41,13 +41,60 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	life = 10;
 	damage = 1;
 	speed = glm::vec2(0,0);
-	Texture* tex = ResourceManager::instance().getTexture("bub_astIP_sword.png");
-    if (tex == nullptr) {
-      std::cout << "Player texture not found" << std::endl;
+
+	normal_player = ResourceManager::instance().getTexture("bub_astIP.png");
+  bone_player = ResourceManager::instance().getTexture("bub_astIP_bone.png");
+  diamond_player = ResourceManager::instance().getTexture("bub_astIP_diamond.png");
+  drill_player = ResourceManager::instance().getTexture("bub_astIP_drill.png");
+  glue_player = ResourceManager::instance().getTexture("bub_astIP_glue.png");
+  medicine_player = ResourceManager::instance().getTexture("bub_astIP_medicine.png");
+  ruby_player = ResourceManager::instance().getTexture("bub_astIP_ruby.png");
+  ship_player = ResourceManager::instance().getTexture("bub_astIP_ship.png");
+  stone_player = ResourceManager::instance().getTexture("bub_astIP_stone.png");
+  sword_player = ResourceManager::instance().getTexture("bub_astIP_sword.png");
+
+    if (normal_player == nullptr) {
+      std::cout << "NormalPlayer texture not found" << std::endl;
+      return;
+    }
+    if (bone_player == nullptr) {
+      std::cout << "bone_player texture not found" << std::endl;
+      return;
+    }
+    if (diamond_player == nullptr) {
+      std::cout << "diamond_player texture not found" << std::endl;
+      return;
+    }
+    if (drill_player == nullptr) {
+      std::cout << "drill_player texture not found" << std::endl;
+      return;
+    }
+    if (glue_player == nullptr) {
+      std::cout << "glue_player texture not found" << std::endl;
+      return;
+    }
+    if (medicine_player == nullptr) {
+      std::cout << "medicine_player texture not found" << std::endl;
+      return;
+    }
+    if (ruby_player == nullptr) {
+      std::cout << "ruby_player texture not found" << std::endl;
+      return;
+    }
+    if (ship_player == nullptr) {
+      std::cout << "ship_player texture not found" << std::endl;
+      return;
+    }
+    if (stone_player == nullptr) {
+      std::cout << "stone_player texture not found" << std::endl;
+      return;
+    }
+    if (sword_player == nullptr) {
+      std::cout << "stone_player texture not found" << std::endl;
       return;
     }
 
-    sprite = Sprite::createSprite(glm::ivec2(my_size_x+1, my_size_y+1), glm::vec2(0.25, 0.25), tex, &shaderProgram);
+    sprite = Sprite::createSprite(glm::ivec2(my_size_x+1, my_size_y+1), glm::vec2(0.25, 0.25), normal_player, &shaderProgram);
 
 	  sprite->setNumberAnimations(6);
 
@@ -77,7 +124,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	tileMapDispl = tileMapPos;
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 
-    tex = ResourceManager::instance().getTexture("inventory.png");
+    Texture* tex = ResourceManager::instance().getTexture("inventory.png");
     if (tex == nullptr) {
       std::cout << "Inventory texture not found" << std::endl;
       return;
@@ -320,10 +367,6 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     setCurrentItem(0);
     setCurrentItemShop(0);
 
-    giveItem<DrillItem>();
-    //giveItem<MedicineItem>();
-    //giveItem<MedicineItem>();
-    giveItem<SwordItem>();
 }
 
 
@@ -331,6 +374,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Player::update(int deltaTime)
 {
     float dt = deltaTime/1000.0f;
+    setCurrentItem(currentItem);
 
     glm::ivec2 chPos = Game::instance().scene.worldToScreen(getCrosshairPos());
     Input::instance().setMousePosition(chPos);
@@ -674,6 +718,47 @@ void Player::setCurrentItem(int n)
 {
   currentItem = n;
   currentItemSprite->setPosition(inventoryPos + glm::ivec2(2+45*n,2));
+  string tipo = items[n]->type;
+
+  /*
+  Texture* glue_player;
+  Texture* medicine_player;
+  Texture* ruby_player;
+  Texture* ship_player;
+  Texture* stone_player;
+  Texture* sword_player;
+  */
+
+  if(tipo =="Bone"){
+    sprite->changeTexture(bone_player);
+  }
+  else if(tipo == "Diamond"){
+    sprite->changeTexture(diamond_player);
+  }
+  else if(tipo == "Drill"){
+    sprite->changeTexture(drill_player);
+  }
+  else if(tipo == "Glue"){
+    sprite->changeTexture(glue_player);
+  }
+  else if(tipo == "Medicine"){
+    sprite->changeTexture(medicine_player);
+  }
+  else if(tipo == "Ruby"){
+    sprite->changeTexture(ruby_player);
+  }
+  else if(tipo == "Ship"){
+    sprite->changeTexture(ship_player);
+  }
+  else if(tipo == "Stone"){
+    sprite->changeTexture(stone_player);
+  }
+  else if(tipo == "Sword"){
+    sprite->changeTexture(sword_player);
+  }
+  else {
+    sprite->changeTexture(normal_player);
+  }
 }
 
 void Player::setCurrentItemShop(int n)

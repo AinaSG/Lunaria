@@ -92,6 +92,18 @@ private:
     const glm::ivec2 potionPos = glm::ivec2(775,668);
     const glm::ivec2 swordPos = glm::ivec2(820,668);
 
+    Texture* normal_player;
+    Texture* bone_player;
+    Texture* diamond_player;
+    Texture* drill_player;
+    Texture* glue_player;
+    Texture* medicine_player;
+    Texture* ruby_player;
+    Texture* ship_player;
+    Texture* stone_player;
+    Texture* sword_player;
+
+
 
     ShaderProgram *shaderProgram;
     int currentItem;

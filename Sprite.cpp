@@ -16,7 +16,7 @@ Sprite::Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Te
 {
 	float vertices[24] = {0.f, 0.f, 0.f, 0.f,
 												quadSize.x, 0.f, sizeInSpritesheet.x, 0.f,
-												quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y, 
+												quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y,
 												0.f, 0.f, 0.f, 0.f,
 												quadSize.x, quadSize.y, sizeInSpritesheet.x, sizeInSpritesheet.y,
 												0.f, quadSize.y, 0.f, sizeInSpritesheet.y};
@@ -99,6 +99,10 @@ void Sprite::changeAnimation(int animId)
 int Sprite::animation() const
 {
 	return currentAnimation;
+}
+
+void Sprite::changeTexture(Texture *spritesheet){
+	texture = spritesheet;
 }
 
 void Sprite::setPosition(const glm::vec2 &pos)
