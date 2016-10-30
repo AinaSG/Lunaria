@@ -115,7 +115,7 @@ private:
     int postHitCounter;
     bool hitEffect;
 
-    bool showHelp = false;
+    bool showHelp = true;
     const glm::ivec2 helpPos = glm::ivec2(765,544);
 
     const glm::ivec2 inventoryPos = glm::ivec2(10,10);
