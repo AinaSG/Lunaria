@@ -16,11 +16,13 @@ public:
   }
   void use(float deltaTime)
   {
+    GameScene* scene = Game::gameScene();
+
     if (Input::instance().getMouseButtonDown(GLUT_LEFT_BUTTON))
     {
-      Game::instance().scene.player->attack();
+      scene->player->attack();
     }
-    Scene* scene = &Game::instance().scene;
+
     if (Input::instance().getMouseButtonHold(GLUT_LEFT_BUTTON)) {
       scene->mineBlock(deltaTime);
       return;

@@ -181,9 +181,9 @@ int Character::dealDamage(int damage, glm::vec2 enemy_pos)
 		life = 0;
 		dead = true;
 		onDeath();
-	}
-
-	postDamage();
+    } else {
+      postDamage();
+    }
 }
 
 void Character::postDamage(){

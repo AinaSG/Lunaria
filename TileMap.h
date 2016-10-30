@@ -78,6 +78,7 @@ private:
     Texture* tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
+    glm::vec3 *noise;
 	ShaderProgram program;
 
 

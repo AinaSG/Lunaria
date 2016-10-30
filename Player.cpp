@@ -376,7 +376,7 @@ void Player::update(int deltaTime)
     float dt = deltaTime/1000.0f;
     setCurrentItem(currentItem);
 
-    glm::ivec2 chPos = Game::instance().scene.worldToScreen(getCrosshairPos());
+    glm::ivec2 chPos = Game::gameScene()->worldToScreen(getCrosshairPos());
     Input::instance().setMousePosition(chPos);
 
     if(hitEffect){
@@ -511,6 +511,7 @@ void Player::update(int deltaTime)
 }
 
 void Player::onDeath() {
+  Game::instance().startGame();
   //AQUÍ ELPLAYER MUERE
 }
 
@@ -584,7 +585,7 @@ void Player::renderItems()
 
     if (item->amount > 0) {
       string n = std::to_string(item->amount);
-      Game::instance().scene.boldText.render(n,glm::ivec2(10+45*i + (item->amount > 10 ? 16 : 21),75),15,glm::vec4(1.0f,174.0f/255.0f,0.0f,1.0f));
+      Game::instance().boldText.render(n,glm::ivec2(10+45*i + (item->amount > 10 ? 16 : 21),75),15,glm::vec4(1.0f,174.0f/255.0f,0.0f,1.0f));
       shaderProgram->use();
     }
     ++i;
@@ -791,7 +792,7 @@ glm::ivec2 Player::getSpeed() const
 void Player::attack(int hit_damage)
 {
 	if (hit_damage == -1) hit_damage = damage;
-	Scene* scene = &(Game::instance().scene);
+    GameScene* scene = Game::gameScene();
 	glm::ivec2 click_pos = scene->screenToWorld(Input::instance().getMouseScreenPos());
 
     for(int i = 0; i<scene->enemyVector.size(); ++i){
@@ -912,7 +913,7 @@ void Player::updateViewItems(){
 
 glm::ivec2 Player::getCrosshairPos() const
 {
-  glm::vec2 mousePos = Game::instance().scene.screenToWorld(Input::instance().getMouseScreenPos());
+  glm::vec2 mousePos = Game::gameScene()->screenToWorld(Input::instance().getMouseScreenPos());
   glm::vec2 myPos = glm::vec2(position + glm::ivec2(8,16));
   glm::vec2 chVector = mousePos - myPos;
 
