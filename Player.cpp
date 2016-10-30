@@ -7,6 +7,7 @@
 #include "Input.h"
 #include "DrillItem.h"
 #include "MedicineItem.h"
+#include "ShipItem.h"
 #include "SwordItem.h"
 #include "ResourceManager.h"
 #include <string>
@@ -320,8 +321,8 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     setCurrentItemShop(0);
 
     giveItem<DrillItem>();
-    giveItem<MedicineItem>();
-    giveItem<MedicineItem>();
+    //giveItem<MedicineItem>();
+    //giveItem<MedicineItem>();
     giveItem<SwordItem>();
 }
 
@@ -345,6 +346,9 @@ void Player::update(int deltaTime)
   checkShop();
 
 	sprite->update(deltaTime);
+  if (Input::instance().getKeyDown(13)) {
+    buy();
+  }
 
   if (Input::instance().getSpecialKeyDown(GLUT_KEY_RIGHT)) {
     setCurrentItemShop(++currentItemShop%4);
@@ -724,6 +728,101 @@ void Player::attack(int hit_damage)
 
 void Player::heal(int hp){
   life = life + hp;
+}
+
+void Player::buy(){
+
+  Item * h_stone;
+  Item * h_diamonds;
+  Item * h_rubies;
+  Item * h_bones;
+  Item * h_glue;
+
+  for (Item* item : items) {
+    string i_type = item->getType();
+    if (i_type == "Stone") h_stone = item;
+    if (i_type == "Diamond") h_diamonds =item;
+    if (i_type == "Ruby") h_rubies = item;
+    if (i_type == "Bone") h_bones = item;
+    if (i_type == "Glue") h_glue =item;
+  }
+  if (currentItemShop == 0){
+    //Medicina
+    //Medicine 2 Stone 1 Diamond
+    if (can_buy_potion){
+      h_stone->spend(2);
+      h_diamonds->spend(1);
+      updateViewItems();
+      giveItem<MedicineItem>();
+    }
+  }
+  else if (currentItemShop == 1){
+    //Espasa
+    //Sword 2 rubies 5 diamonds
+    if (can_buy_espasa){
+      h_rubies->spend(2);
+      h_diamonds->spend(5);
+      updateViewItems();
+      giveItem<SwordItem>();
+    }
+  }
+  else if (currentItemShop == 2){
+    //Drill
+    //Drill 10 stone 2 diamonds
+    if(can_buy_taladro){
+      h_stone->spend(10);
+      h_diamonds->spend(2);
+      updateViewItems();
+      giveItem<DrillItem>();
+    }
+  }
+  else if (currentItemShop == 3){
+    //Stages
+    if (shipStage == 0){
+      //Comprar 1
+      //Stage1 10 stone 5 diamonds
+      if(can_buy_stage){
+        h_stone->spend(10);
+        h_diamonds->spend(5);
+        updateViewItems();
+        ++shipStage;
+      }
+    }
+    else if (shipStage == 1){
+      //Comprar 2
+      //Stage2 3 diamonds 2 rubies 5 monster bones
+      if(can_buy_stage){
+        h_rubies->spend(2);
+        h_diamonds->spend(3);
+        h_bones->spend(5);
+        updateViewItems();
+        ++shipStage;
+      }
+    }
+    else if (shipStage == 2){
+      //Comprar 3
+      //Stage3 5 diamonds 3 rubies 4 monster glue
+      if(can_buy_stage){
+        h_rubies->spend(3);
+        h_diamonds->spend(5);
+        h_glue->spend(4);
+        updateViewItems();
+        giveItem<ShipItem>();
+      }
+    }
+  }
+
+
+}
+
+void Player::updateViewItems(){
+  for (int i = 0; i < items.size(); ++i) {
+    if (items[i]->amount == 0) {
+      delete items[i];
+      items[i] = new EmptyItem();
+      items[i]->init(*shaderProgram);
+    }
+  }
 }
 
 glm::ivec2 Player::getCrosshairPos() const
