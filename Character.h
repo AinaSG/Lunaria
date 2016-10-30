@@ -47,7 +47,7 @@ protected:
 		int kb_speed_x;
 		int kb_speed_y;
 
-		int life;
+        int life;
 		bool dead;
 		bool hit;
 		int damage;

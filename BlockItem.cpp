@@ -45,8 +45,11 @@ void BlockItem::use(float deltaTime)
 
     glm::ivec2 mousePos = Input::instance().getMouseScreenPos();
     glm::ivec2 tilePos =  scene->screenToTile(mousePos);
-    glm::vec2 worldPos = scene->screenToWorld(mousePos);
-    glm::vec2 playerPos = scene->player->getPos();
+    glm::vec2 playerTilePos = scene->worldToTile(scene->player->getPos());
+    glm::vec2 playerTilePos2 = scene->worldToTile(scene->player->getPos() + glm::ivec2(15,31));
+
+    if (tilePos.x >= playerTilePos.x && tilePos.x <= playerTilePos2.x &&
+        tilePos.y >= playerTilePos.y && tilePos.y <= playerTilePos2.y) return;
 
     if (scene->map->getTile(tilePos) == Block::Empty) {
       scene->map->setTile(tilePos, blockID);
