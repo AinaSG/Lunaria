@@ -40,9 +40,10 @@ GameScene::~GameScene()
 
 void GameScene::init() {
   Scene::init();
+  initTileShaders();
 
-  map = TileMap::createTileMap(texProgram);
-  backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", texProgram);
+  map = TileMap::createTileMap(tileProgram);
+  backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", map->heightmap, tileProgram);
 
   Texture *tex = ResourceManager::instance().getTexture("bg.png");
   if (tex == nullptr) {
@@ -128,23 +129,37 @@ void GameScene::render()
 
   texProgram.use();
   texProgram.setUniformMatrix4f("projection", projection);
-
   texProgram.setUniformMatrix4f("model", model);
   texProgram.setUniformMatrix4f("view",view);
+  texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+
 
   background->render();
 
   glm::vec3 v = glm::vec3(glm::ivec2(cameraPos) - glm::ivec2(Game::halfScreenSize),0);
   view = glm::translate(glm::mat4(1.0f), - v  + glm::vec3(0.5,0.5,0));
-  texProgram.setUniformMatrix4f("view", view);
 
-  texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
-  texProgram.setUniform4f("color", 0.5, 0.5f, 0.5f, 0.5f);
+  tileProgram.use();
+  tileProgram.setUniformMatrix4f("projection", projection);
+  tileProgram.setUniformMatrix4f("model", model);
+  tileProgram.setUniformMatrix4f("view",view);;
+
+  tileProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+
+  tileProgram.setUniform4f("color", 0.5, 0.5f, 0.5f, 0.5f);
+  tileProgram.use();
   backmap->render();
 
-  texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+  tileProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
   map->render();
+
+
+  texProgram.use();
+  texProgram.setUniformMatrix4f("projection", projection);
+  texProgram.setUniformMatrix4f("model", model);
+  texProgram.setUniformMatrix4f("view",view);
+
 
   Sprite *b = nullptr;
   if (breakingPos != NULL_POS) {
@@ -220,6 +235,36 @@ void GameScene::mineBlock(float deltaTime, float speed /* = 100.0f */)
       breakingPos = NULL_POS;
     }
   }
+}
+
+void GameScene::initTileShaders() {
+    Shader vShader, fShader;
+
+    vShader.initFromFile(VERTEX_SHADER, "shaders/tile.vert");
+    if(!vShader.isCompiled())
+    {
+      cout << "TILE Vertex Shader Error" << endl;
+      cout << "" << vShader.log() << endl << endl;
+    }
+    fShader.initFromFile(FRAGMENT_SHADER, "shaders/tile.frag");
+    if(!fShader.isCompiled())
+    {
+      cout << "TILE Fragment Shader Error" << endl;
+      cout << "" << fShader.log() << endl << endl;
+    }
+
+    tileProgram.init();
+    tileProgram.addShader(vShader);
+    tileProgram.addShader(fShader);
+    tileProgram.link();
+    if(!tileProgram.isLinked())
+    {
+      cout << "Shader Linking Error" << endl;
+      cout << "" << tileProgram.log() << endl << endl;
+    }
+    tileProgram.bindFragmentOutput("outColor");
+    vShader.free();
+    fShader.free();
 }
 
 glm::ivec2 GameScene::worldToTile(const glm::ivec2 &p) { return p/map->getTileSize(); }

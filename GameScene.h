@@ -38,6 +38,10 @@ private:
     Sprite *background, *breakingOverlay[3];
     Sprite *inventory;
 
+    ShaderProgram tileProgram;
+
+    void initTileShaders();
+
     const glm::ivec2 NULL_POS = glm::ivec2(-1,-1);
 };
 
