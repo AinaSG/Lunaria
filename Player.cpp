@@ -14,35 +14,35 @@
 
 enum PlayerAnims
 {
-    STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, JUMP_LEFT, JUMP_RIGHT
+  STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, JUMP_LEFT, JUMP_RIGHT
 };
 
 Player::Player() : items(9) {}
 
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-    this->shaderProgram = &shaderProgram;
+  this->shaderProgram = &shaderProgram;
 
-	bJumping = false;
-	hit = false;
-	walkSpeed = 200;
-	jumpSpeed = 400;
+  bJumping = false;
+  hit = false;
+  walkSpeed = 200;
+  jumpSpeed = 400;
 
-	my_size_x = 32;
-	my_size_y = 32;
+  my_size_x = 32;
+  my_size_y = 32;
 
-	kb_speed_x = 200;
-	kb_speed_y = 200;
+  kb_speed_x = 200;
+  kb_speed_y = 200;
 
   timePostHit = 10;
   postHitCounter = 0;
   hitEffect = false;
 
-	life = 10;
-	damage = 1;
-	speed = glm::vec2(0,0);
+  life = 10;
+  damage = 1;
+  speed = glm::vec2(0,0);
 
-	normal_player = ResourceManager::instance().getTexture("bub_astIP.png");
+  normal_player = ResourceManager::instance().getTexture("bub_astIP.png");
   bone_player = ResourceManager::instance().getTexture("bub_astIP_bone.png");
   diamond_player = ResourceManager::instance().getTexture("bub_astIP_diamond.png");
   drill_player = ResourceManager::instance().getTexture("bub_astIP_drill.png");
@@ -53,319 +53,319 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
   stone_player = ResourceManager::instance().getTexture("bub_astIP_stone.png");
   sword_player = ResourceManager::instance().getTexture("bub_astIP_sword.png");
 
-    if (normal_player == nullptr) {
-      std::cout << "NormalPlayer texture not found" << std::endl;
-      return;
-    }
-    if (bone_player == nullptr) {
-      std::cout << "bone_player texture not found" << std::endl;
-      return;
-    }
-    if (diamond_player == nullptr) {
-      std::cout << "diamond_player texture not found" << std::endl;
-      return;
-    }
-    if (drill_player == nullptr) {
-      std::cout << "drill_player texture not found" << std::endl;
-      return;
-    }
-    if (glue_player == nullptr) {
-      std::cout << "glue_player texture not found" << std::endl;
-      return;
-    }
-    if (medicine_player == nullptr) {
-      std::cout << "medicine_player texture not found" << std::endl;
-      return;
-    }
-    if (ruby_player == nullptr) {
-      std::cout << "ruby_player texture not found" << std::endl;
-      return;
-    }
-    if (ship_player == nullptr) {
-      std::cout << "ship_player texture not found" << std::endl;
-      return;
-    }
-    if (stone_player == nullptr) {
-      std::cout << "stone_player texture not found" << std::endl;
-      return;
-    }
-    if (sword_player == nullptr) {
-      std::cout << "stone_player texture not found" << std::endl;
-      return;
-    }
-
-    sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), normal_player, &shaderProgram);
-
-	  sprite->setNumberAnimations(6);
-
-		sprite->setAnimationSpeed(STAND_LEFT, 8);
-		sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
-
-		sprite->setAnimationSpeed(STAND_RIGHT, 8);
-		sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
-
-		sprite->setAnimationSpeed(MOVE_LEFT, 8);
-		sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.f));
-		sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.25f));
-		sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.5f));
-
-		sprite->setAnimationSpeed(MOVE_RIGHT, 8);
-		sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.f));
-		sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.25f));
-        sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.5f));
-
-        sprite->setAnimationSpeed(JUMP_RIGHT, 8);
-        sprite->addKeyframe(JUMP_RIGHT, glm::vec2(0.25f, 0.25f));
-
-        sprite->setAnimationSpeed(JUMP_LEFT, 8);
-        sprite->addKeyframe(JUMP_LEFT, glm::vec2(0.f, 0.25f));
-
-	sprite->changeAnimation(0);
-	tileMapDispl = tileMapPos;
-    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
-
-    Texture* tex = ResourceManager::instance().getTexture("inventory.png");
-    if (tex == nullptr) {
-      std::cout << "Inventory texture not found" << std::endl;
-      return;
-    }
-    inventorySprite = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    inventorySprite->setPosition(inventoryPos);
-
-    tex = ResourceManager::instance().getTexture("hit.png");
-    if (tex == nullptr) {
-      std::cout << "Hit texture not found" << std::endl;
-      return;
-    }
-    hitSprite = Sprite::createSprite(glm::ivec2(960,720), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    hitSprite->setPosition(glm::vec2(0,0));
-
-    tex = ResourceManager::instance().getTexture("current_item.png");
-    if (tex == nullptr) {
-      std::cout << "Current item texture not found" << std::endl;
-      return;
-    }
-    currentItemSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    currentItemShopSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-
-    tex = ResourceManager::instance().getTexture("hrt.png");
-
-    if (tex == nullptr) {
-      std::cout << "Heart texture not found" << std::endl;
-      return;
-    }
+  if (normal_player == nullptr) {
+    std::cout << "NormalPlayer texture not found" << std::endl;
+    return;
+  }
+  if (bone_player == nullptr) {
+    std::cout << "bone_player texture not found" << std::endl;
+    return;
+  }
+  if (diamond_player == nullptr) {
+    std::cout << "diamond_player texture not found" << std::endl;
+    return;
+  }
+  if (drill_player == nullptr) {
+    std::cout << "drill_player texture not found" << std::endl;
+    return;
+  }
+  if (glue_player == nullptr) {
+    std::cout << "glue_player texture not found" << std::endl;
+    return;
+  }
+  if (medicine_player == nullptr) {
+    std::cout << "medicine_player texture not found" << std::endl;
+    return;
+  }
+  if (ruby_player == nullptr) {
+    std::cout << "ruby_player texture not found" << std::endl;
+    return;
+  }
+  if (ship_player == nullptr) {
+    std::cout << "ship_player texture not found" << std::endl;
+    return;
+  }
+  if (stone_player == nullptr) {
+    std::cout << "stone_player texture not found" << std::endl;
+    return;
+  }
+  if (sword_player == nullptr) {
+    std::cout << "stone_player texture not found" << std::endl;
+    return;
+  }
+
+  sprite = Sprite::createSprite(glm::ivec2(my_size_x, my_size_y), glm::vec2(0.25, 0.25), normal_player, &shaderProgram);
+
+  sprite->setNumberAnimations(6);
+
+  sprite->setAnimationSpeed(STAND_LEFT, 8);
+  sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
+
+  sprite->setAnimationSpeed(STAND_RIGHT, 8);
+  sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
+
+  sprite->setAnimationSpeed(MOVE_LEFT, 8);
+  sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.f));
+  sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.25f));
+  sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.5f));
+
+  sprite->setAnimationSpeed(MOVE_RIGHT, 8);
+  sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.f));
+  sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.25f));
+  sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.5f));
+
+  sprite->setAnimationSpeed(JUMP_RIGHT, 8);
+  sprite->addKeyframe(JUMP_RIGHT, glm::vec2(0.25f, 0.25f));
+
+  sprite->setAnimationSpeed(JUMP_LEFT, 8);
+  sprite->addKeyframe(JUMP_LEFT, glm::vec2(0.f, 0.25f));
+
+  sprite->changeAnimation(0);
+  tileMapDispl = tileMapPos;
+  sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+
+  Texture* tex = ResourceManager::instance().getTexture("inventory.png");
+  if (tex == nullptr) {
+    std::cout << "Inventory texture not found" << std::endl;
+    return;
+  }
+  inventorySprite = Sprite::createSprite(glm::ivec2(412,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  inventorySprite->setPosition(inventoryPos);
+
+  tex = ResourceManager::instance().getTexture("hit.png");
+  if (tex == nullptr) {
+    std::cout << "Hit texture not found" << std::endl;
+    return;
+  }
+  hitSprite = Sprite::createSprite(glm::ivec2(960,720), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  hitSprite->setPosition(glm::vec2(0,0));
+
+  tex = ResourceManager::instance().getTexture("current_item.png");
+  if (tex == nullptr) {
+    std::cout << "Current item texture not found" << std::endl;
+    return;
+  }
+  currentItemSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  currentItemShopSprite = Sprite::createSprite(glm::ivec2(48,48), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+
+  tex = ResourceManager::instance().getTexture("hrt.png");
+
+  if (tex == nullptr) {
+    std::cout << "Heart texture not found" << std::endl;
+    return;
+  }
 
-    heartSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  heartSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
 
-    tex = ResourceManager::instance().getTexture("shop.png");
+  tex = ResourceManager::instance().getTexture("shop.png");
 
-    if (tex == nullptr) {
-      std::cout << "Shop texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Shop texture not found" << std::endl;
+    return;
+  }
 
-    shopSprite = Sprite::createSprite(glm::ivec2(185,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    shopSprite->setPosition(shopPos);
+  shopSprite = Sprite::createSprite(glm::ivec2(185,52), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  shopSprite->setPosition(shopPos);
 
-    tex = ResourceManager::instance().getTexture("cross3.png");
-    if (tex == nullptr) {
-      std::cout << "Crosshair texture not found" << std::endl;
-      return;
-    }
-    crosshairSprite = Sprite::createSprite(glm::ivec2(11,11), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  tex = ResourceManager::instance().getTexture("cross3.png");
+  if (tex == nullptr) {
+    std::cout << "Crosshair texture not found" << std::endl;
+    return;
+  }
+  crosshairSprite = Sprite::createSprite(glm::ivec2(11,11), glm::vec2(1.0, 1.0), tex, &shaderProgram);
 
-    /////////////////////LOADING SHOP ITEMS////////////////////////////////////////////
-    tex = ResourceManager::instance().getTexture("taladro.png");
+  /////////////////////LOADING SHOP ITEMS////////////////////////////////////////////
+  tex = ResourceManager::instance().getTexture("taladro.png");
 
-    if (tex == nullptr) {
-      std::cout << "Taladro texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Taladro texture not found" << std::endl;
+    return;
+  }
 
-    taladroSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    taladroSprite->setPosition(taladroPos);
+  taladroSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  taladroSprite->setPosition(taladroPos);
 
-    tex = ResourceManager::instance().getTexture("taladro_bw.png");
+  tex = ResourceManager::instance().getTexture("taladro_bw.png");
 
-    if (tex == nullptr) {
-      std::cout << "Taladro_bw texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Taladro_bw texture not found" << std::endl;
+    return;
+  }
 
-    taladroSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    taladroSpriteBW->setPosition(taladroPos);
+  taladroSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  taladroSpriteBW->setPosition(taladroPos);
 
-    tex = ResourceManager::instance().getTexture("fase1.png");
+  tex = ResourceManager::instance().getTexture("fase1.png");
 
-    if (tex == nullptr) {
-      std::cout << "Stage1 texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Stage1 texture not found" << std::endl;
+    return;
+  }
 
-    stage1Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage1Sprite->setPosition(stagePos);
+  stage1Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage1Sprite->setPosition(stagePos);
 
-    tex = ResourceManager::instance().getTexture("fase1_bw.png");
+  tex = ResourceManager::instance().getTexture("fase1_bw.png");
 
-    if (tex == nullptr) {
-      std::cout << "Stage1_bw texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Stage1_bw texture not found" << std::endl;
+    return;
+  }
 
-    stage1SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage1SpriteBW->setPosition(stagePos);
+  stage1SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage1SpriteBW->setPosition(stagePos);
 
-    tex = ResourceManager::instance().getTexture("fase2.png");
+  tex = ResourceManager::instance().getTexture("fase2.png");
 
-    if (tex == nullptr) {
-      std::cout << "Stage2 texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Stage2 texture not found" << std::endl;
+    return;
+  }
 
-    stage2Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage2Sprite->setPosition(stagePos);
+  stage2Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage2Sprite->setPosition(stagePos);
 
-    tex = ResourceManager::instance().getTexture("fase2_bw.png");
+  tex = ResourceManager::instance().getTexture("fase2_bw.png");
 
-    if (tex == nullptr) {
-      std::cout << "Stage2_bw texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Stage2_bw texture not found" << std::endl;
+    return;
+  }
 
-    stage2SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage2SpriteBW->setPosition(stagePos);
+  stage2SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage2SpriteBW->setPosition(stagePos);
 
-    tex = ResourceManager::instance().getTexture("fase3.png");
+  tex = ResourceManager::instance().getTexture("fase3.png");
 
-    if (tex == nullptr) {
-      std::cout << "Stage3 texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Stage3 texture not found" << std::endl;
+    return;
+  }
 
-    stage3Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage3Sprite->setPosition(stagePos);
+  stage3Sprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage3Sprite->setPosition(stagePos);
 
-    tex = ResourceManager::instance().getTexture("fase3_bw.png");
+  tex = ResourceManager::instance().getTexture("fase3_bw.png");
 
-    if (tex == nullptr) {
-      std::cout << "Stage3_bw texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Stage3_bw texture not found" << std::endl;
+    return;
+  }
 
-    stage3SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage3SpriteBW->setPosition(stagePos);
+  stage3SpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage3SpriteBW->setPosition(stagePos);
 
-    tex = ResourceManager::instance().getTexture("medi.png");
+  tex = ResourceManager::instance().getTexture("medi.png");
 
-    if (tex == nullptr) {
-      std::cout << "Potion texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Potion texture not found" << std::endl;
+    return;
+  }
 
-    potionSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    potionSprite->setPosition(potionPos);
+  potionSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  potionSprite->setPosition(potionPos);
 
-    tex = ResourceManager::instance().getTexture("medi_bw.png");
+  tex = ResourceManager::instance().getTexture("medi_bw.png");
 
-    if (tex == nullptr) {
-      std::cout << "Potion_bw texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Potion_bw texture not found" << std::endl;
+    return;
+  }
 
-    potionSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    potionSpriteBW->setPosition(potionPos);
+  potionSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  potionSpriteBW->setPosition(potionPos);
 
-    tex = ResourceManager::instance().getTexture("sword.png");
+  tex = ResourceManager::instance().getTexture("sword.png");
 
-    if (tex == nullptr) {
-      std::cout << "Sword texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Sword texture not found" << std::endl;
+    return;
+  }
 
-    swordSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    swordSprite->setPosition(swordPos);
+  swordSprite = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  swordSprite->setPosition(swordPos);
 
-    tex = ResourceManager::instance().getTexture("sword_bw.png");
+  tex = ResourceManager::instance().getTexture("sword_bw.png");
 
-    if (tex == nullptr) {
-      std::cout << "Sword_bw texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Sword_bw texture not found" << std::endl;
+    return;
+  }
 
-    swordSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    swordSpriteBW->setPosition(swordPos);
+  swordSpriteBW = Sprite::createSprite(glm::ivec2(32,32), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  swordSpriteBW->setPosition(swordPos);
 
 
-    ////////////////////////END SHOP ITEMS /////////////////////////////////////////////
-    ////////////////////////LOADING HELP ///////////////////////////////////////////////
-    tex = ResourceManager::instance().getTexture("help_drill.png");
+  ////////////////////////END SHOP ITEMS /////////////////////////////////////////////
+  ////////////////////////LOADING HELP ///////////////////////////////////////////////
+  tex = ResourceManager::instance().getTexture("help_drill.png");
 
-    if (tex == nullptr) {
-      std::cout << "Drill help texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Drill help texture not found" << std::endl;
+    return;
+  }
 
-    taladroHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    taladroHelpSprite->setPosition(helpPos);
+  taladroHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  taladroHelpSprite->setPosition(helpPos);
 
-    tex = ResourceManager::instance().getTexture("help_1s.png");
+  tex = ResourceManager::instance().getTexture("help_1s.png");
 
-    if (tex == nullptr) {
-      std::cout << "S1 help texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "S1 help texture not found" << std::endl;
+    return;
+  }
 
-    stage1HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage1HelpSprite->setPosition(helpPos);
+  stage1HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage1HelpSprite->setPosition(helpPos);
 
-    tex = ResourceManager::instance().getTexture("help_2s.png");
+  tex = ResourceManager::instance().getTexture("help_2s.png");
 
-    if (tex == nullptr) {
-      std::cout << "S2 help texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "S2 help texture not found" << std::endl;
+    return;
+  }
 
-    stage2HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage2HelpSprite->setPosition(helpPos);
+  stage2HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage2HelpSprite->setPosition(helpPos);
 
-    tex = ResourceManager::instance().getTexture("help_3s.png");
+  tex = ResourceManager::instance().getTexture("help_3s.png");
 
-    if (tex == nullptr) {
-      std::cout << "S3 help texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "S3 help texture not found" << std::endl;
+    return;
+  }
 
-    stage3HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    stage3HelpSprite->setPosition(helpPos);
+  stage3HelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  stage3HelpSprite->setPosition(helpPos);
 
-    tex = ResourceManager::instance().getTexture("help_medicine.png");
+  tex = ResourceManager::instance().getTexture("help_medicine.png");
 
-    if (tex == nullptr) {
-      std::cout << "Medicine help texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Medicine help texture not found" << std::endl;
+    return;
+  }
 
-    potionHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    potionHelpSprite->setPosition(helpPos);
+  potionHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  potionHelpSprite->setPosition(helpPos);
 
-    tex = ResourceManager::instance().getTexture("help_sword.png");
+  tex = ResourceManager::instance().getTexture("help_sword.png");
 
-    if (tex == nullptr) {
-      std::cout << "Sword help texture not found" << std::endl;
-      return;
-    }
+  if (tex == nullptr) {
+    std::cout << "Sword help texture not found" << std::endl;
+    return;
+  }
 
-    swordHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
-    swordHelpSprite->setPosition(helpPos);
-    ////////////////////////END HELP ///////////////////////////////////////////////////
+  swordHelpSprite = Sprite::createSprite(glm::ivec2(185,104), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  swordHelpSprite->setPosition(helpPos);
+  ////////////////////////END HELP ///////////////////////////////////////////////////
 
-    for (int i = 0; i < items.size(); ++i) {
-      items[i] = new EmptyItem();
-      items[i]->init(shaderProgram);
-    }
+  for (int i = 0; i < items.size(); ++i) {
+    items[i] = new EmptyItem();
+    items[i]->init(shaderProgram);
+  }
 
-    setCurrentItem(0);
-    setCurrentItemShop(0);
+  setCurrentItem(0);
+  setCurrentItemShop(0);
 
 }
 
@@ -373,141 +373,144 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 void Player::update(int deltaTime)
 {
-    float dt = deltaTime/1000.0f;
-    setCurrentItem(currentItem);
+  float dt = deltaTime/1000.0f;
+  setCurrentItem(currentItem);
+  Input *input = &(Input::instance());
 
-    glm::ivec2 chPos = Game::gameScene()->worldToScreen(getCrosshairPos());
-    Input::instance().setMousePosition(chPos);
+  glm::ivec2 chPos = Game::gameScene()->worldToScreen(getCrosshairPos());
+  input->setMousePosition(chPos);
 
-    if(hitEffect){
-      postHitCounter = postHitCounter + deltaTime;
-    }
-    if(postHitCounter > timePostHit ){
-      postHitCounter = 0;
-      hitEffect = false;
-    }
+  if(hitEffect){
+    postHitCounter = postHitCounter + deltaTime;
+  }
+
+  if(postHitCounter > timePostHit ){
+    postHitCounter = 0;
+    hitEffect = false;
+  }
 
   checkShop();
 
-	sprite->update(deltaTime);
-  if (Input::instance().getKeyDown(13)) {
+  sprite->update(deltaTime);
+
+  if (input->getKeyDown(13)) {
     buy();
   }
 
-  if (Input::instance().getSpecialKeyDown(GLUT_KEY_RIGHT)) {
+  if (input->getSpecialKeyDown(GLUT_KEY_RIGHT)) {
     setCurrentItemShop(++currentItemShop%4);
-  } else if (Input::instance().getSpecialKeyDown(GLUT_KEY_LEFT)) {
+  } else if (input->getSpecialKeyDown(GLUT_KEY_LEFT)) {
     setCurrentItemShop((--currentItemShop+4)%4);
   }
 
-  if (Input::instance().getSpecialKeyDown(GLUT_KEY_UP)) {
+  if (input->getSpecialKeyDown(GLUT_KEY_UP)) {
     showHelp = !showHelp;
   }
 
-    for (int i = 1; i <= 9; ++i) {
-      if (Input::instance().getKeyDown('0' + i)) {
-        setCurrentItem(i-1);
-      }
+  for (int i = 1; i <= 9; ++i) {
+    if (input->getKeyDown('0' + i)) {
+      setCurrentItem(i-1);
     }
+  }
 
-    if (Input::instance().getMouseWheel() < 0) {
-      setCurrentItem(++currentItem%9);
-    } else if (Input::instance().getMouseWheel() > 0) {
-      setCurrentItem((--currentItem+9)%9);
+  if (input->getMouseWheel() < 0) {
+    setCurrentItem(++currentItem%9);
+  } else if (input->getMouseWheel() > 0) {
+    setCurrentItem((--currentItem+9)%9);
+  }
+
+  items[currentItem]->use(deltaTime);
+  if (items[currentItem]->amount == 0) {
+    delete items[currentItem];
+    items[currentItem] = new EmptyItem();
+    items[currentItem]->init(*shaderProgram);
+  }
+
+  if(input->getKey('a')){
+    if (speed.x >= 0 or bJumping) speed.x = -walkSpeed;
+  }
+  else if(input->getKey('d')){
+    if (speed.x <= 0 or bJumping ) speed.x = walkSpeed;
+  }
+  else{
+    if (!hit){
+      speed.x = 0;
     }
+  }
 
-    items[currentItem]->use(deltaTime);
-    if (items[currentItem]->amount == 0) {
-      delete items[currentItem];
-      items[currentItem] = new EmptyItem();
-      items[currentItem]->init(*shaderProgram);
+  speed.y += GRAVITY*dt;
+
+  if(!bJumping && (input->getKey('w') || input->getKey(' '))){
+    speed.y = -jumpSpeed;
+    bJumping = true;
+  }
+
+  if(speed.x < 0)
+  {
+    bool wasHit = map->clampMoveX(position, hitbox, int(speed.x * dt));
+    if(wasHit) {
+      speed.x = 0;
     }
+  }
+  else if(speed.x > 0)
+  {
 
-    if(Input::instance().getKey('a')){
-			if (speed.x >= 0 or bJumping) speed.x = -walkSpeed;
-	}
-    else if(Input::instance().getKey('d')){
-        if (speed.x <= 0 or bJumping ) speed.x = walkSpeed;
-	}
-	else{
-		if (!hit){
-			speed.x = 0;
-		}
-	}
-
-    speed.y += GRAVITY*dt;
-
-    if(!bJumping && (Input::instance().getKey('w') || Input::instance().getKey(' '))){
-		speed.y = -jumpSpeed;
-		bJumping = true;
-	}
-
-	if(speed.x < 0)
-    {
-        bool wasHit = map->clampMoveX(position, hitbox, int(speed.x * dt));
-        if(wasHit) {
-			speed.x = 0;
-		}
-	}
-	else if(speed.x > 0)
-    {
-
-        bool wasHit = map->clampMoveX(position, hitbox, int(speed.x * dt));
-        if(wasHit) {
-			speed.x = 0;
-		}
+    bool wasHit = map->clampMoveX(position, hitbox, int(speed.x * dt));
+    if(wasHit) {
+      speed.x = 0;
     }
+  }
 
-    if(speed.y < 0)
-    {
-        bool wasHit = map->clampMoveY(position, hitbox, int(floor(speed.y * dt)));
-        if (wasHit) {
+  if(speed.y < 0)
+  {
+    bool wasHit = map->clampMoveY(position, hitbox, int(floor(speed.y * dt)));
+    if (wasHit) {
 
-            speed.y = 0;
+      speed.y = 0;
 
-        }
     }
-    else if(speed.y > 0)
-    {
-        bool wasHit = map->clampMoveY(position, hitbox, int(ceil(speed.y * dt)));
-        if (wasHit) {
+  }
+  else if(speed.y > 0)
+  {
+    bool wasHit = map->clampMoveY(position, hitbox, int(ceil(speed.y * dt)));
+    if (wasHit) {
 
-          speed.y = 0;
-          bJumping = false;
-		  hit = false;
-        }
+      speed.y = 0;
+      bJumping = false;
+      hit = false;
     }
+  }
 
-    if (bJumping || speed.y > 0) {
-      if (speed.x > 0) {
+  if (bJumping || speed.y > 0) {
+    if (speed.x > 0) {
+      sprite->changeAnimation(JUMP_RIGHT);
+    } else if (speed.x < 0)
+      sprite->changeAnimation(JUMP_LEFT);
+    else {
+      int anim = sprite->animation();
+      if (anim == MOVE_RIGHT || anim == STAND_RIGHT)
         sprite->changeAnimation(JUMP_RIGHT);
-      } else if (speed.x < 0)
+      else if (anim == MOVE_LEFT || anim == STAND_LEFT)
         sprite->changeAnimation(JUMP_LEFT);
-      else {
-        int anim = sprite->animation();
-        if (anim == MOVE_RIGHT || anim == STAND_RIGHT)
-          sprite->changeAnimation(JUMP_RIGHT);
-        else if (anim == MOVE_LEFT || anim == STAND_LEFT)
-          sprite->changeAnimation(JUMP_LEFT);
-      }
-    } else {
-      if (speed.x < 0) {
-        if (sprite->animation() != MOVE_LEFT)
-          sprite->changeAnimation(MOVE_LEFT);
-      } else if (speed.x > 0) {
-        if (sprite->animation() != MOVE_RIGHT)
-          sprite->changeAnimation(MOVE_RIGHT);
-      } else {
-        int anim = sprite->animation();
-        if (anim == MOVE_RIGHT || anim == JUMP_RIGHT)
-            sprite->changeAnimation(STAND_RIGHT);
-        else if (anim == MOVE_LEFT || anim == JUMP_LEFT)
-            sprite->changeAnimation(STAND_LEFT);
-      }
     }
+  } else {
+    if (speed.x < 0) {
+      if (sprite->animation() != MOVE_LEFT)
+        sprite->changeAnimation(MOVE_LEFT);
+    } else if (speed.x > 0) {
+      if (sprite->animation() != MOVE_RIGHT)
+        sprite->changeAnimation(MOVE_RIGHT);
+    } else {
+      int anim = sprite->animation();
+      if (anim == MOVE_RIGHT || anim == JUMP_RIGHT)
+        sprite->changeAnimation(STAND_RIGHT);
+      else if (anim == MOVE_LEFT || anim == JUMP_LEFT)
+        sprite->changeAnimation(STAND_LEFT);
+    }
+  }
 
 
-    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x - 8 ), float(tileMapDispl.y + position.y)));
+  sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x - 8 ), float(tileMapDispl.y + position.y)));
 }
 
 void Player::onDeath() {
@@ -548,13 +551,13 @@ void Player::renderHelp()
     }
     else {
       if(shipStage == 0){
-          stage1HelpSprite->render();
+        stage1HelpSprite->render();
       }
       else if (shipStage == 1){
-          stage2HelpSprite->render();
+        stage2HelpSprite->render();
       }
       else {
-          stage3HelpSprite->render();
+        stage3HelpSprite->render();
       }
     }
   }
@@ -624,29 +627,29 @@ void Player::checkShop(){
   //Stage3 5 diamonds 3 rubies 4 monster glue
 
   if (h_stone>=2 and h_diamonds>=1){
-     can_buy_potion = true;
+    can_buy_potion = true;
   }
   else {
     can_buy_potion = false;
   }
   if (h_stone>=10 and h_diamonds>=2){
-     can_buy_taladro = true;
+    can_buy_taladro = true;
   }
   else {
     can_buy_taladro = false;
   }
   if (h_rubies>=2 and h_diamonds>=5){
-     can_buy_espasa = true;
+    can_buy_espasa = true;
   }
   else {
     can_buy_espasa = false;
   }
 
   if ((shipStage == 0 and h_stone>=10 and h_diamonds>=5) or
-     (shipStage == 1 and h_diamonds>=3 and h_rubies>=2 and h_bones>=5) or
-     (shipStage == 2 and h_diamonds>=5 and h_rubies>=3 and h_glue>=4)){
-       can_buy_stage = true;
-     }
+      (shipStage == 1 and h_diamonds>=3 and h_rubies>=2 and h_bones>=5) or
+      (shipStage == 2 and h_diamonds>=5 and h_rubies>=3 and h_glue>=4)){
+    can_buy_stage = true;
+  }
   else {
     can_buy_stage = false;
   }
@@ -770,46 +773,46 @@ void Player::setCurrentItemShop(int n)
 
 void Player::setTileMap(TileMap *tileMap)
 {
-	map = tileMap;
+  map = tileMap;
 }
 
 void Player::setPosition(const glm::vec2 &pos)
 {
-    position = pos;
-    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+  position = pos;
+  sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
 glm::ivec2 Player::getPos() const
 {
-    return position;
+  return position;
 }
 
 glm::ivec2 Player::getSpeed() const
 {
-    return glm::ivec2(speed);
+  return glm::ivec2(speed);
 }
 
 void Player::attack(int hit_damage)
 {
-	if (hit_damage == -1) hit_damage = damage;
-    GameScene* scene = Game::gameScene();
-	glm::ivec2 click_pos = scene->screenToWorld(Input::instance().getMouseScreenPos());
+  if (hit_damage == -1) hit_damage = damage;
+  GameScene* scene = Game::gameScene();
+  glm::ivec2 click_pos = scene->screenToWorld(Input::instance().getMouseScreenPos());
 
-    for(int i = 0; i<scene->enemyVector.size(); ++i){
-        //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
-        if (scene->enemyVector[i]->pointInside(click_pos)){
-            scene->enemyVector[i]->dealDamage(hit_damage, position);
-            break;
-        }
+  for(int i = 0; i<scene->enemyVector.size(); ++i){
+    //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
+    if (scene->enemyVector[i]->pointInside(click_pos)){
+      scene->enemyVector[i]->dealDamage(hit_damage, position);
+      break;
     }
+  }
 
-    for(int i = 0; i<scene->rockEnemyVector.size(); ++i){
-        //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
-        if (scene->rockEnemyVector[i]->pointInside(click_pos)){
-            scene->rockEnemyVector[i]->dealDamage(hit_damage, position);
-            break;
-        }
+  for(int i = 0; i<scene->rockEnemyVector.size(); ++i){
+    //glm::vec2 enemy_pos = scene->enemyVector[i]->getPos();
+    if (scene->rockEnemyVector[i]->pointInside(click_pos)){
+      scene->rockEnemyVector[i]->dealDamage(hit_damage, position);
+      break;
     }
+  }
 }
 
 void Player::heal(int hp){
