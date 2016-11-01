@@ -37,7 +37,7 @@ using namespace std;
 #define PERCENT_NORMAL_AND_RARE_BLOCK 95
 
 
-TileMap *TileMap::loadTileMap(const string &levelFile, const vector< vector<float>> &heightMap,  ShaderProgram &program)
+TileMap *TileMap::loadTileMap(const string &levelFile, vector< vector<float>> *heightMap,  ShaderProgram &program)
 {
   TileMap *map = new TileMap(levelFile, heightMap, program);
 
@@ -51,16 +51,17 @@ TileMap *TileMap::createTileMap(ShaderProgram &program)
 }
 
 
-TileMap::TileMap(const string &levelFile, const vector< vector<float>> &heightMap, ShaderProgram &prog) : program(prog)
+TileMap::TileMap(const string &levelFile, vector< vector<float>> *heightMap, ShaderProgram &prog) : program(prog)
 {
   loadLevel(levelFile);
-  heightmap.resize(MAP_Y+1);
-  for (int i = 0; i <= MAP_Y; ++i) heightmap[i].resize(MAP_X+1);
+  heightmap = heightMap;
+  /*heightmap->resize(MAP_Y+1);
+  for (int i = 0; i <= MAP_Y; ++i) *heightmap[i].resize(MAP_X+1);
   for (int i = 0; i<= MAP_Y; ++i){
     for (int j=0; j <=MAP_X; ++j){
-      heightmap[i][j] = 1.0f - heightMap[i][j];
+      *heightmap[i][j] = 1.0f - *heightMap[i][j];
     }
-  }
+  }*/
 
   prepareArrays();
 }
@@ -92,11 +93,11 @@ string TileMap::improvedLevelGenerator(){
   Simplex* simCave = new Simplex(&generator, 10.0f, 0.0f, 0.9f); //10 --->
   Simplex* simStone = new Simplex(&generator, 10.0f, 0.0f, 1.0f); //10
 
-  heightmap = vector< vector<float> >(MAP_Y+1, vector<float>(MAP_X+1, 100.f));
+  heightmap = new vector< vector<float> >(MAP_Y+1, vector<float>(MAP_X+1, 100.f));
 
   for (int i = 0; i<= MAP_Y; ++i){
     for (int j=0; j <=MAP_X; ++j){
-      heightmap[i][j] = simCave->valSimplex(i,j);
+      (*heightmap)[i][j] = simCave->valSimplex(i,j);
     }
   }
 
@@ -494,16 +495,17 @@ void TileMap::prepareArrays()
         // Non-empty tile
         nTiles++;
         posTile = glm::vec2(i * tileSize, j * tileSize);
+
         texCoordTile[0] = glm::vec2(float((tile-1)%2) / tilesheetSize.x, float((tile-1)/2) / tilesheetSize.y);
         texCoordTile[1] = texCoordTile[0] + tileTexSize;// - glm::vec2(0.25,0.25);
         //texCoordTile[0] += halfTexel;
         texCoordTile[1] -= halfTexel;
 
         float heights[2][2];
-        heights[0][0] = heightmap[j][i];
-        heights[0][1] = heights[0][0] + (heightmap[j][i+1] - heights[0][0])*2.f;
-        heights[1][0] = heights[0][0] + (heightmap[j+1][i] - heights[0][0])*2.f;
-        heights[1][1] = heights[0][0] + (heightmap[j+1][i+1] - heights[0][0])*2.f;
+        heights[0][0] = (*heightmap)[j][i];
+        heights[0][1] = heights[0][0] + ((*heightmap)[j][i+1] - heights[0][0])*2.f;
+        heights[1][0] = heights[0][0] + ((*heightmap)[j+1][i] - heights[0][0])*2.f;
+        heights[1][1] = heights[0][0] + ((*heightmap)[j+1][i+1] - heights[0][0])*2.f;
 
         // First triangle
         vertices.push_back(posTile.x); vertices.push_back(posTile.y);
@@ -713,13 +715,35 @@ int TileMap::getTile(int x, int y) {
 
 int TileMap::setTile(glm::ivec2 coords, int t)
 {
-  *tile(coords.x,coords.y) = t;
-  prepareArrays();
+  setTile(coords.x,coords.y, t);
 }
 
 int TileMap::setTile(int x, int y, int t)
 {
+  int val = *tile(x,y);
   *tile(x,y) = t;
+  if (val == 5) return 0 ;
+
+  std::swap(x,y);
+  if (t == Block::Empty) {
+
+    //(*heightmap)[x][y] = ((*heightmap)[x][y-1] + (*heightmap)[x-1][y-1] + (*heightmap)[x-1][y])/3.f;
+    //(*heightmap)[x][y+1] = ((*heightmap)[x+1][y-1] + (*heightmap)[x+2][y-1] + (*heightmap)[x+2][y])/3.f;
+    //(*heightmap)[x+1][y] = ((*heightmap)[x][y+2] + (*heightmap)[x-1][y+2] + (*heightmap)[x-1][y+1])/3.f;
+    //(*heightmap)[x+1][y+1] = ((*heightmap)[x+2][y+1] + (*heightmap)[x+2][y+2] + (*heightmap)[x+1][y+2])/3.f;
+
+    (*heightmap)[x][y] *= 1.3;
+    (*heightmap)[x][y+1] *= 1.3;
+    (*heightmap)[x+1][y] *= 1.3;
+    (*heightmap)[x+1][y+1] *= 1.3;
+  } else {
+    float height = 0.3f;
+    (*heightmap)[x][y] = height;
+    (*heightmap)[x][y+1] = height;
+    (*heightmap)[x+1][y] = height;
+    (*heightmap)[x+1][y+1] = height;
+  }
+
   prepareArrays();
 }
 

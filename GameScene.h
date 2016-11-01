@@ -32,7 +32,12 @@ public:
     vector<Enemy*> enemyVector;
     vector<RockEnemy*> rockEnemyVector;
 
+    void endGame() { gameOver = true; }
+
 private:
+
+    bool gameOver;
+    void gameOverUpdate();
 
     TileMap *backmap;
     Sprite *background, *breakingOverlay[3];

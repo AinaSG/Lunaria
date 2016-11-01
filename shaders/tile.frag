@@ -18,7 +18,7 @@ void main()
 	outColor = color * texColor;
 	
 	if (color.a < 0.9f)
-	    outColor -= vec4(heightFrag*0.5);
+        outColor *= vec4(heightFrag*0.99);
 	else
 	    outColor *= (1.- heightFrag*0.9);
 }

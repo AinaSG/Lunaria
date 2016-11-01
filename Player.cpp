@@ -514,7 +514,7 @@ void Player::update(int deltaTime)
 }
 
 void Player::onDeath() {
-  Game::instance().startGame();
+  Game::gameScene()->endGame();
   //AQUÍ ELPLAYER MUERE
 }
 

@@ -42,6 +42,8 @@ void GameScene::init() {
   Scene::init();
   initTileShaders();
 
+  gameOver = false;
+
   map = TileMap::createTileMap(tileProgram);
   backmap = TileMap::loadTileMap("levels/generatedLevel_bg.txt", map->heightmap, tileProgram);
 
@@ -96,6 +98,12 @@ void GameScene::init() {
 }
 
 void GameScene::update(int deltaTime) {
+
+  if (gameOver) {
+    gameOverUpdate();
+    return;
+  }
+
   player->update(deltaTime);
 
   for (int i = 0; i< enemyVector.size(); ++i){
@@ -154,7 +162,6 @@ void GameScene::render()
   tileProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
   map->render();
 
-
   texProgram.use();
   texProgram.setUniformMatrix4f("projection", projection);
   texProgram.setUniformMatrix4f("model", model);
@@ -189,6 +196,12 @@ void GameScene::render()
   texProgram.setUniformMatrix4f("view",view);
 
   player->renderHUD();
+
+  if (gameOver) {
+    glm::vec2 textPos(100,100);
+    Game::instance().boldText.render("GAME OVER", textPos + glm::vec2(2,2), 100, glm::vec4(1,1,1,1));
+    Game::instance().boldText.render("GAME OVER", textPos, 100, glm::vec4(1.0f,174.0f/255.0f,0.0f,1.0f));
+  }
 }
 
 
@@ -224,12 +237,37 @@ void GameScene::mineBlock(float deltaTime, float speed /* = 100.0f */)
     breakPercent -= speed*(deltaTime/1000.0f);
 
     if (breakPercent <= 0) {
+      map->setTile(breakingPos,0);
 
-      if (rand()%10 == 1){
-        add_rockEnemy(screenToWorld(mousePos));
+      if (rand()%20 == 1){
+        bool spawned = false;
+        for (int i = -1; i < 1; ++i) {
+          for (int j = -1; j < 1; ++j) {
+            bool blocked = false;
+            for (int k = 0; k < 2; ++k) {
+              for (int l = 0; l < 2; ++l) {
+
+                if (map->getTile(tilePos + glm::ivec2(i,j) + glm::ivec2(k,l)) != Block::Empty) {
+                  blocked = true;
+                  break;
+                }
+              }
+              if (blocked) break;
+            }
+
+            if (!blocked) {
+              add_rockEnemy(glm::vec2(tilePos + glm::ivec2(i,j+2)) * (float)map->getTileSize() - glm::vec2(0,10)) ;
+              spawned = true;
+              break;
+            }
+          }
+          if (spawned) break;
+        }
       }
 
-      map->setTile(breakingPos,0);
+
+      backmap->prepareArrays();
+
       player->giveItem<BlockItem>(block);
       breakPercent = 100;
       breakingPos = NULL_POS;
@@ -238,34 +276,41 @@ void GameScene::mineBlock(float deltaTime, float speed /* = 100.0f */)
 }
 
 void GameScene::initTileShaders() {
-    Shader vShader, fShader;
+  Shader vShader, fShader;
 
-    vShader.initFromFile(VERTEX_SHADER, "shaders/tile.vert");
-    if(!vShader.isCompiled())
-    {
-      cout << "TILE Vertex Shader Error" << endl;
-      cout << "" << vShader.log() << endl << endl;
-    }
-    fShader.initFromFile(FRAGMENT_SHADER, "shaders/tile.frag");
-    if(!fShader.isCompiled())
-    {
-      cout << "TILE Fragment Shader Error" << endl;
-      cout << "" << fShader.log() << endl << endl;
-    }
+  vShader.initFromFile(VERTEX_SHADER, "shaders/tile.vert");
+  if(!vShader.isCompiled())
+  {
+    cout << "TILE Vertex Shader Error" << endl;
+    cout << "" << vShader.log() << endl << endl;
+  }
+  fShader.initFromFile(FRAGMENT_SHADER, "shaders/tile.frag");
+  if(!fShader.isCompiled())
+  {
+    cout << "TILE Fragment Shader Error" << endl;
+    cout << "" << fShader.log() << endl << endl;
+  }
 
-    tileProgram.init();
-    tileProgram.addShader(vShader);
-    tileProgram.addShader(fShader);
-    tileProgram.link();
-    if(!tileProgram.isLinked())
-    {
-      cout << "Shader Linking Error" << endl;
-      cout << "" << tileProgram.log() << endl << endl;
-    }
-    tileProgram.bindFragmentOutput("outColor");
-    vShader.free();
-    fShader.free();
+  tileProgram.init();
+  tileProgram.addShader(vShader);
+  tileProgram.addShader(fShader);
+  tileProgram.link();
+  if(!tileProgram.isLinked())
+  {
+    cout << "Shader Linking Error" << endl;
+    cout << "" << tileProgram.log() << endl << endl;
+  }
+  tileProgram.bindFragmentOutput("outColor");
+  vShader.free();
+  fShader.free();
 }
 
 glm::ivec2 GameScene::worldToTile(const glm::ivec2 &p) { return p/map->getTileSize(); }
 glm::ivec2 GameScene::screenToTile(const glm::ivec2 &p) { return screenToWorld(p)/map->getTileSize(); }
+
+void GameScene::gameOverUpdate()
+{
+  if (Input::instance().getKeyDown('r')) {
+    Game::instance().startGame();
+  }
+}
