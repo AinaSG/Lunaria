@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include "InfoScene.h"
 #include "Input.h"
 
 
@@ -45,6 +46,21 @@ void Game::render()
 void Game::startGame()
 {
   nextScene = new GameScene();
+}
+
+void Game::gotoMenu()
+{
+  nextScene = new MenuScene();
+}
+
+void Game::gotoHelp()
+{
+  nextScene = new InfoScene("help.png");
+}
+
+void Game::gotoCredits()
+{
+  nextScene = new InfoScene("credits.png");
 }
 
 

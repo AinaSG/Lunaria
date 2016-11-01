@@ -11,6 +11,9 @@ Texture *ResourceManager::getTexture(const string &textureName)
       return nullptr;
     }
 
+    tex->setMagFilter(GL_NEAREST);
+    tex->setMinFilter(GL_NEAREST);
+
     textures[textureName] = Res<Texture>(tex);
     return tex;
 

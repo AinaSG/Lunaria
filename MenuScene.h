@@ -12,7 +12,8 @@ public:
   void update(int deltaTime);
   void render();
 
-  Sprite* test;
+  Sprite* bg, *arrow;
+  int menuEntry = 0;
 
 };
 

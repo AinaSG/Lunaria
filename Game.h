@@ -34,6 +34,9 @@ public:
   void render();
 
   void startGame();
+  void gotoMenu();
+  void gotoHelp();
+  void gotoCredits();
 
   static const glm::ivec2 screenSize;
   static const glm::ivec2 halfScreenSize;

@@ -26,12 +26,12 @@ class TileMap
 
 public:
 	// Tile maps can only be created inside an OpenGL context
-	static TileMap *loadTileMap(const string &levelFile, ShaderProgram &program);
+    static TileMap *loadTileMap(const string &levelFile, vector<vector<float>> *heightMap, ShaderProgram &program);
 	static TileMap *createTileMap(ShaderProgram &program);
-	static TileMap *createBackground(const TileMap* orig, ShaderProgram &program);
+    //static TileMap *createBackground(const TileMap* orig, const vector<vector<float>> &heightMap, ShaderProgram &program);
 
 
-	TileMap(const string &levelFile, ShaderProgram &program);
+    TileMap(const string &levelFile, vector<vector<float>> *heightMap, ShaderProgram &program);
 	TileMap(ShaderProgram &program);
 	~TileMap();
 
@@ -62,9 +62,12 @@ public:
 	void removeTile(glm::ivec2 coords);
 	void removeTile(int x, int y);
 
+    vector< vector<float> > *heightmap;
+    void prepareArrays();
+
 private:
 	bool loadLevel(const string &levelFile);
-	void prepareArrays();
+
 	string generateLevel();
 	string improvedLevelGenerator();
     int nTiles;
@@ -72,16 +75,14 @@ private:
 private:
 	GLuint vao;
 	GLuint vbo;
-	GLint posLocation, texCoordLocation;
+    GLint posLocation, texCoordLocation, heightLocation;
 	glm::ivec2 position, mapSize, tilesheetSize;
 	int tileSize, blockSize;
     Texture* tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
     glm::vec3 *noise;
-	ShaderProgram program;
-
-
+    ShaderProgram program;
 };
 
 
