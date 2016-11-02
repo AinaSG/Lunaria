@@ -586,6 +586,7 @@ void Player::renderLife()
 
 void Player::postDamage(){
   hitEffect  = true;
+  Game::instance().playPlayerHit();
   cout <<"POSTDAM" << endl;
 }
 

@@ -79,6 +79,10 @@ void RockEnemy::onDeath() {
   cout << "givin' glue" << endl;
 }
 
+void RockEnemy::postDamage(){
+  Game::instance().playRockHit();
+}
+
 
 
 void RockEnemy::update(int deltaTime)
