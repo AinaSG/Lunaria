@@ -2,6 +2,7 @@
 #include <GL/glut.h>
 #include "Game.h"
 #include "InfoScene.h"
+#include "IntroScene.h"
 #include "Input.h"
 #include <string>
 
@@ -74,6 +75,10 @@ void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     scene->render();
+}
+
+void Game::gotoIntro() {
+  nextScene = new IntroScene();
 }
 
 void Game::startGame()

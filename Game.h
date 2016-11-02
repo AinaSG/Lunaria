@@ -39,6 +39,7 @@ public:
   void gotoMenu();
   void gotoHelp();
   void gotoCredits();
+  void gotoIntro();
 
   void playPlayerHit();
   void playRockHit();

@@ -32,7 +32,8 @@ void MenuScene::update(int deltaTime)
   if (Input::instance().getKeyDown(13)) {
     switch (menuEntry) {
       case 0:
-        Game::instance().startGame();
+        Game::instance().gotoIntro();
+        //Game::instance().startGame();
         break;
       case 1:
         Game::instance().gotoHelp();

@@ -42,7 +42,7 @@ private:
 
     TileMap *backmap;
     Sprite *background, *breakingOverlay[3];
-    Sprite *inventory;
+    Sprite *inventory, *gameoverSprite;
 
     ShaderProgram tileProgram;
 

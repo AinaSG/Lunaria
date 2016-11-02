@@ -57,6 +57,15 @@ void GameScene::init() {
 
   background = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
 
+  tex = ResourceManager::instance().getTexture("game_over.png");
+  if (tex == nullptr) {
+    std::cout << "Game over texture not found" << std::endl;
+    return;
+  }
+
+  gameoverSprite = Sprite::createSprite(Game::screenSize, glm::vec2(1.0, 1.0), tex, &texProgram);
+  gameoverSprite->setPosition(glm::ivec2(0,0));
+
   for (int i = 0; i < 3; ++i){
     std::ostringstream stream;
     stream << "breaking" << i << ".png";
@@ -139,18 +148,28 @@ void GameScene::update(int deltaTime) {
 
 void GameScene::render()
 {
+
+
   glm::mat4 model(1.0f);
   glm::mat4 view = translate(glm::mat4(1.0f),glm::vec3(0.5,0.5,0));
-  view = glm::translate(view, glm::vec3(Game::halfScreenSize,0));
-  view = glm::rotate(view,gameTime/300.f,glm::vec3(0,0,1));
-  view = glm::scale(view, glm::vec3(1.1,1.1,1));
-  view = glm::translate(view,  glm::vec3(-Game::halfScreenSize,0));
-
 
   texProgram.use();
   texProgram.setUniformMatrix4f("projection", projection);
   texProgram.setUniformMatrix4f("model", model);
   texProgram.setUniformMatrix4f("view",view);
+
+  if (gameOver) {
+   gameoverSprite->render();
+   return;
+  }
+
+  view = glm::translate(view, glm::vec3(Game::halfScreenSize,0));
+  view = glm::rotate(view,gameTime/300.f,glm::vec3(0,0,1));
+  view = glm::scale(view, glm::vec3(1.1,1.1,1));
+  view = glm::translate(view,  glm::vec3(-Game::halfScreenSize,0));
+
+texProgram.setUniformMatrix4f("view",view);
+
   texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
   background->render();
 
@@ -208,12 +227,6 @@ void GameScene::render()
   texProgram.setUniformMatrix4f("view",view);
 
   player->renderHUD();
-
-  if (gameOver) {
-    glm::vec2 textPos(100,100);
-    Game::instance().boldText.render("GAME OVER", textPos + glm::vec2(2,2), 100, glm::vec4(1,1,1,1));
-    Game::instance().boldText.render("GAME OVER", textPos, 100, glm::vec4(1.0f,174.0f/255.0f,0.0f,1.0f));
-  }
 }
 
 
