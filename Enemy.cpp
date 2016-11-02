@@ -229,3 +229,9 @@ void Enemy::onDeath() {
 
 	cout << "givin' bone" << endl;
 }
+
+void Enemy::postDamage(){
+  hitEffect  = true;
+  Game::instance().playRockHit();
+  cout <<"POSTDAM" << endl;
+}

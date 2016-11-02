@@ -11,11 +11,17 @@
 #include "ResourceManager.h"
 #include <algorithm>
 
+#include <SFML/Audio.hpp>
+
 void Scene::init()
 {
   projection = glm::ortho(0.f, float(Game::screenSize.x - 1), float(Game::screenSize.y - 1), 0.f);
   cameraPos = Game::halfScreenSize;
+  cout << "Loading music" << endl;
+
   initShaders();
+
+  
 }
 
 void Scene::update(int deltaTime) { }

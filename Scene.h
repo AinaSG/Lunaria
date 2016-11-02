@@ -10,6 +10,7 @@
 #include "RockEnemy.h"
 #include <vector>
 #include "Text.h"
+#include <SFML/Audio.hpp>
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -28,6 +29,9 @@ public:
 
 	glm::ivec2 worldToScreen(const glm::ivec2 &p);
 	glm::ivec2 screenToWorld(const glm::ivec2 &p);
+
+
+  
 
 protected:
 	void initShaders();
