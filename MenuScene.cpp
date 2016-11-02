@@ -51,7 +51,7 @@ void MenuScene::update(int deltaTime)
     menuEntry = (menuEntry-1 + 3)%3;
   }
 
-  arrow->setPosition(glm::vec2(300,300+menuEntry*100));
+  arrow->setPosition(glm::vec2(300,275+menuEntry*105));
 }
 
 void MenuScene::render()

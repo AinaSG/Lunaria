@@ -472,6 +472,7 @@ void TileMap::prepareArrays()
 
         texCoordTile[0] = glm::vec2(float((tile-1)%2) / tilesheetSize.x, float((tile-1)/2) / tilesheetSize.y);
         texCoordTile[1] = texCoordTile[0] + tileTexSize;// - glm::vec2(0.25,0.25);
+
         //texCoordTile[0] += halfTexel;
         texCoordTile[1] -= halfTexel;
 
