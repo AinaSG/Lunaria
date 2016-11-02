@@ -51,6 +51,7 @@ public:
     glm::ivec2 getPos() const;
     glm::ivec2 getSpeed() const;
     glm::ivec2 getCrosshairPos() const;
+    void setCrosshairPos(glm::vec2 p);
 
     void attack(int hit_damage = -1);
     bool isJumping() { return bJumping; }
@@ -103,6 +104,8 @@ private:
     Texture* ship_player;
     Texture* stone_player;
     Texture* sword_player;
+
+    glm::vec2 crosshairPos;
 
 
 

@@ -7,6 +7,7 @@ void Input::update(){
   std::copy(std::begin(keys), std::end(keys), std::begin(lastKeys));
   std::copy(std::begin(specialKeys), std::end(specialKeys), std::begin(lastSpecialKeys));
   std::copy(std::begin(mouseDown), std::end(mouseDown), std::begin(lastMouseDown));
+  lastMousePos = mousePos;
   mouseWheelState = 0;
 }
 
@@ -71,4 +72,9 @@ int Input::getMouseWheel() const { return mouseWheelState; }
 glm::ivec2 Input::getMouseScreenPos()
 {
     return mousePos;
+}
+
+glm::ivec2 Input::getMouseDelta()
+{
+  return mousePos -  lastMousePos;
 }

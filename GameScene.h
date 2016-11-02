@@ -35,6 +35,7 @@ public:
     void endGame() { gameOver = true; }
 
 private:
+    float gameTime;
 
     bool gameOver;
     void gameOverUpdate();

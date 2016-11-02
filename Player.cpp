@@ -173,6 +173,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     return;
   }
   crosshairSprite = Sprite::createSprite(glm::ivec2(11,11), glm::vec2(1.0, 1.0), tex, &shaderProgram);
+  crosshairPos = position + glm::ivec2(40,0);
 
   /////////////////////LOADING SHOP ITEMS////////////////////////////////////////////
   tex = ResourceManager::instance().getTexture("taladro.png");
@@ -377,7 +378,15 @@ void Player::update(int deltaTime)
   setCurrentItem(currentItem);
   Input *input = &(Input::instance());
 
+  crosshairPos += input->getMouseDelta();
+
+  if (glm::length(crosshairPos) > 60.0f) {
+    crosshairPos = glm::normalize(crosshairPos) * 60.f;
+  }
+
   glm::ivec2 chPos = Game::gameScene()->worldToScreen(getCrosshairPos());
+  chPos = glm::clamp(chPos, glm::ivec2(0,0), Game::screenSize - glm::ivec2(1,1));
+  setCrosshairPos(Game::gameScene()->screenToWorld(chPos));
   input->setMousePosition(chPos);
 
   if(hitEffect){
@@ -916,12 +925,12 @@ void Player::updateViewItems(){
 
 glm::ivec2 Player::getCrosshairPos() const
 {
-  glm::vec2 mousePos = Game::gameScene()->screenToWorld(Input::instance().getMouseScreenPos());
   glm::vec2 myPos = glm::vec2(position + glm::ivec2(8,16));
-  glm::vec2 chVector = mousePos - myPos;
+  return myPos + crosshairPos;
+}
 
-  if (glm::length(chVector) > 60.0f) {
-    chVector = glm::normalize(chVector) * 60.0f;
-  }
-  return myPos + chVector;
+void Player::setCrosshairPos(glm::vec2 p)
+{
+  glm::vec2 myPos = glm::vec2(position + glm::ivec2(8,16));
+  crosshairPos = p - myPos;
 }

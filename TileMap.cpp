@@ -166,6 +166,8 @@ string TileMap::improvedLevelGenerator(){
   }
 
   for (int i = 0; i < MAP_X; ++i){
+    levelmap[0][i] = "4";
+
     levelmap[MAP_Y-1][i] = "4";
     int heigh = rand()%3;
     if(heigh >= 1){
@@ -176,37 +178,9 @@ string TileMap::improvedLevelGenerator(){
     }
   }
 
-  for (int i = 0; i < MAP_X; ++i){
-    levelmap[0][i] = "4";
-    int heigh = rand()%3;
-    if(heigh >= 1){
-      levelmap[1][i] = "4";
-    }
-    if(heigh >= 2){
-      levelmap[2][i] = "4";
-    }
-  }
-
   for (int i = 0; i < MAP_Y; ++i){
     levelmap[i][0] = "4";
-    int heigh = rand()%3;
-    if(heigh >= 1){
-      levelmap[i][1] = "4";
-    }
-    if(heigh >= 2){
-      levelmap[i][2] = "4";
-    }
-  }
-
-  for (int i = 0; i < MAP_Y; ++i){
     levelmap[i][MAP_X-1] = "4";
-    int heigh = rand()%3;
-    if(heigh >= 1){
-      levelmap[i][MAP_X-2] = "4";
-    }
-    if(heigh >= 2){
-      levelmap[i][MAP_X-3] = "4";
-    }
   }
 
   //ESCRIBIM EL MAPA GENERAT AL FITXER
@@ -485,9 +459,9 @@ void TileMap::prepareArrays()
   vector<float> vertices;
 
   halfTexel = glm::vec2(0.5f / tilesheet->width(), 0.5f / tilesheet->height());
-  for(int j=0; j<mapSize.y; j++)
+  for(int j=1; j<mapSize.y; j++)
   {
-    for(int i=0; i<mapSize.x; i++)
+    for(int i=1; i<mapSize.x; i++)
     {
       tile = map[j * mapSize.x + i];
       if(tile != Block::Empty)

@@ -47,11 +47,12 @@ public:
     int getMouseWheel() const;
 
     glm::ivec2 getMouseScreenPos();
+    glm::ivec2 getMouseDelta();
 
 private:
     bool lastMouseDown[3], mouseDown[3]; //GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, and GLUT_RIGHT_BUTTON
     int mouseWheelState;
-    glm::ivec2 mousePos;
+    glm::ivec2 mousePos, lastMousePos;
     bool keys[256], lastKeys[256], specialKeys[256], lastSpecialKeys[256];
         // Store key states so that
         // we can have access at any time

@@ -42,6 +42,8 @@ void GameScene::init() {
   Scene::init();
   initTileShaders();
 
+  gameTime = 0.0f;
+
   gameOver = false;
 
   map = TileMap::createTileMap(tileProgram);
@@ -93,11 +95,14 @@ void GameScene::init() {
 
   breakingPos = NULL_POS;
   breakPercent = 100;
-
-  cameraPos = player->getPos();
+  glm::ivec2 pPos = player->getPos();
+  glm::ivec2 maxClamp = map->getMapSize() * map->getTileSize() - Game::halfScreenSize;
+  cameraPos = glm::clamp(player->getPos(), Game::halfScreenSize,maxClamp);
 }
 
 void GameScene::update(int deltaTime) {
+
+  gameTime += deltaTime/1000.f;
 
   if (gameOver) {
     gameOverUpdate();
@@ -127,26 +132,33 @@ void GameScene::update(int deltaTime) {
     return rockenemy->isDead(); // put your condition here
   }), rockEnemyVector.end());
 
-  cameraPos = glm::vec2(player->getPos());
+  glm::ivec2 maxClamp = map->getMapSize() * map->getTileSize() - Game::halfScreenSize;
+  glm::ivec2 blockOffset = glm::ivec2(map->getTileSize(), map->getTileSize());
+  cameraPos = glm::clamp(player->getPos(), Game::halfScreenSize + blockOffset, maxClamp - blockOffset);
 }
 
 void GameScene::render()
 {
   glm::mat4 model(1.0f);
   glm::mat4 view = translate(glm::mat4(1.0f),glm::vec3(0.5,0.5,0));
+  view = glm::translate(view, glm::vec3(Game::halfScreenSize,0));
+  view = glm::rotate(view,gameTime/300.f,glm::vec3(0,0,1));
+  view = glm::scale(view, glm::vec3(1.1,1.1,1));
+  view = glm::translate(view,  glm::vec3(-Game::halfScreenSize,0));
+
 
   texProgram.use();
   texProgram.setUniformMatrix4f("projection", projection);
   texProgram.setUniformMatrix4f("model", model);
   texProgram.setUniformMatrix4f("view",view);
   texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-
-
   background->render();
+
+  view = glm::mat4(1.0f);
+  texProgram.setUniformMatrix4f("view", view);
 
   glm::vec3 v = glm::vec3(glm::ivec2(cameraPos) - glm::ivec2(Game::halfScreenSize),0);
   view = glm::translate(glm::mat4(1.0f), - v  + glm::vec3(0.5,0.5,0));
-
 
   tileProgram.use();
   tileProgram.setUniformMatrix4f("projection", projection);
