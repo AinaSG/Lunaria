@@ -81,6 +81,11 @@ void Game::gotoIntro() {
   nextScene = new IntroScene();
 }
 
+void Game::gotoWin()
+{
+  nextScene = new InfoScene("win.png");
+}
+
 void Game::startGame()
 {
   nextScene = new GameScene();

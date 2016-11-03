@@ -40,6 +40,7 @@ public:
   void gotoHelp();
   void gotoCredits();
   void gotoIntro();
+  void gotoWin();
 
   void playPlayerHit();
   void playRockHit();

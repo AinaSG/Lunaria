@@ -28,8 +28,7 @@ public:
         return;
       }
       else if (Input::instance().getMouseButtonDown(GLUT_RIGHT_BUTTON)) {
-        --amount;
-        cout << "UWIN" << endl;
+        Game::instance().gotoWin();
       }
       return;
     }
