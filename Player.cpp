@@ -789,7 +789,7 @@ void Player::setTileMap(TileMap *tileMap)
 void Player::setPosition(const glm::vec2 &pos)
 {
   position = pos;
-  sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+  sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x - 8), float(tileMapDispl.y + position.y)));
 }
 
 glm::ivec2 Player::getPos() const

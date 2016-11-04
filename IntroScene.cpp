@@ -35,7 +35,7 @@ void IntroScene::init()
 void IntroScene::update(int deltaTime)
 {
   elapsedTime += deltaTime/1000.f;
-  currentImage = floor(elapsedTime/4.f);
+  currentImage = floor(elapsedTime/1.f);
   if (currentImage > 4) Game::instance().startGame();
 }
 

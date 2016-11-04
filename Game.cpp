@@ -55,7 +55,8 @@ void Game::init()
 			}
 		}
 
-		bg_music.play();
+        bg_music.setLoop(true);
+        bg_music.play();
 }
 
 bool Game::update(int deltaTime)

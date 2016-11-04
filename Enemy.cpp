@@ -18,7 +18,7 @@ enum EnemyAnims
 void Enemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
   bJumping = false;
-  walkSpeed = 100;
+  walkSpeed = 80 + rand()%20;
   jumpSpeed = 200;
   strategy = 1;
 
@@ -80,7 +80,7 @@ void Enemy::update(int deltaTime)
   Player * player = Game::gameScene()->player;
 
   sprite->update(deltaTime);
-  int dist_to_player = glm::distance(glm::vec2(player->getPos()), glm::vec2(position));
+  int dist_to_player = glm::distance(glm::vec2(player->getPos() + glm::ivec2(8,16)), glm::vec2(position) + glm::vec2(12,16) );
 
   //decide strategy
   if(dist_to_player > 200){
@@ -126,12 +126,12 @@ void Enemy::update(int deltaTime)
   }
 
   if (strategy == 2){ //Attack
-    if(player->getPos().x < position.x){
+    if(player->getPos().x - 8 < position.x){
       if(!hit){
         speed.x = -walkSpeed;
       }
     }
-    else if(player->getPos().x > position.x){
+    else if(player->getPos().x - 8 > position.x){
       if(!hit){
         speed.x = walkSpeed;
       }
@@ -213,7 +213,7 @@ void Enemy::update(int deltaTime)
 
   timewaited_attack = timewaited_attack + deltaTime;
 
-  if(dist_to_player <= 15){
+  if(dist_to_player <= 20){
     if (timewaited_attack >= waitattack){
       timewaited_attack = 0;
         player->dealDamage(damage, position);
@@ -232,6 +232,6 @@ void Enemy::onDeath() {
 
 void Enemy::postDamage(){
   hitEffect  = true;
-  Game::instance().playRockHit();
+  Game::instance().playBubHit();
   cout <<"POSTDAM" << endl;
 }

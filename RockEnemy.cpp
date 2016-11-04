@@ -18,7 +18,7 @@ enum RockEnemyAnims
 void RockEnemy::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
   bJumping = false;
-  walkSpeed = 180;
+  walkSpeed = 150 + rand()%20;
   jumpSpeed = 50;
   strategy = 2;
 
@@ -90,69 +90,26 @@ void RockEnemy::update(int deltaTime)
   float dt = deltaTime/1000.0f;
   Player * player = Game::gameScene()->player;
 
-  int dist_to_player = glm::distance(glm::vec2(player->getPos()), glm::vec2(position));
   sprite->update(deltaTime);
+  int dist_to_player = glm::distance(glm::vec2(player->getPos() + glm::ivec2(8,16)), glm::vec2(position) + glm::vec2(12,16) );
 
-  //decide strategy
-  if(glm::distance(glm::vec2(player->getPos()), glm::vec2(position))>200){
-    strategy = 2;
+  if(player->getPos().x < position.x){
+    speed.x = -walkSpeed;
+  }
+  else if(player->getPos().x > position.x){
+    speed.x = walkSpeed;
   }
   else{
-    strategy = 2;
-  }
-
-  if (strategy == 1){ //Wander
-    if (waitime > 500){
-      waiting = !waiting;
-      waitime = 0;
-      int changedir = rand()%3;
-      if (changedir == 0){
-        waitdir = !waitdir;
-      }
-    }
-
-    waitime = waitime + deltaTime;
-
-    if (waiting){
-      speed.x = 0;
-      speed.y += GRAVITY*dt;
-
-    }
-    else {
-      if (waitdir){
-        speed.x = -walkSpeed;
-        speed.y += GRAVITY*dt;
-      }
-      else {
-        speed.x = walkSpeed;
-        speed.y += GRAVITY*dt;
-      }
-    }
-
-  }
-
-  if (strategy == 2){ //Attack
-    if(player->getPos().x < position.x){
-      speed.x = -walkSpeed;
-    }
-    else if(player->getPos().x > position.x){
-      speed.x = walkSpeed;
-    }
-    else{
-      speed.x = 0;
-    }
-
-
-    speed.y += GRAVITY*dt;
-
-    if(!bJumping && player->getPos().y <= position.y){
-      speed.y = -jumpSpeed;
-      bJumping = true;
-    }
-
+    speed.x = 0;
   }
 
 
+  speed.y += GRAVITY*dt;
+
+  if(!bJumping && player->getPos().y <= position.y){
+    speed.y = -jumpSpeed;
+    bJumping = true;
+  }
 
   if(speed.x < 0)
   {
@@ -211,7 +168,7 @@ void RockEnemy::update(int deltaTime)
 
   timewaited_attack = timewaited_attack + deltaTime;
 
-  if(dist_to_player <= 15){
+  if(dist_to_player <= 30){
     if (timewaited_attack >= waitattack){
       timewaited_attack = 0;
       player->dealDamage(damage, position);

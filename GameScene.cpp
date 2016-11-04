@@ -264,7 +264,7 @@ void GameScene::mineBlock(float deltaTime, float speed /* = 100.0f */)
     if (breakPercent <= 0) {
       map->setTile(breakingPos,0);
 
-      if (rand()%20 == 1){
+      if (rand()%10 == 0){
         bool spawned = false;
         for (int i = -1; i < 1; ++i) {
           for (int j = -1; j < 1; ++j) {
